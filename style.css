@@ -1,21 +1,27 @@
 /* Variáveis CSS para Cores e Fontes */
 :root {
-    --primary-color: #A36B7F; /* Tom de rosa queimado/elegante */
-    --secondary-color: #D4B499; /* Tom de bege/dourado suave */
-    --accent-color: #6C5B7B; /* Tom de roxo/vinho para contraste */
-    --text-dark: #333333;
-    --text-light: #f8f8f8;
-    --bg-light: #FFFFFF;
-    --bg-dark: #2C2C2C;
+    /* Cores extraídas da sua logo */
+    --brand-gold: #D4A25C;      /* Ocre/Dourado do texto da logo */
+    --brand-burgundy: #801A39;  /* Vermelho escuro/Borgonha do fundo da logo */
+
+    /* Mapeamento para o layout */
+    --primary-color: var(--brand-gold);     /* Usado para CTAs, links ativos, destaques */
+    --secondary-color: #F0EAD6;             /* Um creme/bege muito claro para fundos sutis (ex: seção de serviços, equipe, contato) */
+    --accent-color: var(--brand-burgundy);  /* Usado para títulos, seções de fundo escuro, forte contraste */
+    
+    --text-dark: #333333;                   /* Cor padrão para textos escuros */
+    --text-light: #f8f8f8;                  /* Cor padrão para textos claros */
+    --bg-light: #FFFFFF;                    /* Fundo claro principal (ex: header) */
+    --bg-dark: var(--brand-burgundy);       /* Fundo escuro principal (ex: footer, depoimentos) */
 
     --font-heading: 'Playfair Display', serif; /* Fonte serifada elegante */
     --font-body: 'Poppins', sans-serif; /* Fonte sans-serif moderna */
 }
 
-/* Importar fontes do Google Fonts */
+/* Importar fontes do Google Fonts (Manter o mesmo) */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* Reset Básico */
+/* Reset Básico (Manter o mesmo) */
 * {
     margin: 0;
     padding: 0;
@@ -31,7 +37,7 @@ body {
     line-height: 1.6;
     color: var(--text-dark);
     background-color: var(--bg-light);
-    overflow-x: hidden; /* Evita scroll horizontal indesejado */
+    overflow-x: hidden;
 }
 
 .container {
@@ -42,7 +48,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    color: var(--accent-color);
+    color: var(--accent-color); /* Títulos agora usam o borgonha */
     margin-bottom: 15px;
 }
 
@@ -56,17 +62,17 @@ p {
 
 a {
     text-decoration: none;
-    color: var(--primary-color);
+    color: var(--primary-color); /* Links padrão usam o dourado */
     transition: color 0.3s ease;
 }
 
 a:hover {
-    color: var(--accent-color);
+    color: var(--accent-color); /* Links em hover usam o borgonha para contraste */
 }
 
 .btn-cta {
     display: inline-block;
-    background-color: var(--primary-color);
+    background-color: var(--primary-color); /* Botões CTA usam o dourado */
     color: var(--text-light);
     padding: 12px 25px;
     border-radius: 5px;
@@ -78,9 +84,9 @@ a:hover {
 }
 
 .btn-cta:hover {
-    background-color: var(--accent-color);
+    background-color: var(--accent-color); /* Botões CTA em hover usam o borgonha */
     transform: translateY(-2px);
-    color: var(--text-light); /* Garante que a cor do texto não mude */
+    color: var(--text-light);
 }
 
 /* Header */
@@ -101,6 +107,10 @@ header .container {
 
 .logo img {
     height: 40px; /* Ajuste conforme o logo */
+    /* Se o seu logo já tem o fundo borgonha e texto dourado, e o header é branco,
+       certifique-se de que o logo esteja em um formato com fundo transparente (PNG)
+       ou crie uma versão específica do logo com fundo branco para o header.
+       Caso contrário, o fundo borgonha do logo aparecerá como um "bloco" no header branco. */
 }
 
 .nav-links {
@@ -120,7 +130,7 @@ header .container {
     position: absolute;
     width: 0;
     height: 2px;
-    background-color: var(--primary-color);
+    background-color: var(--primary-color); /* Linha de navegação em dourado */
     bottom: -5px;
     left: 0;
     transition: width 0.3s ease;
@@ -134,11 +144,11 @@ header .container {
     font-size: 0.9em;
 }
 
-/* Hero Section */
+/* Hero Section (Manter o mesmo, pois o conteúdo é sobreposto) */
 .hero-section {
     position: relative;
     width: 100%;
-    height: 90vh; /* Ajuste para preencher a tela */
+    height: 90vh;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -179,7 +189,7 @@ header .container {
 .hero-content {
     position: relative;
     z-index: 10;
-    background-color: rgba(0, 0, 0, 0.4); /* Overlay escuro para melhor legibilidade */
+    background-color: rgba(0, 0, 0, 0.4);
     padding: 30px;
     border-radius: 10px;
     max-width: 800px;
@@ -219,7 +229,7 @@ header .container {
 }
 
 .nav-dot.active {
-    background-color: var(--primary-color);
+    background-color: var(--primary-color); /* Pontos de navegação em dourado */
     transform: scale(1.2);
 }
 
@@ -259,7 +269,7 @@ section {
 .about-content h2 {
     font-size: 2.5em;
     margin-bottom: 25px;
-    color: var(--accent-color);
+    color: var(--accent-color); /* H2 do About usa o borgonha */
 }
 
 .about-content p {
@@ -273,7 +283,7 @@ section {
     margin-top: 30px;
     font-weight: 600;
     font-size: 1.1em;
-    color: var(--primary-color);
+    color: var(--primary-color); /* Destaques do About usam o dourado */
 }
 
 .about-highlights div {
@@ -285,6 +295,9 @@ section {
 .about-highlights img {
     height: 30px;
     width: 30px;
+    /* Ajustar filtro se os ícones forem coloridos e precisar de uma cor específica */
+    /* Exemplo para tentar colorir dourado (pode variar dependendo da cor original do ícone): */
+    /* filter: brightness(0) saturate(100%) invert(43%) sepia(35%) saturate(768%) hue-rotate(345deg) brightness(97%) contrast(90%); */
 }
 
 .about-image {
@@ -302,13 +315,13 @@ section {
 
 /* Services Section (Carrossel) */
 .services-section {
-    background-color: #fcf6f9;
+    background-color: var(--secondary-color); /* Fundo da seção de serviços em creme/bege suave */
 }
 
 .services-carousel-container {
     position: relative;
     overflow: hidden;
-    padding: 0 50px; /* Espaço para as setas */
+    padding: 0 50px;
 }
 
 .services-carousel {
@@ -323,7 +336,7 @@ section {
 }
 
 .service-card {
-    min-width: 300px; /* Largura mínima para 3 cards por linha no desktop */
+    min-width: 300px;
     flex: 0 0 auto;
     margin: 0 15px;
     background-color: var(--bg-light);
@@ -347,21 +360,21 @@ section {
 }
 
 .service-card h3 {
-    color: var(--accent-color);
+    color: var(--accent-color); /* H3 do card de serviço em borgonha */
     margin-bottom: 10px;
 }
 
 .service-card p {
     padding: 0 20px;
     font-size: 0.95em;
-    min-height: 80px; /* Para manter cards com alturas semelhantes */
+    min-height: 80px;
 }
 
 .btn-detalhes {
     display: inline-block;
     margin-top: 15px;
-    background-color: var(--secondary-color);
-    color: var(--text-dark);
+    background-color: var(--primary-color); /* Botão de detalhes em dourado */
+    color: var(--text-light);
     padding: 8px 20px;
     border-radius: 5px;
     font-weight: 500;
@@ -369,7 +382,7 @@ section {
 }
 
 .btn-detalhes:hover {
-    background-color: var(--primary-color);
+    background-color: var(--accent-color); /* Botão de detalhes em hover em borgonha */
     color: var(--text-light);
 }
 
@@ -392,23 +405,23 @@ section {
 .carousel-arrow.right { right: 10px; }
 
 .carousel-arrow:hover {
-    background-color: var(--primary-color);
+    background-color: var(--primary-color); /* Seta do carrossel em hover em dourado */
 }
 
 /* Modal de Serviço */
 .modal {
-    display: none; /* Escondido por padrão */
-    position: fixed; /* Fica por cima de tudo */
-    z-index: 2000; /* Z-index alto */
+    display: none;
+    position: fixed;
+    z-index: 2000;
     left: 0;
     top: 0;
-    width: 100%; /* Largura total */
-    height: 100%; /* Altura total */
-    overflow: auto; /* Habilita scroll se necessário */
-    background-color: rgba(0,0,0,0.6); /* Fundo escuro semi-transparente */
-    display: flex; /* Para centralizar */
-    align-items: center; /* Centraliza verticalmente */
-    justify-content: center; /* Centraliza horizontalmente */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal.active {
@@ -425,6 +438,8 @@ section {
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     position: relative;
     animation: fadeIn 0.3s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 @keyframes fadeIn {
@@ -450,41 +465,38 @@ section {
 }
 
 .modal-content h3 {
-    color: var(--accent-color);
+    color: var(--accent-color); /* H3 do modal em borgonha */
     margin-bottom: 20px;
-}
-
-.modal-gallery {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-    flex-wrap: wrap; /* Para responsividade */
-    justify-content: center;
-}
-
-.modal-gallery img {
-    max-width: 100%;
-    width: 350px; /* Largura padrão */
-    height: 250px;
-    object-fit: cover;
-    border-radius: 8px;
 }
 
 #modal-service-description {
     margin-bottom: 25px;
     font-size: 1.05em;
+    line-height: 1.6;
+    color: #555;
 }
 
-#modal-service-cta {
-    display: block;
-    width: fit-content;
-    margin: 0 auto;
+.modal-gallery {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.modal-gallery img {
+    max-width: 100%;
+    width: 350px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
 
 /* Team Section */
 .team-section {
-    background-color: #f8f8f8;
+    background-color: var(--secondary-color); /* Fundo da seção de equipe em creme/bege suave */
     text-align: center;
 }
 
@@ -514,16 +526,16 @@ section {
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 20px;
-    border: 4px solid var(--secondary-color);
+    border: 4px solid var(--primary-color); /* Borda da imagem da equipe em dourado */
 }
 
 .team-member-card h3 {
-    color: var(--accent-color);
+    color: var(--accent-color); /* Nome da equipe em borgonha */
     margin-bottom: 5px;
 }
 
 .team-member-card p {
-    color: var(--primary-color);
+    color: var(--primary-color); /* Especialidade da equipe em dourado */
     font-weight: 600;
     margin-bottom: 10px;
 }
@@ -533,11 +545,11 @@ section {
     font-size: 0.9em;
     color: #777;
     margin-bottom: 20px;
-    min-height: 70px; /* Para manter cartões com alturas semelhantes */
+    min-height: 70px;
 }
 
 .btn-whatsapp {
-    background-color: #25d366; /* Cor do WhatsApp */
+    background-color: #25d366; /* Cor do WhatsApp (manter verde) */
     color: var(--text-light);
     padding: 10px 20px;
     border-radius: 5px;
@@ -552,7 +564,7 @@ section {
 
 /* Testimonials Section (Carrossel) */
 .testimonials-section {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-dark); /* Fundo da seção de depoimentos em borgonha */
     color: var(--text-light);
     padding: 80px 0;
 }
@@ -565,7 +577,7 @@ section {
 .testimonials-carousel-container {
     position: relative;
     overflow: hidden;
-    padding: 0 50px; /* Espaço para as setas */
+    padding: 0 50px;
 }
 
 .testimonials-carousel {
@@ -580,10 +592,10 @@ section {
 }
 
 .testimonial-card {
-    min-width: 400px; /* Largura mínima */
+    min-width: 400px;
     flex: 0 0 auto;
     margin: 0 20px;
-    background-color: var(--accent-color);
+    background-color: var(--accent-color); /* Card de depoimento em borgonha */
     border-radius: 10px;
     padding: 30px;
     text-align: center;
@@ -599,17 +611,17 @@ section {
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 15px;
-    border: 3px solid var(--secondary-color);
+    border: 3px solid var(--primary-color); /* Borda da imagem do depoimento em dourado */
 }
 
 .testimonial-card h4 {
-    color: var(--secondary-color);
+    color: var(--primary-color); /* Nome do cliente em dourado */
     margin-bottom: 5px;
     font-size: 1.3em;
 }
 
 .testimonial-card .stars {
-    color: gold;
+    color: gold; /* Estrelas em dourado (manter a cor literal para brilho) */
     margin-bottom: 15px;
     font-size: 1.2em;
 }
@@ -672,16 +684,16 @@ section {
 }
 
 .insta-btn {
-    background-color: #E1306C; /* Cor do Instagram */
+    background-color: var(--primary-color); /* Botão Instagram em dourado */
 }
 
 .insta-btn:hover {
-    background-color: #C13584;
+    background-color: var(--accent-color); /* Botão Instagram em hover em borgonha */
 }
 
 /* Contact Section */
 .contact-section {
-    background-color: #f0f4f7;
+    background-color: var(--secondary-color); /* Fundo da seção de contato em creme/bege suave */
     padding: 100px 0;
 }
 
@@ -700,7 +712,7 @@ section {
 .contact-info h2 {
     font-size: 2.2em;
     margin-bottom: 30px;
-    color: var(--accent-color);
+    color: var(--accent-color); /* H2 do contato em borgonha */
 }
 
 .contact-info p {
@@ -715,12 +727,13 @@ section {
 .contact-info p img {
     width: 20px;
     height: 20px;
-    filter: invert(30%) sepia(20%) saturate(600%) hue-rotate(280deg) brightness(80%) contrast(90%); /* Ajuste a cor do ícone */
+    /* Para ícones de localização/telefone/email: tentar colorir com borgonha */
+    filter: invert(10%) sepia(20%) saturate(600%) hue-rotate(320deg) brightness(80%) contrast(90%);
 }
 
 .contact-whatsapp-btn {
     margin-top: 30px;
-    background-color: #25d366;
+    background-color: #25d366; /* Botão WhatsApp (manter verde) */
 }
 
 .contact-whatsapp-btn:hover {
@@ -741,7 +754,7 @@ section {
 
 /* Footer */
 footer {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-dark); /* Fundo do rodapé em borgonha */
     color: var(--text-light);
     padding: 60px 0 20px;
     font-size: 0.95em;
@@ -763,6 +776,10 @@ footer {
 .footer-brand img {
     height: 40px;
     margin-bottom: 15px;
+    /* Se o logo no rodapé precisar de uma versão com texto branco,
+       certifique-se de usar um arquivo de logo diferente ou um filtro CSS.
+       Por simplicidade, vamos usar o mesmo arquivo e assumir que ele combina
+       ou que você criará uma versão para fundo escuro. */
 }
 
 .footer-brand p {
@@ -771,7 +788,7 @@ footer {
 }
 
 .footer-links h4, .footer-social h4 {
-    color: var(--secondary-color);
+    color: var(--primary-color); /* Títulos do rodapé em dourado */
     margin-bottom: 20px;
     font-size: 1.2em;
 }
@@ -790,7 +807,7 @@ footer {
 }
 
 .footer-links a:hover {
-    color: var(--primary-color);
+    color: var(--primary-color); /* Links do rodapé em hover em dourado */
 }
 
 .social-icons {
@@ -803,6 +820,8 @@ footer {
     height: 35px;
     border-radius: 50%;
     transition: transform 0.2s ease;
+    /* Os ícones de redes sociais podem precisar de imagens SVG personalizadas
+       já nas cores da marca ou de um filtro mais específico para borgonha/dourado. */
 }
 
 .social-icons a img:hover {
@@ -825,10 +844,10 @@ footer {
 }
 
 .footer-bottom a:hover {
-    color: var(--primary-color);
+    color: var(--primary-color); /* Links do rodapé em hover em dourado */
 }
 
-/* Responsividade */
+/* Responsividade (Manter o mesmo) */
 @media (max-width: 992px) {
     h1 { font-size: 2.8em; }
     h2 { font-size: 2.2em; }
@@ -857,7 +876,7 @@ footer {
     }
 
     .about-image {
-        order: -1; /* Coloca a imagem antes do texto no mobile */
+        order: -1;
         margin-bottom: 30px;
     }
 
@@ -867,7 +886,7 @@ footer {
     }
 
     .service-card {
-        min-width: 280px; /* Ajuste para caber melhor em tablets */
+        min-width: 280px;
         margin: 0 10px;
     }
     
@@ -921,7 +940,7 @@ footer {
     }
     
     .nav-links {
-        display: none; /* Esconde o menu para mobile - pode ser substituído por um hambúrguer menu */
+        display: none;
     }
 
     .header-cta {
@@ -949,7 +968,7 @@ footer {
     }
 
     .carousel-arrow {
-        display: none; /* Esconde as setas, foco no drag */
+        display: none;
     }
 
     .service-card {
@@ -974,284 +993,4 @@ footer {
     .instagram-grid {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
-}```
-
----
-
-### 3. `script.js` (Interatividade)
-
-Este script contém o básico para os carrosséis e o modal. Para o feed do Instagram, é uma representação conceitual, pois a integração real exige mais.
-
-```javascript
-document.addEventListener('DOMContentLoaded', () => {
-    // Smooth Scroll para links de navegação
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
-    });
-
-    // --- Carrossel da Hero Section ---
-    const heroCarousel = document.querySelector('.hero-carousel');
-    const heroItems = document.querySelectorAll('.hero-carousel .carousel-item');
-    const navDotsContainer = document.querySelector('.carousel-nav');
-    let currentHeroIndex = 0;
-
-    // Criar os botões de navegação (dots)
-    heroItems.forEach((_, index) => {
-        const dot = document.createElement('button');
-        dot.classList.add('nav-dot');
-        if (index === 0) dot.classList.add('active');
-        dot.addEventListener('click', () => {
-            goToHeroSlide(index);
-            resetHeroAutoPlay();
-        });
-        navDotsContainer.appendChild(dot);
-    });
-    const heroNavDots = document.querySelectorAll('.carousel-nav .nav-dot');
-
-    function goToHeroSlide(index) {
-        heroItems[currentHeroIndex].classList.remove('active');
-        heroNavDots[currentHeroIndex].classList.remove('active');
-        currentHeroIndex = (index + heroItems.length) % heroItems.length;
-        heroItems[currentHeroIndex].classList.add('active');
-        heroNavDots[currentHeroIndex].classList.add('active');
-    }
-
-    function nextHeroSlide() {
-        goToHeroSlide(currentHeroIndex + 1);
-    }
-
-    let heroAutoPlayInterval = setInterval(nextHeroSlide, 7000); // Mudar slide a cada 7 segundos
-
-    function resetHeroAutoPlay() {
-        clearInterval(heroAutoPlayInterval);
-        heroAutoPlayInterval = setInterval(nextHeroSlide, 7000);
-    }
-
-    // --- Carrossel de Serviços e Avaliações (Drag & Drop) ---
-    function setupCarousel(carouselContainerClass, carouselClass, cardClass, arrowLeftClass, arrowRightClass) {
-        const carouselContainer = document.querySelector(carouselContainerClass);
-        const carousel = carouselContainer.querySelector(carouselClass);
-        const cards = carousel.querySelectorAll(cardClass);
-        const prevBtn = carouselContainer.querySelector(arrowLeftClass);
-        const nextBtn = carouselContainer.querySelector(arrowRightClass);
-
-        if (!carousel || !cards.length) return;
-
-        let isDragging = false;
-        let startPos = 0;
-        let currentScroll = 0;
-        let scrollLeft = 0;
-
-        const cardWidth = cards[0].offsetWidth + (parseFloat(getComputedStyle(cards[0]).marginLeft) * 2); // Largura do card + margem
-
-        const updateArrows = () => {
-            prevBtn.style.display = carousel.scrollLeft > 0 ? 'block' : 'none';
-            nextBtn.style.display = carousel.scrollLeft < (carousel.scrollWidth - carousel.clientWidth) ? 'block' : 'none';
-        };
-
-        carousel.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            carousel.classList.add('dragging');
-            startPos = e.pageX - carousel.offsetLeft;
-            scrollLeft = carousel.scrollLeft;
-        });
-
-        carousel.addEventListener('mouseleave', () => {
-            isDragging = false;
-            carousel.classList.remove('dragging');
-        });
-
-        carousel.addEventListener('mouseup', () => {
-            isDragging = false;
-            carousel.classList.remove('dragging');
-        });
-
-        carousel.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            const x = e.pageX - carousel.offsetLeft;
-            const walk = (x - startPos) * 1.5; // Multiplicador de arrasto
-            carousel.scrollLeft = scrollLeft - walk;
-        });
-
-        prevBtn.addEventListener('click', () => {
-            carousel.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' }); // Scrolls 2 cards
-            setTimeout(updateArrows, 600); // Atualiza após a rolagem
-        });
-
-        nextBtn.addEventListener('click', () => {
-            carousel.scrollBy({ left: cardWidth * 2, behavior: 'smooth' }); // Scrolls 2 cards
-            setTimeout(updateArrows, 600);
-        });
-
-        carousel.addEventListener('scroll', updateArrows);
-        window.addEventListener('resize', updateArrows); // Atualiza as setas ao redimensionar
-        updateArrows(); // Chama na inicialização
-    }
-
-    setupCarousel('.services-carousel-container', '.services-carousel', '.service-card', '.services-carousel-container .carousel-arrow.left', '.services-carousel-container .carousel-arrow.right');
-    setupCarousel('.testimonials-carousel-container', '.testimonials-carousel', '.testimonial-card', '.testimonials-carousel-container .testimonial-arrow.left', '.testimonials-carousel-container .testimonial-arrow.right');
-
-    // --- Modal de Detalhes do Serviço ---
-    const serviceModal = document.getElementById('service-modal');
-    const closeModalBtn = serviceModal.querySelector('.close-button');
-    const modalServiceTitle = document.getElementById('modal-service-title');
-    const modalServiceDescription = document.getElementById('modal-service-description');
-    const modalServiceCTA = document.getElementById('modal-service-cta');
-    const modalGallery = serviceModal.querySelector('.modal-gallery');
-
-    document.querySelectorAll('.btn-detalhes').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            const serviceType = e.target.dataset.service;
-            
-            // Simulação de dados do serviço (em um projeto real, isso viria de um array/objeto)
-            let serviceData = {};
-            switch(serviceType) {
-                case 'cabelos':
-                    serviceData = {
-                        title: "Cabelos: Corte, Coloração e Tratamentos",
-                        description: "Nossos hair stylists são experts em criar visuais que combinam com seu estilo e personalidade. Oferecemos desde cortes modernos, colorações vibrantes, mechas e balayages, até tratamentos intensivos para a saúde e brilho dos seus fios, como hidratação profunda, reconstrução e terapia capilar.",
-                        images: ["https://via.placeholder.com/600x400?text=CabelosDetalhe1", "https://via.placeholder.com/600x400?text=CabelosDetalhe2"],
-                        whatsappText: "Olá! Gostaria de agendar um serviço de Cabelos."
-                    };
-                    break;
-                case 'unhas':
-                    serviceData = {
-                        title: "Unhas: Manicure, Pedicure e Nail Art",
-                        description: "Transforme suas mãos e pés com nossas manicures e pedicures impecáveis. Trabalhamos com alongamentos em gel, fibra de vidro e acrílico, além de nail art personalizada e as últimas tendências para unhas elegantes e duradouras.",
-                        images: ["https://via.placeholder.com/600x400?text=UnhasDetalhe1", "https://via.placeholder.com/600x400?text=UnhasDetalhe2"],
-                        whatsappText: "Olá! Gostaria de agendar um serviço de Unhas."
-                    };
-                    break;
-                case 'pele':
-                    serviceData = {
-                        title: "Tratamento de Pele: Rosto Radiante e Saudável",
-                        description: "Nossos tratamentos faciais são pensados para a saúde e beleza da sua pele. Oferecemos limpeza de pele profunda, hidratação intensa, revitalização, e terapias anti-idade com produtos de alta tecnologia para um rosto luminoso e rejuvenescido.",
-                        images: ["https://via.placeholder.com/600x400?text=PeleDetalhe1", "https://via.placeholder.com/600x400?text=PeleDetalhe2"],
-                        whatsappText: "Olá! Gostaria de agendar um Tratamento de Pele."
-                    };
-                    break;
-                case 'sobrancelhas':
-                    serviceData = {
-                        title: "Sobrancelhas: Design e Micropigmentação",
-                        description: "Realce seu olhar com sobrancelhas perfeitamente desenhadas. Nossos serviços incluem design de sobrancelhas personalizado, coloração com henna, laminação e micropigmentação fio a fio para um resultado natural e duradouro.",
-                        images: ["https://via.placeholder.com/600x400?text=SobrancelhaDetalhe1", "https://via.placeholder.com/600x400?text=SobrancelhaDetalhe2"],
-                        whatsappText: "Olá! Gostaria de agendar um serviço de Sobrancelhas."
-                    };
-                    break;
-                case 'massagem':
-                    serviceData = {
-                        title: "Massagem: Relaxamento e Bem-Estar",
-                        description: "Relaxe e renove suas energias com nossas diversas opções de massagem. Oferecemos massagem relaxante, terapêutica, modeladora e drenagem linfática, todas executadas por profissionais qualificadas para proporcionar um momento de puro bem-estar.",
-                        images: ["https://via.placeholder.com/600x400?text=MassagemDetalhe1", "https://via.placeholder.com/600x400?text=MassagemDetalhe2"],
-                        whatsappText: "Olá! Gostaria de agendar um serviço de Massagem."
-                    };
-                    break;
-                case 'make':
-                    serviceData = {
-                        title: "Make: Maquiagem para Eventos e Cursos",
-                        description: "Esteja deslumbrante em qualquer ocasião com nossas maquiagens profissionais. Criamos looks para festas, casamentos, eventos especiais e também oferecemos cursos de automaquiagem personalizados para você aprender a realçar sua beleza.",
-                        images: ["https://via.placeholder.com/600x400?text=MakeDetalhe1", "https://via.placeholder.com/600x400?text=MakeDetalhe2"],
-                        whatsappText: "Olá! Gostaria de agendar um serviço de Maquiagem."
-                    };
-                    break;
-                case 'tattoo':
-                    serviceData = {
-                        title: "Tattoo: Arte na Pele com Estilo",
-                        description: "Nosso estúdio de tatuagem boutique oferece um ambiente seguro e artístico para criar sua próxima obra de arte na pele. Especializados em tatuagens fineline, delicadas e personalizadas, com foco em design exclusivo e higiene rigorosa.",
-                        images: ["https://via.placeholder.com/600x400?text=TattooDetalhe1", "https://via.placeholder.com/600x400?text=TattooDetalhe2"],
-                        whatsappText: "Olá! Gostaria de agendar uma consulta para Tattoo."
-                    };
-                    break;
-                case 'estetica':
-                    serviceData = {
-                        title: "Estética: Cuidados Completos para Seu Corpo",
-                        description: "Além dos tratamentos faciais e corporais, oferecemos serviços de depilação (cera e a laser), drenagem linfática manual e outros procedimentos estéticos para cuidar do seu corpo de forma integral, promovendo bem-estar e resultados visíveis.",
-                        images: ["https://via.placeholder.com/600x400?text=EsteticaDetalhe1", "https://via.placeholder.com/600x400?text=EsteticaDetalhe2"],
-                        whatsappText: "Olá! Gostaria de agendar um serviço de Estética."
-                    };
-                    break;
-                default:
-                    serviceData = { title: "Serviço Não Encontrado", description: "", images: [], whatsappText: "" };
-            }
-
-            modalServiceTitle.textContent = serviceData.title;
-            modalServiceDescription.textContent = serviceData.description;
-            modalServiceCTA.href = `https://wa.me/5511912345678?text=${encodeURIComponent(serviceData.whatsappText)}`;
-            
-            modalGallery.innerHTML = ''; // Limpa a galeria
-            serviceData.images.forEach(src => {
-                const img = document.createElement('img');
-                img.src = src;
-                img.alt = serviceData.title;
-                modalGallery.appendChild(img);
-            });
-
-            serviceModal.classList.add('active'); // Mostra o modal
-            document.body.style.overflow = 'hidden'; // Evita scroll no body
-        });
-    });
-
-    closeModalBtn.addEventListener('click', () => {
-        serviceModal.classList.remove('active'); // Esconde o modal
-        document.body.style.overflow = 'auto'; // Restaura scroll no body
-    });
-
-    // Fechar modal clicando fora
-    window.addEventListener('click', (event) => {
-        if (event.target == serviceModal) {
-            serviceModal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-    });
-
-
-    // --- Integração Conceitual do Feed do Instagram ---
-    // ATENÇÃO: A API do Instagram Business ou Creator é necessária para buscar feeds dinamicamente.
-    // Isso geralmente exige um backend para segurança e gerenciamento de tokens.
-    // Para uma landing page estática simples, você pode usar um widget de terceiros ou
-    // simplesmente atualizar as imagens placeholder manualmente com seus posts mais recentes.
-    // O código abaixo é uma **simulação** e **NÃO** funciona com a API real do Instagram
-    // sem um setup de backend adequado.
-
-    // async function fetchInstagramFeed() {
-    //     const accessToken = 'YOUR_INSTAGRAM_ACCESS_TOKEN'; // OBTENHA ISSO DA API DO INSTAGRAM
-    //     const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink&access_token=${accessToken}`;
-    //     const feedContainer = document.getElementById('insta-feed-container');
-
-    //     try {
-    //         const response = await fetch(url);
-    //         const data = await response.json();
-
-    //         if (data && data.data) {
-    //             feedContainer.innerHTML = ''; // Limpa os placeholders
-    //             data.data.slice(0, 6).forEach(post => { // Pega os 6 últimos posts
-    //                 if (post.media_type === 'IMAGE' || post.media_type === 'CAROUSEL_ALBUM') {
-    //                     const link = document.createElement('a');
-    //                     link.href = post.permalink;
-    //                     link.target = "_blank";
-    //                     link.classList.add('insta-post');
-
-    //                     const img = document.createElement('img');
-    //                     img.src = post.media_url;
-    //                     img.alt = post.caption ? post.caption.substring(0, 100) : 'Instagram Post';
-    //                     link.appendChild(img);
-    //                     feedContainer.appendChild(link);
-    //                 }
-    //             });
-    //         }
-    //     } catch (error) {
-    //         console.error("Erro ao buscar feed do Instagram:", error);
-    //         // Manter placeholders em caso de erro
-    //     }
-    // }
-
-    // fetchInstagramFeed(); // Descomente e configure com seu token se for usar a API real
-});
+}
