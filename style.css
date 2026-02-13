@@ -18,10 +18,10 @@
     --font-body: 'Poppins', sans-serif; /* Fonte sans-serif moderna */
 }
 
-/* Importar fontes do Google Fonts (Manter o mesmo) */
+/* Importar fontes do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* Reset Básico (Manter o mesmo) */
+/* Reset Básico */
 * {
     margin: 0;
     padding: 0;
@@ -48,7 +48,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    color: var(--accent-color); /* Títulos agora usam o borgonha */
+    color: var(--accent-color);
     margin-bottom: 15px;
 }
 
@@ -62,17 +62,17 @@ p {
 
 a {
     text-decoration: none;
-    color: var(--primary-color); /* Links padrão usam o dourado */
+    color: var(--primary-color);
     transition: color 0.3s ease;
 }
 
 a:hover {
-    color: var(--accent-color); /* Links em hover usam o borgonha para contraste */
+    color: var(--accent-color);
 }
 
 .btn-cta {
     display: inline-block;
-    background-color: var(--primary-color); /* Botões CTA usam o dourado */
+    background-color: var(--primary-color);
     color: var(--text-light);
     padding: 12px 25px;
     border-radius: 5px;
@@ -84,7 +84,7 @@ a:hover {
 }
 
 .btn-cta:hover {
-    background-color: var(--accent-color); /* Botões CTA em hover usam o borgonha */
+    background-color: var(--accent-color);
     transform: translateY(-2px);
     color: var(--text-light);
 }
@@ -107,10 +107,6 @@ header .container {
 
 .logo img {
     height: 40px; /* Ajuste conforme o logo */
-    /* Se o seu logo já tem o fundo borgonha e texto dourado, e o header é branco,
-       certifique-se de que o logo esteja em um formato com fundo transparente (PNG)
-       ou crie uma versão específica do logo com fundo branco para o header.
-       Caso contrário, o fundo borgonha do logo aparecerá como um "bloco" no header branco. */
 }
 
 .nav-links {
@@ -130,7 +126,7 @@ header .container {
     position: absolute;
     width: 0;
     height: 2px;
-    background-color: var(--primary-color); /* Linha de navegação em dourado */
+    background-color: var(--primary-color);
     bottom: -5px;
     left: 0;
     transition: width 0.3s ease;
@@ -144,7 +140,7 @@ header .container {
     font-size: 0.9em;
 }
 
-/* Hero Section (Manter o mesmo, pois o conteúdo é sobreposto) */
+/* Hero Section */
 .hero-section {
     position: relative;
     width: 100%;
@@ -229,7 +225,7 @@ header .container {
 }
 
 .nav-dot.active {
-    background-color: var(--primary-color); /* Pontos de navegação em dourado */
+    background-color: var(--primary-color);
     transform: scale(1.2);
 }
 
@@ -269,7 +265,7 @@ section {
 .about-content h2 {
     font-size: 2.5em;
     margin-bottom: 25px;
-    color: var(--accent-color); /* H2 do About usa o borgonha */
+    color: var(--accent-color);
 }
 
 .about-content p {
@@ -283,7 +279,7 @@ section {
     margin-top: 30px;
     font-weight: 600;
     font-size: 1.1em;
-    color: var(--primary-color); /* Destaques do About usam o dourado */
+    color: var(--primary-color);
 }
 
 .about-highlights div {
@@ -296,7 +292,6 @@ section {
     height: 30px;
     width: 30px;
     /* Ajustar filtro se os ícones forem coloridos e precisar de uma cor específica */
-    /* Exemplo para tentar colorir dourado (pode variar dependendo da cor original do ícone): */
     /* filter: brightness(0) saturate(100%) invert(43%) sepia(35%) saturate(768%) hue-rotate(345deg) brightness(97%) contrast(90%); */
 }
 
@@ -315,7 +310,7 @@ section {
 
 /* Services Section (Carrossel) */
 .services-section {
-    background-color: var(--secondary-color); /* Fundo da seção de serviços em creme/bege suave */
+    background-color: var(--secondary-color);
 }
 
 .services-carousel-container {
@@ -360,7 +355,7 @@ section {
 }
 
 .service-card h3 {
-    color: var(--accent-color); /* H3 do card de serviço em borgonha */
+    color: var(--accent-color);
     margin-bottom: 10px;
 }
 
@@ -373,7 +368,7 @@ section {
 .btn-detalhes {
     display: inline-block;
     margin-top: 15px;
-    background-color: var(--primary-color); /* Botão de detalhes em dourado */
+    background-color: var(--primary-color);
     color: var(--text-light);
     padding: 8px 20px;
     border-radius: 5px;
@@ -382,7 +377,7 @@ section {
 }
 
 .btn-detalhes:hover {
-    background-color: var(--accent-color); /* Botão de detalhes em hover em borgonha */
+    background-color: var(--accent-color);
     color: var(--text-light);
 }
 
@@ -405,7 +400,7 @@ section {
 .carousel-arrow.right { right: 10px; }
 
 .carousel-arrow:hover {
-    background-color: var(--primary-color); /* Seta do carrossel em hover em dourado */
+    background-color: var(--primary-color);
 }
 
 /* Modal de Serviço */
@@ -465,7 +460,7 @@ section {
 }
 
 .modal-content h3 {
-    color: var(--accent-color); /* H3 do modal em borgonha */
+    color: var(--accent-color);
     margin-bottom: 20px;
 }
 
@@ -496,7 +491,7 @@ section {
 
 /* Team Section */
 .team-section {
-    background-color: var(--secondary-color); /* Fundo da seção de equipe em creme/bege suave */
+    background-color: var(--secondary-color);
     text-align: center;
 }
 
@@ -526,16 +521,16 @@ section {
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 20px;
-    border: 4px solid var(--primary-color); /* Borda da imagem da equipe em dourado */
+    border: 4px solid var(--primary-color);
 }
 
 .team-member-card h3 {
-    color: var(--accent-color); /* Nome da equipe em borgonha */
+    color: var(--accent-color);
     margin-bottom: 5px;
 }
 
 .team-member-card p {
-    color: var(--primary-color); /* Especialidade da equipe em dourado */
+    color: var(--primary-color);
     font-weight: 600;
     margin-bottom: 10px;
 }
@@ -549,7 +544,7 @@ section {
 }
 
 .btn-whatsapp {
-    background-color: #25d366; /* Cor do WhatsApp (manter verde) */
+    background-color: #25d366;
     color: var(--text-light);
     padding: 10px 20px;
     border-radius: 5px;
@@ -564,7 +559,7 @@ section {
 
 /* Testimonials Section (Carrossel) */
 .testimonials-section {
-    background-color: var(--bg-dark); /* Fundo da seção de depoimentos em borgonha */
+    background-color: var(--bg-dark);
     color: var(--text-light);
     padding: 80px 0;
 }
@@ -595,7 +590,7 @@ section {
     min-width: 400px;
     flex: 0 0 auto;
     margin: 0 20px;
-    background-color: var(--accent-color); /* Card de depoimento em borgonha */
+    background-color: var(--accent-color);
     border-radius: 10px;
     padding: 30px;
     text-align: center;
@@ -611,17 +606,17 @@ section {
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 15px;
-    border: 3px solid var(--primary-color); /* Borda da imagem do depoimento em dourado */
+    border: 3px solid var(--primary-color);
 }
 
 .testimonial-card h4 {
-    color: var(--primary-color); /* Nome do cliente em dourado */
+    color: var(--primary-color);
     margin-bottom: 5px;
     font-size: 1.3em;
 }
 
 .testimonial-card .stars {
-    color: gold; /* Estrelas em dourado (manter a cor literal para brilho) */
+    color: gold;
     margin-bottom: 15px;
     font-size: 1.2em;
 }
@@ -684,16 +679,16 @@ section {
 }
 
 .insta-btn {
-    background-color: var(--primary-color); /* Botão Instagram em dourado */
+    background-color: var(--primary-color);
 }
 
 .insta-btn:hover {
-    background-color: var(--accent-color); /* Botão Instagram em hover em borgonha */
+    background-color: var(--accent-color);
 }
 
 /* Contact Section */
 .contact-section {
-    background-color: var(--secondary-color); /* Fundo da seção de contato em creme/bege suave */
+    background-color: var(--secondary-color);
     padding: 100px 0;
 }
 
@@ -712,7 +707,7 @@ section {
 .contact-info h2 {
     font-size: 2.2em;
     margin-bottom: 30px;
-    color: var(--accent-color); /* H2 do contato em borgonha */
+    color: var(--accent-color);
 }
 
 .contact-info p {
@@ -733,7 +728,7 @@ section {
 
 .contact-whatsapp-btn {
     margin-top: 30px;
-    background-color: #25d366; /* Botão WhatsApp (manter verde) */
+    background-color: #25d366;
 }
 
 .contact-whatsapp-btn:hover {
@@ -754,7 +749,7 @@ section {
 
 /* Footer */
 footer {
-    background-color: var(--bg-dark); /* Fundo do rodapé em borgonha */
+    background-color: var(--bg-dark);
     color: var(--text-light);
     padding: 60px 0 20px;
     font-size: 0.95em;
@@ -776,10 +771,6 @@ footer {
 .footer-brand img {
     height: 40px;
     margin-bottom: 15px;
-    /* Se o logo no rodapé precisar de uma versão com texto branco,
-       certifique-se de usar um arquivo de logo diferente ou um filtro CSS.
-       Por simplicidade, vamos usar o mesmo arquivo e assumir que ele combina
-       ou que você criará uma versão para fundo escuro. */
 }
 
 .footer-brand p {
@@ -788,7 +779,7 @@ footer {
 }
 
 .footer-links h4, .footer-social h4 {
-    color: var(--primary-color); /* Títulos do rodapé em dourado */
+    color: var(--primary-color);
     margin-bottom: 20px;
     font-size: 1.2em;
 }
@@ -807,7 +798,7 @@ footer {
 }
 
 .footer-links a:hover {
-    color: var(--primary-color); /* Links do rodapé em hover em dourado */
+    color: var(--primary-color);
 }
 
 .social-icons {
@@ -820,8 +811,6 @@ footer {
     height: 35px;
     border-radius: 50%;
     transition: transform 0.2s ease;
-    /* Os ícones de redes sociais podem precisar de imagens SVG personalizadas
-       já nas cores da marca ou de um filtro mais específico para borgonha/dourado. */
 }
 
 .social-icons a img:hover {
@@ -844,10 +833,10 @@ footer {
 }
 
 .footer-bottom a:hover {
-    color: var(--primary-color); /* Links do rodapé em hover em dourado */
+    color: var(--primary-color);
 }
 
-/* Responsividade (Manter o mesmo) */
+/* Responsividade */
 @media (max-width: 992px) {
     h1 { font-size: 2.8em; }
     h2 { font-size: 2.2em; }
