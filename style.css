@@ -1,0 +1,1257 @@
+/* Variáveis CSS para Cores e Fontes */
+:root {
+    --primary-color: #A36B7F; /* Tom de rosa queimado/elegante */
+    --secondary-color: #D4B499; /* Tom de bege/dourado suave */
+    --accent-color: #6C5B7B; /* Tom de roxo/vinho para contraste */
+    --text-dark: #333333;
+    --text-light: #f8f8f8;
+    --bg-light: #FFFFFF;
+    --bg-dark: #2C2C2C;
+
+    --font-heading: 'Playfair Display', serif; /* Fonte serifada elegante */
+    --font-body: 'Poppins', sans-serif; /* Fonte sans-serif moderna */
+}
+
+/* Importar fontes do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Reset Básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    line-height: 1.6;
+    color: var(--text-dark);
+    background-color: var(--bg-light);
+    overflow-x: hidden; /* Evita scroll horizontal indesejado */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--accent-color);
+    margin-bottom: 15px;
+}
+
+h1 { font-size: 3.2em; }
+h2 { font-size: 2.8em; }
+h3 { font-size: 2em; }
+
+p {
+    margin-bottom: 1em;
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--accent-color);
+}
+
+.btn-cta {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-cta:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+    color: var(--text-light); /* Garante que a cor do texto não mude */
+}
+
+/* Header */
+header {
+    background-color: var(--bg-light);
+    padding: 15px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px; /* Ajuste conforme o logo */
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    color: var(--text-dark);
+    font-weight: 500;
+    position: relative;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+    bottom: -5px;
+    left: 0;
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+.header-cta {
+    font-size: 0.9em;
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 90vh; /* Ajuste para preencher a tela */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    text-align: center;
+}
+
+.hero-carousel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.carousel-item.active {
+    opacity: 1;
+}
+
+.carousel-item video,
+.carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.4); /* Overlay escuro para melhor legibilidade */
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 800px;
+}
+
+.hero-content h1 {
+    color: var(--text-light);
+    font-size: 3.5em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+}
+
+.hero-content p {
+    font-size: 1.3em;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+}
+
+.carousel-nav {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 10px;
+}
+
+.nav-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-dot.active {
+    background-color: var(--primary-color);
+    transform: scale(1.2);
+}
+
+/* Seções Gerais */
+section {
+    padding: 80px 0;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.8em;
+    margin-bottom: 20px;
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: 1.2em;
+    margin-bottom: 40px;
+    color: #666;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* About Section */
+.about-section {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+    padding: 100px 0;
+}
+
+.about-content {
+    flex: 2;
+}
+
+.about-content h2 {
+    font-size: 2.5em;
+    margin-bottom: 25px;
+    color: var(--accent-color);
+}
+
+.about-content p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+.about-highlights {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--primary-color);
+}
+
+.about-highlights div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.about-highlights img {
+    height: 30px;
+    width: 30px;
+}
+
+.about-image {
+    flex: 1;
+    text-align: center;
+}
+
+.about-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+
+/* Services Section (Carrossel) */
+.services-section {
+    background-color: #fcf6f9;
+}
+
+.services-carousel-container {
+    position: relative;
+    overflow: hidden;
+    padding: 0 50px; /* Espaço para as setas */
+}
+
+.services-carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    cursor: grab;
+    user-select: none;
+}
+
+.services-carousel.dragging {
+    cursor: grabbing;
+}
+
+.service-card {
+    min-width: 300px; /* Largura mínima para 3 cards por linha no desktop */
+    flex: 0 0 auto;
+    margin: 0 15px;
+    background-color: var(--bg-light);
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    text-align: center;
+    padding-bottom: 25px;
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+}
+
+.service-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.service-card h3 {
+    color: var(--accent-color);
+    margin-bottom: 10px;
+}
+
+.service-card p {
+    padding: 0 20px;
+    font-size: 0.95em;
+    min-height: 80px; /* Para manter cards com alturas semelhantes */
+}
+
+.btn-detalhes {
+    display: inline-block;
+    margin-top: 15px;
+    background-color: var(--secondary-color);
+    color: var(--text-dark);
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-detalhes:hover {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0,0,0,0.6);
+    color: var(--text-light);
+    border: none;
+    padding: 15px 10px;
+    cursor: pointer;
+    font-size: 1.5em;
+    border-radius: 5px;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+}
+
+.carousel-arrow.left { left: 10px; }
+.carousel-arrow.right { right: 10px; }
+
+.carousel-arrow:hover {
+    background-color: var(--primary-color);
+}
+
+/* Modal de Serviço */
+.modal {
+    display: none; /* Escondido por padrão */
+    position: fixed; /* Fica por cima de tudo */
+    z-index: 2000; /* Z-index alto */
+    left: 0;
+    top: 0;
+    width: 100%; /* Largura total */
+    height: 100%; /* Altura total */
+    overflow: auto; /* Habilita scroll se necessário */
+    background-color: rgba(0,0,0,0.6); /* Fundo escuro semi-transparente */
+    display: flex; /* Para centralizar */
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background-color: var(--bg-light);
+    margin: auto;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 800px;
+    width: 90%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 15px;
+    right: 25px;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.modal-content h3 {
+    color: var(--accent-color);
+    margin-bottom: 20px;
+}
+
+.modal-gallery {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Para responsividade */
+    justify-content: center;
+}
+
+.modal-gallery img {
+    max-width: 100%;
+    width: 350px; /* Largura padrão */
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+#modal-service-description {
+    margin-bottom: 25px;
+    font-size: 1.05em;
+}
+
+#modal-service-cta {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+
+/* Team Section */
+.team-section {
+    background-color: #f8f8f8;
+    text-align: center;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.team-member-card {
+    background-color: var(--bg-light);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.team-member-card:hover {
+    transform: translateY(-10px);
+}
+
+.team-member-card img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: 4px solid var(--secondary-color);
+}
+
+.team-member-card h3 {
+    color: var(--accent-color);
+    margin-bottom: 5px;
+}
+
+.team-member-card p {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.team-member-card small {
+    display: block;
+    font-size: 0.9em;
+    color: #777;
+    margin-bottom: 20px;
+    min-height: 70px; /* Para manter cartões com alturas semelhantes */
+}
+
+.btn-whatsapp {
+    background-color: #25d366; /* Cor do WhatsApp */
+    color: var(--text-light);
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-whatsapp:hover {
+    background-color: #1ea852;
+    color: var(--text-light);
+}
+
+/* Testimonials Section (Carrossel) */
+.testimonials-section {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    padding: 80px 0;
+}
+
+.testimonials-section .section-title {
+    color: var(--text-light);
+    margin-bottom: 60px;
+}
+
+.testimonials-carousel-container {
+    position: relative;
+    overflow: hidden;
+    padding: 0 50px; /* Espaço para as setas */
+}
+
+.testimonials-carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    cursor: grab;
+    user-select: none;
+}
+
+.testimonials-carousel.dragging {
+    cursor: grabbing;
+}
+
+.testimonial-card {
+    min-width: 400px; /* Largura mínima */
+    flex: 0 0 auto;
+    margin: 0 20px;
+    background-color: var(--accent-color);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.testimonial-card img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid var(--secondary-color);
+}
+
+.testimonial-card h4 {
+    color: var(--secondary-color);
+    margin-bottom: 5px;
+    font-size: 1.3em;
+}
+
+.testimonial-card .stars {
+    color: gold;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.testimonial-card p {
+    font-style: italic;
+    font-size: 1.05em;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.testimonial-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255,255,255,0.2);
+    color: var(--text-light);
+    border: none;
+    padding: 15px 10px;
+    cursor: pointer;
+    font-size: 1.5em;
+    border-radius: 5px;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+}
+
+.testimonial-arrow.left { left: 10px; }
+.testimonial-arrow.right { right: 10px; }
+
+.testimonial-arrow:hover {
+    background-color: rgba(255,255,255,0.4);
+}
+
+
+/* Instagram Section */
+.instagram-section {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.instagram-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 50px;
+    margin-bottom: 40px;
+}
+
+.instagram-grid img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.instagram-grid img:hover {
+    transform: scale(1.05);
+}
+
+.insta-btn {
+    background-color: #E1306C; /* Cor do Instagram */
+}
+
+.insta-btn:hover {
+    background-color: #C13584;
+}
+
+/* Contact Section */
+.contact-section {
+    background-color: #f0f4f7;
+    padding: 100px 0;
+}
+
+.contact-section .container {
+    display: flex;
+    gap: 50px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.contact-info {
+    flex: 1;
+    min-width: 300px;
+}
+
+.contact-info h2 {
+    font-size: 2.2em;
+    margin-bottom: 30px;
+    color: var(--accent-color);
+}
+
+.contact-info p {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.contact-info p img {
+    width: 20px;
+    height: 20px;
+    filter: invert(30%) sepia(20%) saturate(600%) hue-rotate(280deg) brightness(80%) contrast(90%); /* Ajuste a cor do ícone */
+}
+
+.contact-whatsapp-btn {
+    margin-top: 30px;
+    background-color: #25d366;
+}
+
+.contact-whatsapp-btn:hover {
+    background-color: #1ea852;
+}
+
+.contact-map {
+    flex: 2;
+    min-width: 400px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.contact-map iframe {
+    border: 0;
+}
+
+/* Footer */
+footer {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    padding: 60px 0 20px;
+    font-size: 0.95em;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.footer-brand, .footer-links, .footer-social {
+    flex: 1;
+    min-width: 200px;
+}
+
+.footer-brand img {
+    height: 40px;
+    margin-bottom: 15px;
+}
+
+.footer-brand p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 8px;
+}
+
+.footer-links h4, .footer-social h4 {
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+.footer-links ul {
+    list-style: none;
+}
+
+.footer-links ul li {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--primary-color);
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons a img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+.social-icons a img:hover {
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.footer-bottom p {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.footer-bottom a {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.footer-bottom a:hover {
+    color: var(--primary-color);
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+    h1 { font-size: 2.8em; }
+    h2 { font-size: 2.2em; }
+    h3 { font-size: 1.8em; }
+
+    .nav-links {
+        gap: 20px;
+    }
+
+    .hero-content {
+        padding: 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5em;
+    }
+
+    .hero-content p {
+        font-size: 1.1em;
+    }
+
+    .about-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 40px;
+    }
+
+    .about-image {
+        order: -1; /* Coloca a imagem antes do texto no mobile */
+        margin-bottom: 30px;
+    }
+
+    .about-highlights {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .service-card {
+        min-width: 280px; /* Ajuste para caber melhor em tablets */
+        margin: 0 10px;
+    }
+    
+    .testimonials-carousel-container,
+    .services-carousel-container {
+        padding: 0 20px;
+    }
+
+    .team-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .testimonial-card {
+        min-width: 300px;
+        margin: 0 10px;
+    }
+
+    .contact-section .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-info, .contact-map {
+        min-width: unset;
+        width: 100%;
+    }
+
+    .contact-map iframe {
+        height: 350px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-links ul {
+        padding: 0;
+    }
+
+    .social-icons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .nav-links {
+        display: none; /* Esconde o menu para mobile - pode ser substituído por um hambúrguer menu */
+    }
+
+    .header-cta {
+        margin-top: 10px;
+    }
+
+    .hero-content h1 {
+        font-size: 2em;
+    }
+
+    .hero-content p {
+        font-size: 1em;
+    }
+
+    .about-section {
+        padding: 60px 0;
+    }
+
+    .section-title {
+        font-size: 2em;
+    }
+
+    .services-carousel-container {
+        padding: 0;
+    }
+
+    .carousel-arrow {
+        display: none; /* Esconde as setas, foco no drag */
+    }
+
+    .service-card {
+        min-width: 90%;
+        margin: 0 5%;
+    }
+
+    .modal-gallery img {
+        width: 100%;
+        height: auto;
+    }
+
+    .testimonial-card {
+        min-width: 90%;
+        margin: 0 5%;
+    }
+
+    .testimonials-carousel-container {
+        padding: 0;
+    }
+
+    .instagram-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}```
+
+---
+
+### 3. `script.js` (Interatividade)
+
+Este script contém o básico para os carrosséis e o modal. Para o feed do Instagram, é uma representação conceitual, pois a integração real exige mais.
+
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+    // Smooth Scroll para links de navegação
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // --- Carrossel da Hero Section ---
+    const heroCarousel = document.querySelector('.hero-carousel');
+    const heroItems = document.querySelectorAll('.hero-carousel .carousel-item');
+    const navDotsContainer = document.querySelector('.carousel-nav');
+    let currentHeroIndex = 0;
+
+    // Criar os botões de navegação (dots)
+    heroItems.forEach((_, index) => {
+        const dot = document.createElement('button');
+        dot.classList.add('nav-dot');
+        if (index === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToHeroSlide(index);
+            resetHeroAutoPlay();
+        });
+        navDotsContainer.appendChild(dot);
+    });
+    const heroNavDots = document.querySelectorAll('.carousel-nav .nav-dot');
+
+    function goToHeroSlide(index) {
+        heroItems[currentHeroIndex].classList.remove('active');
+        heroNavDots[currentHeroIndex].classList.remove('active');
+        currentHeroIndex = (index + heroItems.length) % heroItems.length;
+        heroItems[currentHeroIndex].classList.add('active');
+        heroNavDots[currentHeroIndex].classList.add('active');
+    }
+
+    function nextHeroSlide() {
+        goToHeroSlide(currentHeroIndex + 1);
+    }
+
+    let heroAutoPlayInterval = setInterval(nextHeroSlide, 7000); // Mudar slide a cada 7 segundos
+
+    function resetHeroAutoPlay() {
+        clearInterval(heroAutoPlayInterval);
+        heroAutoPlayInterval = setInterval(nextHeroSlide, 7000);
+    }
+
+    // --- Carrossel de Serviços e Avaliações (Drag & Drop) ---
+    function setupCarousel(carouselContainerClass, carouselClass, cardClass, arrowLeftClass, arrowRightClass) {
+        const carouselContainer = document.querySelector(carouselContainerClass);
+        const carousel = carouselContainer.querySelector(carouselClass);
+        const cards = carousel.querySelectorAll(cardClass);
+        const prevBtn = carouselContainer.querySelector(arrowLeftClass);
+        const nextBtn = carouselContainer.querySelector(arrowRightClass);
+
+        if (!carousel || !cards.length) return;
+
+        let isDragging = false;
+        let startPos = 0;
+        let currentScroll = 0;
+        let scrollLeft = 0;
+
+        const cardWidth = cards[0].offsetWidth + (parseFloat(getComputedStyle(cards[0]).marginLeft) * 2); // Largura do card + margem
+
+        const updateArrows = () => {
+            prevBtn.style.display = carousel.scrollLeft > 0 ? 'block' : 'none';
+            nextBtn.style.display = carousel.scrollLeft < (carousel.scrollWidth - carousel.clientWidth) ? 'block' : 'none';
+        };
+
+        carousel.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            carousel.classList.add('dragging');
+            startPos = e.pageX - carousel.offsetLeft;
+            scrollLeft = carousel.scrollLeft;
+        });
+
+        carousel.addEventListener('mouseleave', () => {
+            isDragging = false;
+            carousel.classList.remove('dragging');
+        });
+
+        carousel.addEventListener('mouseup', () => {
+            isDragging = false;
+            carousel.classList.remove('dragging');
+        });
+
+        carousel.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - carousel.offsetLeft;
+            const walk = (x - startPos) * 1.5; // Multiplicador de arrasto
+            carousel.scrollLeft = scrollLeft - walk;
+        });
+
+        prevBtn.addEventListener('click', () => {
+            carousel.scrollBy({ left: -cardWidth * 2, behavior: 'smooth' }); // Scrolls 2 cards
+            setTimeout(updateArrows, 600); // Atualiza após a rolagem
+        });
+
+        nextBtn.addEventListener('click', () => {
+            carousel.scrollBy({ left: cardWidth * 2, behavior: 'smooth' }); // Scrolls 2 cards
+            setTimeout(updateArrows, 600);
+        });
+
+        carousel.addEventListener('scroll', updateArrows);
+        window.addEventListener('resize', updateArrows); // Atualiza as setas ao redimensionar
+        updateArrows(); // Chama na inicialização
+    }
+
+    setupCarousel('.services-carousel-container', '.services-carousel', '.service-card', '.services-carousel-container .carousel-arrow.left', '.services-carousel-container .carousel-arrow.right');
+    setupCarousel('.testimonials-carousel-container', '.testimonials-carousel', '.testimonial-card', '.testimonials-carousel-container .testimonial-arrow.left', '.testimonials-carousel-container .testimonial-arrow.right');
+
+    // --- Modal de Detalhes do Serviço ---
+    const serviceModal = document.getElementById('service-modal');
+    const closeModalBtn = serviceModal.querySelector('.close-button');
+    const modalServiceTitle = document.getElementById('modal-service-title');
+    const modalServiceDescription = document.getElementById('modal-service-description');
+    const modalServiceCTA = document.getElementById('modal-service-cta');
+    const modalGallery = serviceModal.querySelector('.modal-gallery');
+
+    document.querySelectorAll('.btn-detalhes').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const serviceType = e.target.dataset.service;
+            
+            // Simulação de dados do serviço (em um projeto real, isso viria de um array/objeto)
+            let serviceData = {};
+            switch(serviceType) {
+                case 'cabelos':
+                    serviceData = {
+                        title: "Cabelos: Corte, Coloração e Tratamentos",
+                        description: "Nossos hair stylists são experts em criar visuais que combinam com seu estilo e personalidade. Oferecemos desde cortes modernos, colorações vibrantes, mechas e balayages, até tratamentos intensivos para a saúde e brilho dos seus fios, como hidratação profunda, reconstrução e terapia capilar.",
+                        images: ["https://via.placeholder.com/600x400?text=CabelosDetalhe1", "https://via.placeholder.com/600x400?text=CabelosDetalhe2"],
+                        whatsappText: "Olá! Gostaria de agendar um serviço de Cabelos."
+                    };
+                    break;
+                case 'unhas':
+                    serviceData = {
+                        title: "Unhas: Manicure, Pedicure e Nail Art",
+                        description: "Transforme suas mãos e pés com nossas manicures e pedicures impecáveis. Trabalhamos com alongamentos em gel, fibra de vidro e acrílico, além de nail art personalizada e as últimas tendências para unhas elegantes e duradouras.",
+                        images: ["https://via.placeholder.com/600x400?text=UnhasDetalhe1", "https://via.placeholder.com/600x400?text=UnhasDetalhe2"],
+                        whatsappText: "Olá! Gostaria de agendar um serviço de Unhas."
+                    };
+                    break;
+                case 'pele':
+                    serviceData = {
+                        title: "Tratamento de Pele: Rosto Radiante e Saudável",
+                        description: "Nossos tratamentos faciais são pensados para a saúde e beleza da sua pele. Oferecemos limpeza de pele profunda, hidratação intensa, revitalização, e terapias anti-idade com produtos de alta tecnologia para um rosto luminoso e rejuvenescido.",
+                        images: ["https://via.placeholder.com/600x400?text=PeleDetalhe1", "https://via.placeholder.com/600x400?text=PeleDetalhe2"],
+                        whatsappText: "Olá! Gostaria de agendar um Tratamento de Pele."
+                    };
+                    break;
+                case 'sobrancelhas':
+                    serviceData = {
+                        title: "Sobrancelhas: Design e Micropigmentação",
+                        description: "Realce seu olhar com sobrancelhas perfeitamente desenhadas. Nossos serviços incluem design de sobrancelhas personalizado, coloração com henna, laminação e micropigmentação fio a fio para um resultado natural e duradouro.",
+                        images: ["https://via.placeholder.com/600x400?text=SobrancelhaDetalhe1", "https://via.placeholder.com/600x400?text=SobrancelhaDetalhe2"],
+                        whatsappText: "Olá! Gostaria de agendar um serviço de Sobrancelhas."
+                    };
+                    break;
+                case 'massagem':
+                    serviceData = {
+                        title: "Massagem: Relaxamento e Bem-Estar",
+                        description: "Relaxe e renove suas energias com nossas diversas opções de massagem. Oferecemos massagem relaxante, terapêutica, modeladora e drenagem linfática, todas executadas por profissionais qualificadas para proporcionar um momento de puro bem-estar.",
+                        images: ["https://via.placeholder.com/600x400?text=MassagemDetalhe1", "https://via.placeholder.com/600x400?text=MassagemDetalhe2"],
+                        whatsappText: "Olá! Gostaria de agendar um serviço de Massagem."
+                    };
+                    break;
+                case 'make':
+                    serviceData = {
+                        title: "Make: Maquiagem para Eventos e Cursos",
+                        description: "Esteja deslumbrante em qualquer ocasião com nossas maquiagens profissionais. Criamos looks para festas, casamentos, eventos especiais e também oferecemos cursos de automaquiagem personalizados para você aprender a realçar sua beleza.",
+                        images: ["https://via.placeholder.com/600x400?text=MakeDetalhe1", "https://via.placeholder.com/600x400?text=MakeDetalhe2"],
+                        whatsappText: "Olá! Gostaria de agendar um serviço de Maquiagem."
+                    };
+                    break;
+                case 'tattoo':
+                    serviceData = {
+                        title: "Tattoo: Arte na Pele com Estilo",
+                        description: "Nosso estúdio de tatuagem boutique oferece um ambiente seguro e artístico para criar sua próxima obra de arte na pele. Especializados em tatuagens fineline, delicadas e personalizadas, com foco em design exclusivo e higiene rigorosa.",
+                        images: ["https://via.placeholder.com/600x400?text=TattooDetalhe1", "https://via.placeholder.com/600x400?text=TattooDetalhe2"],
+                        whatsappText: "Olá! Gostaria de agendar uma consulta para Tattoo."
+                    };
+                    break;
+                case 'estetica':
+                    serviceData = {
+                        title: "Estética: Cuidados Completos para Seu Corpo",
+                        description: "Além dos tratamentos faciais e corporais, oferecemos serviços de depilação (cera e a laser), drenagem linfática manual e outros procedimentos estéticos para cuidar do seu corpo de forma integral, promovendo bem-estar e resultados visíveis.",
+                        images: ["https://via.placeholder.com/600x400?text=EsteticaDetalhe1", "https://via.placeholder.com/600x400?text=EsteticaDetalhe2"],
+                        whatsappText: "Olá! Gostaria de agendar um serviço de Estética."
+                    };
+                    break;
+                default:
+                    serviceData = { title: "Serviço Não Encontrado", description: "", images: [], whatsappText: "" };
+            }
+
+            modalServiceTitle.textContent = serviceData.title;
+            modalServiceDescription.textContent = serviceData.description;
+            modalServiceCTA.href = `https://wa.me/5511912345678?text=${encodeURIComponent(serviceData.whatsappText)}`;
+            
+            modalGallery.innerHTML = ''; // Limpa a galeria
+            serviceData.images.forEach(src => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = serviceData.title;
+                modalGallery.appendChild(img);
+            });
+
+            serviceModal.classList.add('active'); // Mostra o modal
+            document.body.style.overflow = 'hidden'; // Evita scroll no body
+        });
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        serviceModal.classList.remove('active'); // Esconde o modal
+        document.body.style.overflow = 'auto'; // Restaura scroll no body
+    });
+
+    // Fechar modal clicando fora
+    window.addEventListener('click', (event) => {
+        if (event.target == serviceModal) {
+            serviceModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+
+    // --- Integração Conceitual do Feed do Instagram ---
+    // ATENÇÃO: A API do Instagram Business ou Creator é necessária para buscar feeds dinamicamente.
+    // Isso geralmente exige um backend para segurança e gerenciamento de tokens.
+    // Para uma landing page estática simples, você pode usar um widget de terceiros ou
+    // simplesmente atualizar as imagens placeholder manualmente com seus posts mais recentes.
+    // O código abaixo é uma **simulação** e **NÃO** funciona com a API real do Instagram
+    // sem um setup de backend adequado.
+
+    // async function fetchInstagramFeed() {
+    //     const accessToken = 'YOUR_INSTAGRAM_ACCESS_TOKEN'; // OBTENHA ISSO DA API DO INSTAGRAM
+    //     const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink&access_token=${accessToken}`;
+    //     const feedContainer = document.getElementById('insta-feed-container');
+
+    //     try {
+    //         const response = await fetch(url);
+    //         const data = await response.json();
+
+    //         if (data && data.data) {
+    //             feedContainer.innerHTML = ''; // Limpa os placeholders
+    //             data.data.slice(0, 6).forEach(post => { // Pega os 6 últimos posts
+    //                 if (post.media_type === 'IMAGE' || post.media_type === 'CAROUSEL_ALBUM') {
+    //                     const link = document.createElement('a');
+    //                     link.href = post.permalink;
+    //                     link.target = "_blank";
+    //                     link.classList.add('insta-post');
+
+    //                     const img = document.createElement('img');
+    //                     img.src = post.media_url;
+    //                     img.alt = post.caption ? post.caption.substring(0, 100) : 'Instagram Post';
+    //                     link.appendChild(img);
+    //                     feedContainer.appendChild(link);
+    //                 }
+    //             });
+    //         }
+    //     } catch (error) {
+    //         console.error("Erro ao buscar feed do Instagram:", error);
+    //         // Manter placeholders em caso de erro
+    //     }
+    // }
+
+    // fetchInstagramFeed(); // Descomente e configure com seu token se for usar a API real
+});
