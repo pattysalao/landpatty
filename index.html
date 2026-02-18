@@ -8,7 +8,7 @@
     <!-- SEO & Meta Tags -->
     <meta name="description" content="No Salão da Patty, transformamos sua beleza e elevamos sua autoestima. Agende seu horário e viva uma experiência única de luxo e cuidado.">
     <meta name="author" content="Salão da Patty | Desenvolvido por EyAgencia.com.br">
-    <link rel="icon" href="https://placehold.co/32x32/801A39/FFFFFF/png?text=P" type="image/png">
+    <link rel="icon" href="imagens/logo-patty-salao.png" type="image/png">
 
     <!-- Preconnect para Performance da Fonte -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -106,7 +106,7 @@
             justify-content: center;
             padding: 40px 0;
             color: var(--text-light);
-            background-image: linear-gradient(45deg, rgba(128, 26, 57, 0.8), rgba(0, 0, 0, 0.6)), url('https://wsrv.nl/?url=images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg&w=1920&h=1080&fit=cover&q=80&gam=1.2&bri=-30');
+            background-image: linear-gradient(45deg, rgba(128, 26, 57, 0.8), rgba(0, 0, 0, 0.6)), url('imagens/hero-background.jpg');
             background-size: cover;
             background-position: center;
         }
@@ -354,6 +354,12 @@
             padding: 60px 0 20px;
             text-align: center;
         }
+        
+        .footer-logo {
+            max-width: 150px;
+            margin: 0 auto 30px auto;
+            filter: brightness(0) invert(1);
+        }
 
         .social-icons {
             display: flex;
@@ -422,18 +428,15 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
         }
 
-
         /* ---------------------------------- */
         /* 10. RESPONSIVIDADE (MEDIA QUERIES)
         /* ---------------------------------- */
-        
-        /* Tablets e telas pequenas */
         @media (min-width: 768px) {
             .hero-grid {
                 grid-template-columns: 1fr 1fr;
             }
             .service-card {
-                flex-basis: 40%; /* 2.5 cards visíveis */
+                flex-basis: 40%;
             }
             .review-card {
                 flex-basis: 45%;
@@ -443,10 +446,9 @@
             }
         }
 
-        /* Desktops e telas grandes */
         @media (min-width: 1024px) {
             .service-card {
-                flex-basis: 30%; /* 3+ cards visíveis */
+                flex-basis: 30%;
             }
              .review-card {
                 flex-basis: 31%;
@@ -456,9 +458,6 @@
 </head>
 <body>
 
-    <!-- ======================= -->
-    <!-- HERO SECTION -->
-    <!-- ======================= -->
     <section id="hero" class="hero-section">
         <div class="container">
             <div class="hero-grid">
@@ -473,8 +472,8 @@
                         <input type="text" id="nome" name="nome" placeholder="Como podemos te chamar?" required>
                     </div>
                     <div class="form-group">
-                        <label for="whatsapp">Seu WhatsApp</label>
-                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="Ex: 11999998888" required>
+                        <label for="whatsapp">Seu WhatsApp (Opcional)</label>
+                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="Ex: 48999998888">
                     </div>
                     <div class="form-group">
                         <label for="servico">Qual serviço você deseja?</label>
@@ -482,98 +481,89 @@
                             <option value="">Selecione o serviço...</option>
                             <option value="Corte & Estilo">Corte & Estilo</option>
                             <option value="Coloração Premium">Coloração Premium</option>
-                            <option value="Nail Design">Nail Design</option>
-                            <option value="Tratamento Facial">Tratamento Facial</option>
+                            <option value="Extensão de Cílios">Extensão de Cílios</option>
                             <option value="Design de Sobrancelhas">Design de Sobrancelhas</option>
+                            <option value="Nail Design">Nail Design</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-submit">Agendar Agora</button>
+                    <button type="submit" class="btn-submit">Agendar via WhatsApp</button>
                 </form>
             </div>
         </div>
     </section>
 
     <main>
-        <!-- ======================= -->
-        <!-- SERVIÇOS SECTION -->
-        <!-- ======================= -->
         <section id="servicos" class="services-section">
             <div class="container">
                 <h2 class="section-title fade-in">Nossos Serviços Exclusivos</h2>
                 <div class="services-carousel-wrapper fade-in">
                     <div class="services-carousel">
                         <div class="service-card">
-                            <img src="https://placehold.co/600x400/D4A25C/FFFFFF/png?text=Corte" alt="Serviço de Corte de Cabelo" loading="lazy">
+                            <img src="imagens/servico-cabelos.jpg" alt="Mulher recebendo tratamento capilar" loading="lazy">
                             <div class="service-card-content">
-                                <h3>Corte & Estilo</h3>
-                                <p>Uma consultoria completa para um corte que expressa sua personalidade.</p>
+                                <h3>Tratamentos Capilares</h3>
+                                <p>Uma consultoria completa para um tratamento que expressa sua personalidade.</p>
                                 <a href="#hero">Agendar Serviço &rarr;</a>
                             </div>
                         </div>
                         <div class="service-card">
-                            <img src="https://placehold.co/600x400/801A39/FFFFFF/png?text=Cor" alt="Serviço de Coloração" loading="lazy">
+                            <img src="imagens/equipe-03.jpg" alt="Profissional aplicando extensão de cílios" loading="lazy">
                             <div class="service-card-content">
-                                <h3>Coloração Premium</h3>
-                                <p>Cores vibrantes e técnicas modernas para um visual único e saudável.</p>
+                                <h3>Extensão de Cílios</h3>
+                                <p>Técnicas avançadas para um olhar marcante com naturalidade e durabilidade.</p>
                                 <a href="#hero">Agendar Serviço &rarr;</a>
                             </div>
                         </div>
                         <div class="service-card">
-                           <img src="https://placehold.co/600x400/333333/FFFFFF/png?text=Unhas" alt="Serviço de Nail Design" loading="lazy">
+                           <img src="imagens/patty-fundadora.jpg" alt="Profissional realizando design de sobrancelhas" loading="lazy">
+                            <div class="service-card-content">
+                                <h3>Design de Sobrancelhas</h3>
+                                <p>Sobrancelhas desenhadas para emoldurar seu rosto e realçar sua expressão.</p>
+                                <a href="#hero">Agendar Serviço &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="service-card">
+                           <img src="https://images.pexels.com/photos/3997388/pexels-photo-3997388.jpeg" alt="Serviço de Nail Design" loading="lazy">
                             <div class="service-card-content">
                                 <h3>Nail Design</h3>
                                 <p>Suas unhas como uma obra de arte, com durabilidade e acabamento impecável.</p>
                                 <a href="#hero">Agendar Serviço &rarr;</a>
                             </div>
                         </div>
-                        <div class="service-card">
-                           <img src="https://placehold.co/600x400/D4A25C/FFFFFF/png?text=Pele" alt="Serviço de Tratamento Facial" loading="lazy">
-                            <div class="service-card-content">
-                                <h3>Tratamento Facial</h3>
-                                <p>Revitalize sua pele com protocolos personalizados e produtos de alta performance.</p>
-                                <a href="#hero">Agendar Serviço &rarr;</a>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ======================= -->
-        <!-- EQUIPE SECTION -->
-        <!-- ======================= -->
         <section id="equipe" class="team-section">
             <div class="container">
                 <h2 class="section-title fade-in">Nossas Artistas da Beleza</h2>
                 <div class="team-grid">
                     <div class="team-card fade-in">
-                        <img src="https://placehold.co/900x1600/333/FFF/jpg?text=Patty" alt="Patty, Fundadora e Hair Stylist" loading="lazy">
+                        <img src="imagens/equipe-01.jpg" alt="Patty, Fundadora e Hair Stylist" loading="lazy">
                         <div class="team-card-overlay">
                             <h3>Patty</h3>
                             <p>Fundadora & Hair Stylist</p>
                         </div>
                     </div>
                     <div class="team-card fade-in">
-                        <img src="https://placehold.co/900x1600/555/FFF/jpg?text=Ana" alt="Ana, Especialista em Coloração" loading="lazy">
+                        <img src="imagens/equipe-02.jpg" alt="Ana, Especialista em Cílios" loading="lazy">
                          <div class="team-card-overlay">
                             <h3>Ana</h3>
-                            <p>Especialista em Coloração</p>
+                            <p>Lash Designer</p>
                         </div>
                     </div>
                     <div class="team-card fade-in">
-                       <img src="https://placehold.co/900x1600/777/FFF/jpg?text=Carla" alt="Carla, Nail Designer" loading="lazy">
+                       <img src="imagens/equipe-03.jpg" alt="Carla, Designer de Sobrancelhas" loading="lazy">
                          <div class="team-card-overlay">
                             <h3>Carla</h3>
-                            <p>Nail Designer & Esteticista</p>
+                            <p>Brow Artist & Esteticista</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ======================= -->
-        <!-- AVALIAÇÕES SECTION -->
-        <!-- ======================= -->
         <section id="avaliacoes" class="reviews-section">
             <div class="container">
                 <h2 class="section-title fade-in">O que Nossas Clientes Dizem</h2>
@@ -600,15 +590,12 @@
                             <h4>Renata Soares</h4>
                         </div>
                         <div class="review-stars">⭐⭐⭐⭐⭐</div>
-                        <p>"As unhas da Carla são perfeitas e duram muito. Além disso, o cuidado com a higiene e os produtos é exemplar. Recomendo de olhos fechados."</p>
+                        <p>"As extensões de cílios são perfeitas e duram muito. Além disso, o cuidado com a higiene e os produtos é exemplar. Recomendo de olhos fechados."</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ======================= -->
-        <!-- LOCALIZAÇÃO SECTION -->
-        <!-- ======================= -->
         <section id="contato" class="location-section">
             <div class="container">
                  <div class="location-grid fade-in">
@@ -616,7 +603,7 @@
                         <h3>Nosso Espaço</h3>
                         <p>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            Rua da Beleza, 123 - Bairro Nobre, São Paulo - SP
+                            Endereço a ser confirmado, Bairro Nobre, Florianópolis - SC
                         </p>
                          <p>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -630,18 +617,15 @@
                  </div>
             </div>
         </section>
-
     </main>
 
-    <!-- ======================= -->
-    <!-- RODAPÉ -->
-    <!-- ======================= -->
     <footer>
         <div class="container">
+            <img src="imagens/logo-patty-salao.png" alt="Logo Salão da Patty" class="footer-logo" loading="lazy">
             <div class="social-icons">
-                <a href="#" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
-                <a href="#" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-                <a href="#" aria-label="WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></a>
+                <a href="https://www.instagram.com/pattycentrodebeleza" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+                <a href="https://www.facebook.com/share/1CaXGvfuWC" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+                <a href="https://www.tiktok.com/@patriciacentrodebeleza" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3V0Z"/></svg></a>
             </div>
             <div class="footer-links">
                 <a href="#">Política de Privacidade</a> | 
@@ -656,60 +640,36 @@
         </div>
     </footer>
     
-    <!-- ======================= -->
-    <!-- BOTÃO WHATSAPP FLUTUANTE -->
-    <!-- ======================= -->
-    <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20os%20servi%C3%A7os." class="whatsapp-float" target="_blank" aria-label="Fale Conosco pelo WhatsApp">
+    <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20os%20servi%C3%A7os." class="whatsapp-float" target="_blank" aria-label="Fale Conosco pelo WhatsApp">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943s-.182-.15-.38-.25z"/></svg>
     </a>
 
-    <!-- JAVASCRIPT PURO INTEGRADO -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- FUNÇÃO 1: Animação de Scroll com Intersection Observer (Performance) ---
             const fadeInElements = document.querySelectorAll('.fade-in');
-            
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.1
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
+            const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('visible');
-                        observer.unobserve(entry.target); // Otimização: para de observar depois de animar
+                        observer.unobserve(entry.target);
                     }
                 });
-            }, observerOptions);
-
+            }, { threshold: 0.1 });
             fadeInElements.forEach(el => observer.observe(el));
 
-            // --- FUNÇÃO 2: Formulário Inteligente que gera link para o WhatsApp ---
             const agendamentoForm = document.getElementById('agendamentoForm');
-
             agendamentoForm.addEventListener('submit', function(event) {
-                event.preventDefault(); // Impede o envio padrão do formulário
-
-                // Substitua este número pelo WhatsApp do salão
-                const numeroWhatsApp = '5511999999999'; 
-
-                // Captura os dados dos campos
+                event.preventDefault();
+                
+                // NÚMERO DE WHATSAPP ATUALIZADO
+                const numeroWhatsApp = '5548988032478'; 
                 const nome = document.getElementById('nome').value;
                 const servico = document.getElementById('servico').value;
                 
-                // Monta a mensagem
                 const mensagem = `Olá, me chamo ${nome}, escolhi o serviço de *${servico}* e gostaria de agendar um horário.`;
-
-                // Codifica a mensagem para a URL
-                const mensagemCodificada = encodeURIComponent(mensagem);
-
-                // Cria a URL final
-                const whatsappUrl = `https://wa.me/${numeroWhatsApp}?text=${mensagemCodificada}`;
-
-                // Abre o WhatsApp em uma nova aba
+                const whatsappUrl = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+                
                 window.open(whatsappUrl, '_blank');
             });
 
