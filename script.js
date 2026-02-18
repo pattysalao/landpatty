@@ -1,90 +1,90 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. Dados dos Serviços (O "Banco de Dados" do site) ---
+    // 1. Dados Completos dos 8 Serviços
     const servicesData = {
         'cabelos': {
-            title: 'Cabelos: Corte e Coloração',
-            desc: 'Transforme seu visual com nossos especialistas em mechas, loiros perfeitos e cortes modernos. Utilizamos produtos de linhas premium para garantir a saúde dos fios.',
-            whatsapp: 'Olá! Gostaria de agendar um horário para Cabelo.'
+            title: 'Cabelos: Corte e Tratamento',
+            desc: 'Especialistas em mechas, coloração e cortes modernos. Utilizamos produtos premium para garantir a saúde dos fios.',
+            msg: 'Olá, gostaria de agendar Cabelo.'
         },
         'unhas': {
             title: 'Unhas: Manicure e Pedicure',
-            desc: 'Cuidados completos para mãos e pés. Oferecemos alongamento em fibra de vidro, gel, blindagem e nail art exclusiva.',
-            whatsapp: 'Olá! Gostaria de agendar um horário para Unhas.'
+            desc: 'Alongamento em fibra, gel e nail art exclusiva. Spa de pés e mãos completo.',
+            msg: 'Olá, gostaria de agendar Unhas.'
         },
         'pele': {
             title: 'Estética Facial',
-            desc: 'Protocolos de limpeza de pele profunda, peeling, hidratação e tratamentos anti-idade para renovar sua autoestima.',
-            whatsapp: 'Olá! Gostaria de saber mais sobre Estética Facial.'
+            desc: 'Limpeza de pele profunda, peeling e hidratação para renovar sua pele.',
+            msg: 'Olá, gostaria de agendar Estética Facial.'
+        },
+        'sobrancelhas': {
+            title: 'Design de Sobrancelhas',
+            desc: 'Design estratégico, micropigmentação fio a fio e henna.',
+            msg: 'Olá, gostaria de agendar Sobrancelhas.'
         },
         'massagem': {
-            title: 'Massoterapia e Bem-Estar',
-            desc: 'Relaxe com nossas massagens. Drenagem linfática para reduzir medidas ou massagem relaxante para aliviar o estresse.',
-            whatsapp: 'Olá! Gostaria de agendar uma Massagem.'
+            title: 'Massoterapia',
+            desc: 'Massagem relaxante, modeladora e drenagem linfática.',
+            msg: 'Olá, gostaria de agendar Massagem.'
         },
-        'sobrancelhas': { // Caso adicione no futuro
-            title: 'Design de Sobrancelhas',
-            desc: 'Micropigmentação e design estratégico para realçar o seu olhar.',
-            whatsapp: 'Olá! Gostaria de agendar Sobrancelha.'
+        'make': {
+            title: 'Maquiagem Profissional',
+            desc: 'Maquiagem para eventos sociais, noivas e ensaios fotográficos.',
+            msg: 'Olá, gostaria de agendar Maquiagem.'
+        },
+        'tattoo': {
+            title: 'Tattoo Art',
+            desc: 'Traços finos e delicados. Tatuagem feminina com segurança e estilo.',
+            msg: 'Olá, gostaria de agendar Tattoo.'
+        },
+        'estetica': {
+            title: 'Estética Corporal',
+            desc: 'Tratamentos para redução de medidas e cuidados corporais.',
+            msg: 'Olá, gostaria de agendar Estética Corporal.'
         }
     };
 
-    // --- 2. Lógica do Modal ---
+    // 2. Lógica do Modal
     const modal = document.getElementById('service-modal');
     const closeBtn = document.querySelector('.close-button');
     const modalTitle = document.getElementById('modal-service-title');
     const modalDesc = document.getElementById('modal-service-description');
-    const modalWhatsapp = document.querySelector('.modal-whatsapp');
-    const btnsDetalhes = document.querySelectorAll('.btn-detalhes');
+    const modalBtn = document.querySelector('.modal-whatsapp');
 
-    // Função para abrir o modal
-    btnsDetalhes.forEach(btn => {
+    // Abrir Modal
+    document.querySelectorAll('.btn-detalhes').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const serviceType = btn.getAttribute('data-service');
-            const data = servicesData[serviceType];
-
-            if (data) {
-                // Preenche as informações
+            const type = btn.getAttribute('data-service');
+            const data = servicesData[type];
+            if(data && modal) {
                 modalTitle.textContent = data.title;
                 modalDesc.textContent = data.desc;
-                modalWhatsapp.href = `https://wa.me/5511912345678?text=${encodeURIComponent(data.whatsapp)}`;
-                
-                // Abre o modal
+                modalBtn.href = `https://wa.me/5511912345678?text=${encodeURIComponent(data.msg)}`;
                 modal.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Trava o scroll do fundo
+                document.body.style.overflow = 'hidden';
             }
         });
     });
 
-    // Função para fechar o modal
+    // Fechar Modal
     const closeModal = () => {
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto'; // Destrava o scroll
+        if(modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
     };
 
-    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if(closeBtn) closeBtn.addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
 
-    // Fecha ao clicar fora da caixa branca
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
-
-    // --- 3. Smooth Scroll (Navegação Suave) ---
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            
-            if (targetElement) {
-                // Fecha menu mobile se estiver aberto (opcional)
-                targetElement.scrollIntoView({
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
+    // 3. Hero Slideshow Simples
+    let slideIndex = 0;
+    const slides = document.querySelectorAll('.carousel-item');
+    if(slides.length > 0) {
+        setInterval(() => {
+            slides[slideIndex].classList.remove('active');
+            slideIndex = (slideIndex + 1) % slides.length;
+            slides[slideIndex].classList.add('active');
+        }, 5000);
+    }
 });
