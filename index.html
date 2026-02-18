@@ -3,201 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patty Centro de Beleza: Estilo, Excelência e Sofisticação</title>
+    
+    <title>Patty Centro de Beleza | Salão em São José SC - Cabelo, Estética e Bem-Estar</title>
+    
+    <meta name="description" content="Patty Centro de Beleza em São Paulo. Especialistas em loiros, unhas de fibra, estética facial e massagem. Agende seu horário online e transforme sua beleza.">
+    <meta name="geo.region" content="BR-SP" />
+    <meta name="geo.placename" content="São Paulo" />
+    <meta name="geo.position" content="-23.55052;-46.633308" />
+    <meta name="ICBM" content="-23.55052, -46.633308" />
+    
+    <link rel="shortcut icon" href="patty logo (1).png" type="image/x-icon">
 
-    <!-- Meta Tags e CSS Integrado (como no código anterior) -->
-    <style>
-        /* ... Seu CSS completo vai aqui ... */
-        /* Cole aqui todo o CSS que te enviei na resposta anterior */
-        /* Importar fontes do Google Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 
-        :root {
-            --brand-gold: #D4A25C;
-            --brand-burgundy: #801A39;
-            --primary-color: var(--brand-gold);
-            --accent-color: var(--brand-burgundy);
-            --secondary-color: #F7F5F2; /* Creme suave */
-            --text-dark: #333333;
-            --text-light: #FFFFFF;
-            --bg-light: #FFFFFF;
-            --bg-dark: var(--brand-burgundy);
-            --font-heading: 'Playfair Display', serif;
-            --font-body: 'Poppins', sans-serif;
+    <link rel="stylesheet" href="style.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BeautySalon",
+      "name": "Patty Centro de Beleza",
+      "image": "https://pattysalao.github.io/landpatty/patty%20logo%20(1).png",
+      "telephone": "+5511912345678",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Rua da Beleza, 123 - Centro",
+        "addressLocality": "São Paulo",
+        "addressRegion": "SP",
+        "postalCode": "01234-567",
+        "addressCountry": "BR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -23.55052,
+        "longitude": -46.633308
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+          "opens": "09:00",
+          "closes": "19:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Saturday",
+          "opens": "09:00",
+          "closes": "15:00"
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: var(--font-body);
-            line-height: 1.7;
-            color: var(--text-dark);
-            background-color: var(--bg-light);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        h1, h2, h3 { font-family: var(--font-heading); color: var(--accent-color); margin-bottom: 1rem; }
-        h1 { font-size: 3rem; }
-        h2 { font-size: 2.5rem; text-align: center; }
-        h3 { font-size: 1.5rem; }
-        p { margin-bottom: 1rem; }
-        a { text-decoration: none; color: var(--primary-color); transition: color 0.3s; }
-        a:hover { color: var(--accent-color); }
-
-        .btn-cta {
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: var(--text-light) !important;
-            padding: 12px 28px;
-            border-radius: 5px;
-            font-weight: 600;
-            transition: background-color 0.3s, transform 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-cta:hover { background-color: var(--accent-color); transform: translateY(-3px); }
-
-        header {
-            background-color: var(--bg-light);
-            padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        header .container { display: flex; justify-content: space-between; align-items: center; }
-        .logo img { height: 50px; }
-        .nav-links { list-style: none; display: flex; gap: 35px; }
-        .nav-links a { color: var(--text-dark); font-weight: 600; position: relative; padding-bottom: 5px; }
-        .nav-links a::after { content: ''; position: absolute; width: 0; height: 2px; background-color: var(--primary-color); bottom: 0; left: 0; transition: width 0.3s; }
-        .nav-links a:hover::after { width: 100%; }
-
-        .hero-section {
-            position: relative;
-            height: 85vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
-            text-align: center;
-            /* IMAGEM DE FUNDO CORRIGIDA */
-            background: url('imagens/hero-background.jpg') no-repeat center center/cover;
-        }
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .hero-content { position: relative; z-index: 2; max-width: 800px; }
-        .hero-content h1 { color: var(--text-light); font-size: 3.5rem; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
-        .hero-content p { font-size: 1.25rem; margin-bottom: 2rem; }
-
-        section { padding: 80px 0; }
-        .section-subtitle { text-align: center; font-size: 1.1rem; margin-top: -1rem; margin-bottom: 3rem; color: #666; max-width: 700px; margin-left: auto; margin-right: auto; }
-
-        .about-section { display: flex; align-items: center; gap: 50px; flex-wrap: wrap; }
-        .about-content { flex: 1.2; min-width: 300px; }
-        .about-image { flex: 1; text-align: center; min-width: 300px; }
-        .about-image img { max-width: 100%; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-
-        .services-section { background-color: var(--secondary-color); }
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        .service-card {
-            background-color: var(--bg-light);
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
-            overflow: hidden; text-align: center;
-            padding-bottom: 1.5rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .service-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .service-card img { width: 100%; height: 220px; object-fit: cover; }
-        .service-card h3 { margin-top: 1.5rem; }
-        .service-card p { padding: 0 20px; font-size: 0.95rem; }
-
-        .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
-        .team-member-card {
-            background-color: var(--bg-light);
-            padding: 2rem;
-            border-radius: 10px; text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
-        }
-        .team-member-card img { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; margin-bottom: 1.5rem; border: 4px solid var(--secondary-color); }
-        .team-member-card h3 { margin-bottom: 0.25rem; }
-        .team-member-card p { color: var(--primary-color); font-weight: 600; margin-bottom: 0.75rem; }
-        .team-member-card small { color: #777; }
-
-        .testimonials-section { background-color: var(--bg-dark); color: var(--text-light); }
-        .testimonials-section h2 { color: var(--text-light); }
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-        }
-        .testimonial-card {
-            background-color: var(--accent-color);
-            border-radius: 10px; padding: 2rem; text-align: center;
-        }
-        .testimonial-card img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid var(--primary-color); }
-        .testimonial-card h4 { color: var(--primary-color); font-size: 1.25rem; margin-bottom: 0.5rem; }
-        .testimonial-card .stars { color: gold; margin-bottom: 1rem; font-size: 1.2rem; }
-        .testimonial-card p { font-style: italic; color: rgba(255, 255, 255, 0.9); }
-
-        .contact-section { background-color: var(--secondary-color); }
-        .contact-section .container { display: flex; flex-wrap: wrap; gap: 50px; }
-        .contact-info { flex: 1; min-width: 300px; }
-        .contact-info h2 { text-align: left; }
-        .contact-info p { display: flex; align-items: center; gap: 15px; font-size: 1.1rem; }
-        .contact-info .icon { color: var(--accent-color); }
-        .contact-whatsapp-btn { margin-top: 1.5rem; background-color: #25D366; }
-        .contact-whatsapp-btn:hover { background-color: #1DA851; }
-        .contact-map { flex: 1.5; min-width: 300px; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        .contact-map iframe { border: 0; width: 100%; height: 100%; min-height: 400px; }
-
-        footer { background-color: var(--bg-dark); color: var(--text-light); padding: 60px 0 20px; }
-        .footer-content { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px; margin-bottom: 40px; }
-        .footer-brand, .footer-links, .footer-social { flex: 1; min-width: 200px; }
-        .footer-brand img { height: 40px; margin-bottom: 1rem; filter: brightness(0) invert(1); }
-        .footer-brand p { color: rgba(255, 255, 255, 0.8); }
-        .footer-links h4, .footer-social h4 { color: var(--primary-color); margin-bottom: 1.5rem; }
-        .footer-links ul { list-style: none; padding: 0;}
-        .footer-links li { margin-bottom: 0.75rem; }
-        .footer-links a { color: rgba(255, 255, 255, 0.7); }
-        .footer-links a:hover { color: var(--primary-color); }
-        .social-icons { display: flex; gap: 20px; }
-        .social-icons a { color: var(--text-light); transition: color 0.3s, transform 0.3s; }
-        .social-icons a:hover { color: var(--primary-color); transform: translateY(-3px); }
-        .footer-bottom { text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; }
-        .footer-bottom p { color: rgba(255, 255, 255, 0.6); }
-
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            h1, .hero-content h1 { font-size: 2.5rem; }
-            h2 { font-size: 2rem; }
-            .about-section { text-align: center; }
-            .about-image { order: -1; margin-bottom: 2rem; }
-            .contact-info { text-align: center; }
-            .contact-info p { justify-content: center; }
-            .footer-content { flex-direction: column; text-align: center; align-items: center; }
-            .social-icons { justify-content: center; }
-        }
-
-    </style>
+      ],
+      "priceRange": "$$"
+    }
+    </script>
 </head>
 <body>
     <header id="home">
         <nav class="container">
             <div class="logo">
-                <!-- CAMINHO CORRIGIDO -->
-                <a href="#home"><img src="imagens/logo-patty-salao.png" alt="Patty Centro de Beleza"></a>
+                <a href="#home">
+                    <img src="patty logo (1).png" alt="Patty Centro de Beleza Logo" width="150" height="50">
+                </a>
             </div>
             <ul class="nav-links">
                 <li><a href="#servicos">Serviços</a></li>
@@ -205,80 +70,115 @@
                 <li><a href="#avaliacoes">Avaliações</a></li>
                 <li><a href="#contato">Contato</a></li>
             </ul>
-            <a href="https://wa.me/5511912345678?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20um%20hor%C3%A1rio." target="_blank" class="btn-cta header-cta">Agende seu Horário</a>
+            <a href="https://wa.me/5511912345678?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20quero%20agendar." target="_blank" class="btn-cta header-cta">
+                <i class="fab fa-whatsapp"></i> Agendar Horário
+            </a>
         </nav>
     </header>
 
     <main>
-        <section id="hero" class="hero-section">
+        <section id="hero" class="hero-section" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://wsrv.nl/?url=https://images.pexels.com/photos/3993444/pexels-photo-3993444.jpeg&w=1200&q=80&output=webp');">
             <div class="hero-content container">
-                <h1>Onde a Sofisticação Realça a Sua Beleza.</h1>
-                <p>Transformamos dias comuns em dias inesquecíveis. Cabelos, Unhas, Pele e mais – sua experiência de alto estilo começa aqui.</p>
-                <a href="#servicos" class="btn-cta">Descubra Nossos Serviços</a>
+                <h1>Onde a Sofisticação <br>Realça Sua Beleza.</h1>
+                <p>Tecnologia e excelência para transformar seu visual. Cabelos, Estética e Bem-estar em um só lugar.</p>
+                <a href="#servicos" class="btn-cta">Conhecer Serviços</a>
             </div>
         </section>
 
         <section id="sobre" class="about-section container">
             <div class="about-content">
-                <h2>Nossa História: Paixão por Transformar, Dedicação à Excelência.</h2>
-                <p>O Patty Centro de Beleza nasceu da visão de criar um espaço onde a beleza é uma arte e a inovação uma aliada. Com anos de experiência e um olhar sempre atento às últimas tendências, Patty e sua equipe dedicam-se a oferecer serviços de altíssimo padrão, utilizando produtos premium e técnicas avançadas.</p>
-                <p>Acreditamos que cada cliente é única, e por isso, personalizamos cada experiência para realçar sua beleza natural e proporcionar momentos de puro bem-estar e sofisticação.</p>
+                <h2>Nossa História e Excelência</h2>
+                <p>O Patty Centro de Beleza une arte e tecnologia. Com anos de experiência, nossa equipe oferece serviços de alto padrão usando produtos premium.</p>
+                <div class="about-highlights">
+                    <div><i class="fas fa-gem"></i> Produtos Premium</div>
+                    <div><i class="fas fa-star"></i> Técnicas Modernas</div>
+                    <div><i class="fas fa-heart"></i> Atendimento Único</div>
+                </div>
             </div>
             <div class="about-image">
-                <!-- CAMINHO CORRIGIDO -->
-                <img src="imagens/patty-fundadora.jpg" alt="Patty, fundadora do salão" loading="lazy">
+                <img src="https://wsrv.nl/?url=https://images.pexels.com/photos/3993398/pexels-photo-3993398.jpeg&w=500&q=80&output=webp" alt="Equipe Patty Salão" loading="lazy" width="500" height="600">
             </div>
         </section>
 
         <section id="servicos" class="services-section">
             <div class="container">
-                <h2 class="section-title">Seu Mundo de Beleza em Nossas Mãos.</h2>
+                <h2 class="section-title">Experiências Exclusivas</h2>
                 <div class="services-grid">
-                    <!-- CAMINHOS CORRIGIDOS PARA AS IMAGENS DE SERVIÇOS -->
-                    <div class="service-card"><img src="imagens/servico-cabelos.jpg" alt="Serviço de Cabelos" loading="lazy"><h3>Cabelos</h3><p>Cortes modernos, colorações vibrantes e tratamentos capilares profundos.</p></div>
-                    <div class="service-card"><img src="https://images.pexels.com/photos/3997388/pexels-photo-3997388.jpeg" alt="Serviço de Unhas" loading="lazy"><h3>Unhas</h3><p>Manicure, Pedicure, alongamentos em gel/fibra e nail art exclusiva.</p></div>
-                    <div class="service-card"><img src="https://images.pexels.com/photos/3762875/pexels-photo-3762875.jpeg" alt="Serviço de Tratamento de Pele" loading="lazy"><h3>Tratamento de Pele</h3><p>Limpeza de pele profunda, hidratação, revitalização e tratamentos anti-idade.</p></div>
-                    <div class="service-card"><img src="https://images.pexels.com/photos/6681943/pexels-photo-6681943.jpeg" alt="Serviço de Sobrancelhas" loading="lazy"><h3>Sobrancelhas</h3><p>Design de sobrancelhas perfeito, micropigmentação e laminação.</p></div>
-                    <div class="service-card"><img src="https://images.pexels.com/photos/4041391/pexels-photo-4041391.jpeg" alt="Serviço de Massagem" loading="lazy"><h3>Massagem</h3><p>Relaxe com nossas massagens terapêuticas, relaxantes e modeladoras.</p></div>
-                    <div class="service-card"><img src="https://images.pexels.com/photos/3738343/pexels-photo-3738343.jpeg" alt="Serviço de Maquiagem" loading="lazy"><h3>Make</h3><p>Maquiagens para eventos especiais, ensaios e cursos de automaquiagem.</p></div>
+                    <div class="service-card">
+                        <img src="https://wsrv.nl/?url=https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg&w=400&h=300&fit=cover&q=75&output=webp" alt="Cabelos" loading="lazy">
+                        <h3>Cabelos</h3>
+                        <p>Cortes, coloração e mechas com proteção dos fios.</p>
+                        <button class="btn-detalhes" data-service="cabelos">Detalhes</button>
+                    </div>
+                    <div class="service-card">
+                        <img src="https://wsrv.nl/?url=https://images.pexels.com/photos/3997388/pexels-photo-3997388.jpeg&w=400&h=300&fit=cover&q=75&output=webp" alt="Unhas" loading="lazy">
+                        <h3>Unhas</h3>
+                        <p>Spa de pés e mãos, fibra de vidro e nail art.</p>
+                        <button class="btn-detalhes" data-service="unhas">Detalhes</button>
+                    </div>
+                    <div class="service-card">
+                        <img src="https://wsrv.nl/?url=https://images.pexels.com/photos/3762875/pexels-photo-3762875.jpeg&w=400&h=300&fit=cover&q=75&output=webp" alt="Pele" loading="lazy">
+                        <h3>Estética Facial</h3>
+                        <p>Limpeza de pele, hidratação e rejuvenescimento.</p>
+                        <button class="btn-detalhes" data-service="pele">Detalhes</button>
+                    </div>
+                    <div class="service-card">
+                        <img src="https://wsrv.nl/?url=https://images.pexels.com/photos/3757942/pexels-photo-3757942.jpeg&w=400&h=300&fit=cover&q=75&output=webp" alt="Massagem" loading="lazy">
+                        <h3>Massoterapia</h3>
+                        <p>Relaxe com massagens modeladoras e drenagem linfática.</p>
+                        <button class="btn-detalhes" data-service="massagem">Detalhes</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="service-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h3 id="modal-service-title"></h3>
+                    <p id="modal-service-description"></p>
+                    <div class="modal-gallery"></div>
+                    <a href="https://wa.me/5511912345678" target="_blank" class="btn-cta modal-whatsapp">Agendar no WhatsApp</a>
                 </div>
             </div>
         </section>
 
         <section id="equipe" class="team-section container">
-            <h2 class="section-title">Conheça Nossas Especialistas</h2>
-            <p class="section-subtitle">Profissionais apaixonadas pela beleza, prontas para oferecer uma experiência única.</p>
+            <h2 class="section-title">Especialistas</h2>
             <div class="team-grid">
-                <!-- CAMINHOS CORRIGIDOS PARA A EQUIPE -->
-                <div class="team-member-card"><img src="imagens/equipe-01.jpg" alt="Foto de Maria Silva" loading="lazy"><h3>Maria Silva</h3><p>Hair Stylist Sênior</p><small>Especialista em loiros e cortes modernos, com mais de 10 anos de experiência.</small></div>
-                <div class="team-member-card"><img src="imagens/equipe-02.jpg" alt="Foto de Ana Costa" loading="lazy"><h3>Ana Costa</h3><p>Especialista em Nails & Estética</p><small>Mestre em nail art e tratamentos estéticos faciais, buscando as últimas tendências.</small></div>
-                <div class="team-member-card"><img src="imagens/equipe-03.jpg" alt="Foto de Fernanda Lima" loading="lazy"><h3>Fernanda Lima</h3><p>Maquiadora & Designer</p><small>Cria maquiagens deslumbrantes e design de sobrancelhas que realçam sua beleza.</small></div>
-            </div>
-        </section>
-        
-        <!-- O RESTANTE DO CÓDIGO (AVALIAÇÕES, CONTATO, FOOTER) PODE PERMANECER O MESMO -->
-        <section id="avaliacoes" class="testimonials-section">
-            <div class="container">
-                <h2 class="section-title">O que Nossas Clientes Dizem</h2>
-                <div class="testimonials-grid">
-                    <div class="testimonial-card"><img src="https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg" alt="Foto de Cliente 1" loading="lazy"><h4>Carla Souza</h4><div class="stars">⭐⭐⭐⭐⭐</div><p>"A equipe é maravilhosa, o ambiente é acolhedor e o resultado sempre supera minhas expectativas. Recomendo!"</p></div>
-                    <div class="testimonial-card"><img src="https://images.pexels.com/photos/3771836/pexels-photo-3771836.jpeg" alt="Foto de Cliente 2" loading="lazy"><h4>Beatriz Almeida</h4><div class="stars">⭐⭐⭐⭐⭐</div><p>"Sempre saio do salão da Patty me sentindo renovada. Os tratamentos de pele são incríveis e a Ana é fantástica!"</p></div>
-                    <div class="testimonial-card"><img src="https://images.pexels.com/photos/3211476/pexels-photo-3211476.jpeg" alt="Foto de Cliente 3" loading="lazy"><h4>Juliana Santos</h4><div class="stars">⭐⭐⭐⭐⭐</div><p>"Meu cabelo nunca esteve tão saudável. A Maria é uma artista. O salão é um oásis de beleza."</p></div>
+                <div class="team-member-card">
+                    <img src="https://wsrv.nl/?url=https://images.pexels.com/photos/3992875/pexels-photo-3992875.jpeg&w=300&h=300&fit=cover&q=80&output=webp" alt="Maria Silva" loading="lazy">
+                    <h3>Maria Silva</h3>
+                    <p>Hair Stylist</p>
+                    <a href="https://wa.me/5511912345678" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> Agendar</a>
+                </div>
+                <div class="team-member-card">
+                    <img src="https://wsrv.nl/?url=https://images.pexels.com/photos/3762466/pexels-photo-3762466.jpeg&w=300&h=300&fit=cover&q=80&output=webp" alt="Ana Costa" loading="lazy">
+                    <h3>Ana Costa</h3>
+                    <p>Nail Designer</p>
+                    <a href="https://wa.me/5511912345678" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> Agendar</a>
+                </div>
+                <div class="team-member-card">
+                    <img src="https://wsrv.nl/?url=https://images.pexels.com/photos/3851905/pexels-photo-3851905.jpeg&w=300&h=300&fit=cover&q=80&output=webp" alt="Fernanda Lima" loading="lazy">
+                    <h3>Fernanda Lima</h3>
+                    <p>Maquiadora</p>
+                    <a href="https://wa.me/5511912345678" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> Agendar</a>
                 </div>
             </div>
         </section>
-        
+
         <section id="contato" class="contact-section">
             <div class="container">
                 <div class="contact-info">
-                    <h2>Encontre-nos</h2>
-                    <p><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>Rua da Beleza, 123 - Centro, São Paulo - SP</p>
-                    <p><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></span><a href="tel:+551112345678">(11) 1234-5678</a></p>
-                    <p><span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>Seg. a Sex.: 09h às 19h | Sáb.: 09h às 15h</p>
-                    <a href="https://wa.me/5511912345678?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20um%20hor%C3%A1rio." target="_blank" class="btn-cta contact-whatsapp-btn">Fale Conosco pelo WhatsApp</a>
+                    <h2>Visite-nos</h2>
+                    <p><i class="fas fa-map-marker-alt contact-icon"></i> Rua da Beleza, 123 - Centro, SP</p>
+                    <p><i class="fas fa-phone contact-icon"></i> (11) 1234-5678</p>
+                    <p><i class="far fa-clock contact-icon"></i> Seg-Sáb: 09h às 19h</p>
+                    <a href="https://wa.me/5511912345678" target="_blank" class="btn-cta contact-whatsapp-btn">
+                        <i class="fab fa-whatsapp"></i> Chamar no WhatsApp
+                    </a>
                 </div>
                 <div class="contact-map">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.197586021288!2d-46.63330938502216!3d-23.55051998468826!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0xd59f9431f2c9776a!2sS%C3%A9%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1614188339281!5m2!1spt-BR!2sbr" loading="lazy"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.197568742494!2d-46.65220868502223!3d-23.56134938468297!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0xd59f9431f2c9776a!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1676306948936!5m2!1spt-BR!2sbr" width="100%" height="100%" style="border:0; min-height: 350px;" allowfullscreen="" loading="lazy"></iframe>
                 </div>
             </div>
         </section>
@@ -287,30 +187,19 @@
     <footer>
         <div class="container footer-content">
             <div class="footer-brand">
-                <img src="imagens/logo-patty-salao.png" alt="Patty Centro de Beleza">
-                <p>Patty Centro de Beleza: Sua beleza em outro nível.</p>
-            </div>
-            <div class="footer-links">
-                <h4>Navegue</h4>
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#servicos">Serviços</a></li>
-                    <li><a href="#equipe">Equipe</a></li>
-                    <li><a href="#contato">Contato</a></li>
-                </ul>
+                <img src="patty logo (1).png" alt="Patty Logo" style="filter: brightness(0) invert(1);">
+                <p>Patty Centro de Beleza © 2026</p>
             </div>
             <div class="footer-social">
                 <h4>Siga-nos</h4>
                 <div class="social-icons">
-                    <a href="#" target="_blank" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
-                    <a href="#" target="_blank" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-                    <a href="#" target="_blank" aria-label="WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
                 </div>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Patty Centro de Beleza. Todos os direitos reservados.</p>
-        </div>
     </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
