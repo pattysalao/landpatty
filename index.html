@@ -168,7 +168,8 @@
         .services-carousel::-webkit-scrollbar { display: none; }
         
         .service-card { 
-            flex: 0 0 85%; scroll-snap-align: center; background: var(--text-light); border-radius: var(--border-radius); 
+            flex: 0 0 85%; min-width: 85%; flex-shrink: 0; /* Correção do esmagamento */
+            scroll-snap-align: center; background: var(--text-light); border-radius: var(--border-radius); 
             overflow: hidden; box-shadow: var(--shadow-soft); transition: transform 0.3s; display: flex; flex-direction: column;
         }
         .service-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-medium); }
@@ -188,7 +189,8 @@
         .team-carousel::-webkit-scrollbar { display: none; }
 
         .team-card { 
-            flex: 0 0 75%; scroll-snap-align: center; position: relative; aspect-ratio: 9 / 16; 
+            flex: 0 0 75%; min-width: 75%; flex-shrink: 0; /* Correção do esmagamento */
+            scroll-snap-align: center; position: relative; aspect-ratio: 9 / 16; 
             border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow-medium); color: var(--text-light); 
         }
         .team-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
@@ -206,7 +208,7 @@
         /* ---------------------------------- */
         .reviews-carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding-bottom: 20px; }
         .reviews-carousel::-webkit-scrollbar { display: none; }
-        .review-card { flex: 0 0 90%; scroll-snap-align: center; background: #fff; border: 1px solid #ddd; border-radius: var(--border-radius); padding: 25px; }
+        .review-card { flex: 0 0 90%; min-width: 90%; flex-shrink: 0; scroll-snap-align: center; background: #fff; border: 1px solid #ddd; border-radius: var(--border-radius); padding: 25px; }
         .review-header { display: flex; align-items: center; margin-bottom: 15px; }
         .review-header img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
         .review-stars { color: #fbbc05; margin-bottom: 10px; }
@@ -255,15 +257,15 @@
         
         @media (min-width: 768px) {
             .hero-grid { grid-template-columns: 1fr 1fr; }
-            .service-card { flex: 0 0 45%; }
-            .team-card { flex: 0 0 250px; } 
-            .review-card { flex: 0 0 45%; }
+            .service-card { flex: 0 0 45%; min-width: 45%; }
+            .team-card { flex: 0 0 250px; min-width: 250px; } /* Mantém a proporção no Desktop */
+            .review-card { flex: 0 0 45%; min-width: 45%; }
             .location-grid { grid-template-columns: 2fr 1.5fr; }
             .footer-grid { grid-template-columns: repeat(3, 1fr); text-align: left; }
             .social-icons-footer { justify-content: flex-start; }
         }
         @media (min-width: 1024px) {
-            .service-card { flex: 0 0 30%; }
+            .service-card { flex: 0 0 30%; min-width: 30%; }
         }
     </style>
 </head>
@@ -540,15 +542,6 @@
                                 <h3>Aline Fontana</h3>
                                 <p>Depiladora</p>
                                 <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Aline%20Fontana." target="_blank" class="btn-whatsapp-small">Agendar com Aline</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/patty-fundadora.jpg" alt="Patty" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Patty</h3>
-                                <p>Fundadora & Hair Stylist</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Patty." target="_blank" class="btn-whatsapp-small">Agendar com Patty</a>
                             </div>
                         </div>
 
