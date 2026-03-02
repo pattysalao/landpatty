@@ -168,7 +168,7 @@
         .services-carousel::-webkit-scrollbar { display: none; }
         
         .service-card { 
-            flex: 0 0 85%; min-width: 85%; flex-shrink: 0; /* Correção do esmagamento */
+            flex: 0 0 85%; min-width: 85%; flex-shrink: 0; 
             scroll-snap-align: center; background: var(--text-light); border-radius: var(--border-radius); 
             overflow: hidden; box-shadow: var(--shadow-soft); transition: transform 0.3s; display: flex; flex-direction: column;
         }
@@ -189,7 +189,7 @@
         .team-carousel::-webkit-scrollbar { display: none; }
 
         .team-card { 
-            flex: 0 0 75%; min-width: 75%; flex-shrink: 0; /* Correção do esmagamento */
+            flex: 0 0 75%; min-width: 75%; flex-shrink: 0; 
             scroll-snap-align: center; position: relative; aspect-ratio: 9 / 16; 
             border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow-medium); color: var(--text-light); 
         }
@@ -258,7 +258,7 @@
         @media (min-width: 768px) {
             .hero-grid { grid-template-columns: 1fr 1fr; }
             .service-card { flex: 0 0 45%; min-width: 45%; }
-            .team-card { flex: 0 0 250px; min-width: 250px; } /* Mantém a proporção no Desktop */
+            .team-card { flex: 0 0 250px; min-width: 250px; } 
             .review-card { flex: 0 0 45%; min-width: 45%; }
             .location-grid { grid-template-columns: 2fr 1.5fr; }
             .footer-grid { grid-template-columns: repeat(3, 1fr); text-align: left; }
@@ -318,6 +318,7 @@
                             <option value="Cílios">Lash Design (Cílios)</option>
                             <option value="Maquiagem">Maquiagem</option>
                             <option value="Depilação">Depilação</option>
+                            <option value="Massoterapia e Terapias">Massoterapia e Terapias</option>
                         </select>
                     </div>
                     <button type="submit" class="btn-submit">Agendar via WhatsApp</button>
@@ -415,7 +416,9 @@
                                     Agendar Depilação
                                 </a>
                             </div>
-                            <div class="service-card">
+                        </div>
+
+                        <div class="service-card">
                             <img src="imagens/servico-massagem.jpg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Terapias+e+Massagem'" alt="Massoterapia e Terapias" loading="lazy">
                             <div class="service-card-content">
                                 <h3>Massoterapia & Terapias</h3>
@@ -425,7 +428,6 @@
                                     Agendar Terapia
                                 </a>
                             </div>
-                        </div>
                         </div>
 
                     </div>
@@ -447,6 +449,7 @@
                                 <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Patr%C3%ADcia." target="_blank" class="btn-whatsapp-small">Agendar com Patrícia</a>
                             </div>
                         </div>
+                        
                         <div class="team-card">
                             <img src="imagens/Juliana Cabeleireira.jpeg" alt="Juliana Ramos" loading="lazy">
                             <div class="team-card-overlay">
@@ -563,6 +566,7 @@
                                 <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Aline%20Fontana." target="_blank" class="btn-whatsapp-small">Agendar com Aline</a>
                             </div>
                         </div>
+
                         <div class="team-card">
                             <img src="imagens/Patrick Lima.jpeg" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patrick+Lima'" alt="Patrick Lima" loading="lazy">
                             <div class="team-card-overlay">
@@ -571,13 +575,15 @@
                                 <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20o%20Patrick%20Lima." target="_blank" class="btn-whatsapp-small">Agendar com Patrick</a>
                             </div>
                         </div>
-                       <div class="team-card">
-    <img src="imagens/Ingrid Goedert Social midia.jpeg" alt="Ingrid Goedert" loading="lazy">
-    <div class="team-card-overlay">
-        <h3>Ingrid Goedert</h3>
-        <p>Social Midia</p>
-    </div>
-</div>
+
+                        <div class="team-card">
+                            <img src="imagens/Ingrid Goedert Social midia.jpeg" alt="Ingrid Goedert" loading="lazy">
+                            <div class="team-card-overlay">
+                                <h3>Ingrid Goedert</h3>
+                                <p>Social Midia</p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
