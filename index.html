@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NKZC9T42');</script>
-<!-- End Google Tag Manager -->
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#801A39">
     <title>Salão da Patty - Sua Beleza em Outro Nível</title>
 
     <meta name="description" content="No Salão da Patty, transformamos sua beleza e elevamos sua autoestima. Agende seu horário e viva uma experiência única de luxo e cuidado em São José/SC.">
     <meta name="author" content="Salão da Patty | Desenvolvido por EyAgencia.com.br">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:type" content="business.business">
+    <meta property="og:title" content="Salão da Patty | Centro de Beleza em São José/SC">
+    <meta property="og:description" content="Cabelos, unhas, cílios, estética, maquiagem, depilação e terapias em São José/SC. Agende seu atendimento no Salão da Patty.">
+    <meta property="og:url" content="https://www.pattycentrodebeleza.com.br/">
+    <meta property="og:image" content="https://www.pattycentrodebeleza.com.br/imagens/hero-background.jpg">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="imagens/logo-patty-salao.png" type="image/png">
+    <link rel="canonical" href="https://www.pattycentrodebeleza.com.br/">
+    <link rel="alternate" type="text/plain" href="llms.txt" title="Resumo oficial para agentes de IA">
+    <link rel="preload" as="image" href="imagens/hero-background.jpg" fetchpriority="high">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,6 +42,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           ],
           "telephone": "+55 48 988032478",
           "priceRange": "$$",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "237",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "hasMap": "https://www.google.com/maps/place/?q=place_id:ChIJF8RnRQRKJ5URdIFZ6Akz2VU",
           "address": {
             "@type": "PostalAddress",
             "streetAddress": "R. Pedro Álvares Cabral, 244",
@@ -46,8 +60,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           },
           "geo": {
             "@type": "GeoCoordinates",
-            "latitude": "-27.595378", 
-            "longitude": "-48.608753"
+            "latitude": "-27.599478", 
+            "longitude": "-48.645724"
           },
           "sameAs": [
             "https://www.instagram.com/pattycentrodebeleza",
@@ -186,7 +200,48 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .service-card-content p { flex-grow: 1; }
 
         /* ---------------------------------- */
-        /* 6. EQUIPE (STORIES CARROSSEL)
+        /* 6. GALERIAS POR SERVIÇO
+        /* ---------------------------------- */
+        .portfolio-section { background: #fff; }
+        .portfolio-intro {
+            max-width: 760px; margin: -28px auto 36px; text-align: center; color: #555;
+        }
+        .service-gallery {
+            background: #fbf7f8; border: 1px solid #eadfe3; border-radius: 20px;
+            padding: 24px; box-shadow: var(--shadow-soft);
+        }
+        .service-gallery-header {
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;
+        }
+        .service-gallery-header h3 { margin: 0; font-size: 1.65rem; }
+        .service-gallery-header p { color: #666; max-width: 760px; }
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+        }
+        .gallery-item {
+            position: relative; aspect-ratio: 240 / 426; overflow: hidden;
+            border-radius: 14px; background-image: url('imagens/portfolio/unhas/patty-unhas-01-07.webp');
+            background-repeat: no-repeat; background-size: 100% 700%;
+            box-shadow: 0 8px 22px rgba(0,0,0,.10);
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+        .gallery-item:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.16); }
+        .gallery-item:nth-child(1) { background-position: center 0%; }
+        .gallery-item:nth-child(2) { background-position: center 16.6667%; }
+        .gallery-item:nth-child(3) { background-position: center 33.3333%; }
+        .gallery-item:nth-child(4) { background-position: center 50%; }
+        .gallery-item:nth-child(5) { background-position: center 66.6667%; }
+        .gallery-item:nth-child(6) { background-position: center 83.3333%; }
+        .gallery-item:nth-child(7) { background-position: center 100%; }
+        .gallery-caption {
+            position: absolute; left: 0; right: 0; bottom: 0; padding: 34px 12px 10px;
+            background: linear-gradient(to top, rgba(0,0,0,.72), transparent);
+            color: #fff; font-size: .78rem; font-weight: 600;
+        }
+        .gallery-cta { margin-top: 20px; }
+
+        /* ---------------------------------- */
+        /* 7. EQUIPE (STORIES CARROSSEL)
         /* ---------------------------------- */
         .team-carousel-wrapper { position: relative; }
         .team-carousel {
@@ -213,16 +268,82 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         /* ---------------------------------- */
         /* 7. AVALIAÇÕES E RODAPÉ
         /* ---------------------------------- */
-        .reviews-carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding-bottom: 20px; }
+        .reviews-section { background: #fff; }
+        .google-reputation {
+            display: grid; grid-template-columns: 1fr; gap: 24px; align-items: stretch;
+            background: linear-gradient(135deg, #fff 0%, #fbf7f8 100%);
+            border: 1px solid #eadfe3; border-radius: 20px; padding: 28px; margin-bottom: 28px;
+            box-shadow: var(--shadow-soft);
+        }
+        .google-score { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 22px; }
+        .google-logo { width: 92px; height: auto; object-fit: contain; }
+        .google-score-main { display: flex; align-items: baseline; gap: 8px; }
+        .google-rating-number { font-family: var(--font-heading); color: var(--burgundy); font-size: 2.7rem; line-height: 1; }
+        .google-rating-stars { color: #fbbc04; font-size: 1.15rem; letter-spacing: 2px; }
+        .google-review-count { color: #5f6368; font-size: .95rem; }
+        .google-audit { display: flex; align-items: flex-start; gap: 10px; color: #5f6368; font-size: .88rem; line-height: 1.5; }
+        .google-audit strong { color: var(--text-dark); }
+        .google-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .btn-google {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 11px 16px; border-radius: 999px; border: 1px solid #dadce0;
+            background: #fff; color: #1a73e8; text-decoration: none; font-weight: 600;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .btn-google:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.08); }
+        .reviews-carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding: 2px 2px 20px; scrollbar-width: none; }
         .reviews-carousel::-webkit-scrollbar { display: none; }
-        .review-card { flex: 0 0 90%; min-width: 90%; flex-shrink: 0; scroll-snap-align: center; background: #fff; border: 1px solid #ddd; border-radius: var(--border-radius); padding: 25px; }
-        .review-header { display: flex; align-items: center; margin-bottom: 15px; }
-        .review-header img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; }
-        .review-stars { color: #fbbc05; margin-bottom: 10px; }
-        
+        .review-card {
+            flex: 0 0 88%; min-width: 88%; flex-shrink: 0; scroll-snap-align: center;
+            background: #fff; border: 1px solid #e5e5e5; border-radius: var(--border-radius);
+            padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,.05);
+        }
+        .review-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .review-person { display: flex; align-items: center; gap: 12px; }
+        .review-avatar {
+            width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+            background: var(--burgundy); color: #fff; font-weight: 700;
+        }
+        .review-person h4 { font-size: 1rem; margin: 0; }
+        .review-source { font-size: .78rem; color: #777; }
+        .review-stars { color: #fbbc04; margin-bottom: 10px; letter-spacing: 1px; }
+        .review-card p { font-size: .96rem; }
+        .review-note { margin-top: 20px; font-size: .82rem; color: #777; text-align: center; }
+
+        .trust-section { background: #f4eef0; }
+        .trust-intro { max-width: 760px; margin: -28px auto 34px; text-align: center; color: #555; }
+        .stories-carousel {
+            display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory;
+            padding: 4px 2px 22px; scrollbar-width: none;
+        }
+        .stories-carousel::-webkit-scrollbar { display: none; }
+        .story-card {
+            flex: 0 0 78%; min-width: 78%; max-width: 330px; scroll-snap-align: center;
+            background: #111; border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-medium);
+            position: relative;
+        }
+        .story-label {
+            min-height: 76px; background: #fff; padding: 14px 16px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .story-label strong { color: var(--burgundy); display: block; font-family: var(--font-heading); }
+        .story-label span { display: block; color: #777; font-size: .78rem; margin-top: 2px; }
+        .story-label a { color: var(--burgundy); text-decoration: none; font-weight: 600; font-size: .82rem; white-space: nowrap; }
+        .story-frame { position: relative; width: 100%; aspect-ratio: 9 / 16; background: #111; }
+        .story-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+        .trust-proof-grid {
+            display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 28px;
+        }
+        .trust-proof {
+            background: #fff; border-radius: 14px; padding: 18px; border: 1px solid #eadfe3;
+        }
+        .trust-proof strong { display: block; color: var(--burgundy); margin-bottom: 4px; }
+
         .location-grid { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
-        .location-map iframe { width: 100%; height: 400px; border: none; border-radius: var(--border-radius); }
+        .location-map { background: #fff; border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow-soft); }
+        .location-map iframe { width: 100%; height: 400px; border: none; display: block; }
         .location-info p { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; }
+        .route-link { display: inline-flex; align-items: center; gap: 8px; color: var(--burgundy); font-weight: 600; text-decoration: none; margin-top: 8px; }
 
         footer { background-color: #1c1c1c; color: #aaa; padding: 80px 0 30px; }
         .footer-grid { display: grid; grid-template-columns: 1fr; gap: 40px; text-align: center; }
@@ -267,6 +388,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             .service-card { flex: 0 0 45%; min-width: 45%; }
             .team-card { flex: 0 0 250px; min-width: 250px; } 
             .review-card { flex: 0 0 45%; min-width: 45%; }
+            .google-reputation { grid-template-columns: 1.2fr 1fr; }
+            .story-card { flex: 0 0 300px; min-width: 300px; }
+            .gallery-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+            .service-gallery-header { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+            .trust-proof-grid { grid-template-columns: repeat(3, 1fr); }
             .location-grid { grid-template-columns: 2fr 1.5fr; }
             .footer-grid { grid-template-columns: repeat(3, 1fr); text-align: left; }
             .social-icons-footer { justify-content: flex-start; }
@@ -278,8 +404,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKZC9T42"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
     <header class="main-header" id="mainHeader">
         <div class="container header-container">
@@ -293,8 +417,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </button>
             <nav class="main-nav" id="mainNav">
                 <a href="#servicos">Serviços</a>
+                <a href="#galeria">Galeria</a>
                 <a href="#equipe">Equipe</a>
                 <a href="#avaliacoes">Avaliações</a>
+                <a href="#confianca">Confiança</a>
                 <a href="#contato">Contato</a>
             </nav>
         </div>
@@ -308,18 +434,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <p>Mais que um salão, somos um espaço de transformação. Aqui, cada detalhe é pensado para celebrar sua individualidade, realçar sua força e elevar sua autoestima.</p>
                 </div>
                 
-                <form id="agendamentoForm" class="hero-form fade-in">
+                <form id="agendamentoForm" class="hero-form fade-in" toolname="agendar_salao_patty" tooldescription="Prepara um pedido de agendamento no Salão da Patty e abre a conversa oficial no WhatsApp com o serviço escolhido.">
                     <div class="form-group">
                         <label for="nome">Seu Nome</label>
-                        <input type="text" id="nome" name="nome" placeholder="Como podemos te chamar?" required>
+                        <input type="text" id="nome" name="nome" autocomplete="name" toolparamdescription="Nome da pessoa que deseja agendar." placeholder="Como podemos te chamar?" required>
                     </div>
                     <div class="form-group">
                         <label for="whatsapp">Seu WhatsApp (Opcional)</label>
-                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="Ex: 48999998888">
+                        <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" toolparamdescription="WhatsApp opcional para retorno." placeholder="Ex: 48999998888">
                     </div>
                     <div class="form-group">
                         <label for="servico">Qual serviço você deseja?</label>
-                        <select id="servico" name="servico" required>
+                        <select id="servico" name="servico" toolparamdescription="Serviço de beleza ou bem-estar desejado." required>
                             <option value="">Selecione o serviço...</option>
                             <option value="Cabelos e Cachos">Cabelos e Cachos</option>
                             <option value="Nail Design">Nail Design e Manicure</option>
@@ -345,7 +471,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="services-carousel">
                         
                         <div class="service-card">
-                            <img src="imagens/servico-cabelos.jpg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Cabelos+e+Cachos'" alt="Cabelos e Cachos" loading="lazy">
+                            <img src="imagens/servico-cabelos.jpg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Cabelos+e+Cachos'" alt="Cabelos e Cachos" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Cabelos & Cachos</h3>
                                 <p>Cortes, coloração e tratamentos especializados para todos os tipos de fios e curvaturas.</p>
@@ -357,10 +483,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Ana Paula nail design.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Nail+Design'" alt="Nail Design" loading="lazy">
+                            <img src="imagens/deime-sotolongo.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Nail+Design'" alt="Nail Design" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Nail Design & Manicure</h3>
                                 <p>Suas unhas impecáveis com técnicas de alongamento, blindagem e nail art.</p>
+                                <a href="#galeria-unhas" style="color:var(--burgundy);font-weight:600;text-decoration:none;margin-top:10px;">Ver trabalhos reais →</a>
                                 <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20o%20servi%C3%A7o%20de%20Nail%20Design%20e%20Manicure." target="_blank" class="btn-whatsapp-small">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.01 2.002c-5.522 0-9.998 4.477-9.998 9.998 0 1.765.46 3.447 1.285 4.93L2.003 22l5.176-1.284c1.455.787 3.107 1.206 4.83 1.206 5.522 0 10.002-4.477 10.002-10.002S17.532 2.002 12.01 2.002zm5.836 14.542c-.25.702-1.43 1.34-1.996 1.452-.524.103-1.2.22-3.418-.703-2.685-1.118-4.38-3.844-4.512-4.02-.13-.176-1.077-1.434-1.077-2.747 0-1.314.685-1.96 9.32-2.228.24-.183.565-.213.784.316.227.55.77 1.884.84 2.036.07.153.116.33.023.513-.092.183-.14.297-.28.45-.14.153-.298.337-.417.45-.13.13-.264.275-.11.514.15.24 6.678 1.084 1.31 1.75.63.666 1.4 1.42 1.54 1.65.14.23.14.33-.024.514-.165.183-.77 1.08-1.02 1.39z"/></svg>
                                     Agendar Unhas
@@ -369,7 +496,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Cleo pontes Micropigmentadora e nail design.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Sobrancelhas'" alt="Sobrancelhas" loading="lazy">
+                            <img src="imagens/Cleo pontes Micropigmentadora e nail design.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Sobrancelhas'" alt="Sobrancelhas" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Sobrancelhas & Micro</h3>
                                 <p>Design estratégico e micropigmentação para realçar e emoldurar seu olhar.</p>
@@ -381,7 +508,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Michele.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Cílios'" alt="Lash Design" loading="lazy">
+                            <img src="imagens/michele-tavares.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Cílios'" alt="Lash Design" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Lash Design (Cílios)</h3>
                                 <p>Extensões de cílios com alta durabilidade e naturalidade para um olhar poderoso.</p>
@@ -393,7 +520,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Paula Severo Esteticista.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Estética'" alt="Estética" loading="lazy">
+                            <img src="imagens/michele-tavares.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Estética'" alt="Estética" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Estética & Cuidados</h3>
                                 <p>Protocolos avançados de estética facial e corporal para seu bem-estar completo.</p>
@@ -405,7 +532,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Mariana rita Maquiadora.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Maquiagem'" alt="Maquiagem" loading="lazy">
+                            <img src="imagens/hellen-guesser.jpeg" onerror="this.src='https://placehold.co/400x250/D4A25C/FFF?text=Maquiagem'" alt="Maquiagem" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Maquiagem Profissional</h3>
                                 <p>Make para eventos, festas e produções que destacam a sua melhor versão.</p>
@@ -417,7 +544,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/Aline Fontana.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Depilação'" alt="Depilação" loading="lazy">
+                            <img src="imagens/Aline Fontana.jpeg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Depilação'" alt="Depilação" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Depilação</h3>
                                 <p>Técnicas de depilação com cuidado, higiene e conforto para a sua pele.</p>
@@ -429,7 +556,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </div>
 
                         <div class="service-card">
-                            <img src="imagens/servico-massagem.jpg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Terapias+e+Massagem'" alt="Massoterapia e Terapias" loading="lazy">
+                            <img src="imagens/servico-massagem.jpg" onerror="this.src='https://placehold.co/400x250/801A39/FFF?text=Terapias+e+Massagem'" alt="Massoterapia e Terapias" loading="lazy" decoding="async">
                             <div class="service-card-content">
                                 <h3>Massoterapia & Terapias</h3>
                                 <p>Massagem Relaxante, Terapêutica, Drenagem, Ventosaterapia, Reiki, Barras de Access, Cone Hindu e mais.</p>
@@ -445,6 +572,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </section>
 
+        <section id="galeria" class="portfolio-section">
+            <div class="container">
+                <h2 class="section-title fade-in">Galerias de Trabalhos Reais</h2>
+                <p class="portfolio-intro fade-in">Resultados de atendimentos realizados no Patty Centro de Beleza, organizados por serviço para você conhecer de perto o estilo e o acabamento do nosso trabalho.</p>
+
+                <div id="galeria-unhas" class="service-gallery fade-in">
+                    <div class="service-gallery-header">
+                        <div>
+                            <h3>Nail Design & Manicure</h3>
+                            <p>Nail arts, esmaltação, francesinha e acabamentos personalizados realizados em clientes do salão.</p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-grid" aria-label="Galeria de Nail Design e Manicure do Patty Centro de Beleza">
+                        <div class="gallery-item" role="img" aria-label="Nail art azul com flores em relevo"><span class="gallery-caption">Nail art floral azul</span></div>
+                        <div class="gallery-item" role="img" aria-label="Nail art nude, amarelo e bordô com poás"><span class="gallery-caption">Nude + poá</span></div>
+                        <div class="gallery-item" role="img" aria-label="Nail art lilás com desenhos florais e detalhes dourados"><span class="gallery-caption">Floral lilás</span></div>
+                        <div class="gallery-item" role="img" aria-label="Unhas vermelhas com acabamento brilhante"><span class="gallery-caption">Vermelho clássico</span></div>
+                        <div class="gallery-item" role="img" aria-label="Unhas com degradê branco azul e lilás"><span class="gallery-caption">Degradê delicado</span></div>
+                        <div class="gallery-item" role="img" aria-label="Unhas nude e marrom com decoração floral dourada"><span class="gallery-caption">Nude floral</span></div>
+                        <div class="gallery-item" role="img" aria-label="Nail art com girassóis e francesinha"><span class="gallery-caption">Girassóis + francesinha</span></div>
+                    </div>
+
+                    <div class="gallery-cta">
+                        <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20vi%20a%20galeria%20de%20Nail%20Design%20no%20site%20e%20gostaria%20de%20agendar%20meu%20hor%C3%A1rio." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Agendar Nail Design</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="equipe" class="team-section">
             <div class="container">
                 <h2 class="section-title fade-in">Nossas Artistas da Beleza</h2>
@@ -452,145 +609,82 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="team-carousel">
                         
                         <div class="team-card">
-                            <img src="imagens/Patricia Teixeira.jpeg" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patricia'" alt="Patrícia Teixeira" loading="lazy">
+                            <img src="imagens/Patricia Teixeira.jpeg" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patricia'" alt="Patrícia Teixeira, cabeleireira e fundadora do Patty Centro de Beleza" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Patrícia Teixeira</h3>
                                 <p>Cabeleireira & Fundadora</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Patr%C3%ADcia." target="_blank" class="btn-whatsapp-small">Agendar com Patrícia</a>
-                            </div>
-                        </div>
-                        
-                        <div class="team-card">
-                            <img src="imagens/Juliana Cabeleireira.jpeg" alt="Juliana Ramos" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Juliana Ramos</h3>
-                                <p>Cabeleireira</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Juliana%20Ramos." target="_blank" class="btn-whatsapp-small">Agendar com Juliana</a>
+                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Patr%C3%ADcia." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Agendar com Patrícia</a>
                             </div>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Allegra Marques Cabeleireira especialista em cachos.jpeg" alt="Allegra Marques" loading="lazy">
+                            <img src="imagens/maira-ramos.jpeg" alt="Maira Ramos, cabeleireira especialista em escova modelada" loading="lazy" decoding="async">
+                            <div class="team-card-overlay">
+                                <h3>Maira Ramos</h3>
+                                <p>Cabeleireira<br>Especialista em escova modelada</p>
+                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Maira%20Ramos." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Agendar com Maira</a>
+                            </div>
+                        </div>
+
+                        <div class="team-card">
+                            <img src="imagens/vaneza-regina.jpeg" alt="Vaneza Regina, cabeleireira especialista em alisamento e luzes" loading="lazy" decoding="async">
+                            <div class="team-card-overlay">
+                                <h3>Vaneza Regina</h3>
+                                <p>Cabeleireira<br>Especialista em alisamento e luzes</p>
+                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Vaneza%20Regina." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Agendar com Vaneza</a>
+                            </div>
+                        </div>
+
+                        <div class="team-card">
+                            <img src="imagens/michele-tavares.jpeg" alt="Michele Tavares, lash designer e esteticista" loading="lazy" decoding="async">
+                            <div class="team-card-overlay">
+                                <h3>Michele Tavares</h3>
+                                <p>Lash Designer & Esteticista</p>
+                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Michele%20Tavares." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Agendar com Michele</a>
+                            </div>
+                        </div>
+
+                        <div class="team-card">
+                            <img src="imagens/deime-sotolongo.jpeg" alt="Deime Sotolongo, manicure, especialista em reflexologia nos pés e nail designer" loading="lazy" decoding="async">
+                            <div class="team-card-overlay">
+                                <h3>Deime Sotolongo</h3>
+                                <p>Manicure completa<br>Especialista em reflexologia nos pés & Nail Designer</p>
+                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Deime%20Sotolongo." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Agendar com Deime</a>
+                            </div>
+                        </div>
+
+                        <div class="team-card">
+                            <img src="imagens/allegra-marques.jpeg" alt="Allegra Marques, especialista em cachos e transformações de alto impacto" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Allegra Marques</h3>
-                                <p>Especialista em Cachos</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Allegra%20Marques." target="_blank" class="btn-whatsapp-small">Agendar com Allegra</a>
+                                <p>Especialista em cachos<br>Transformações de alto impacto</p>
+                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Allegra%20Marques." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Agendar com Allegra</a>
                             </div>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Geraldine Silveira Cabeleireira.jpeg" alt="Geraldine Silveira" loading="lazy">
+                            <img src="imagens/hellen-guesser.jpeg" alt="Héllen Guesser, maquiadora" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
-                                <h3>Geraldine Silveira</h3>
-                                <p>Cabeleireira</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Geraldine%20Silveira." target="_blank" class="btn-whatsapp-small">Agendar com Geraldine</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Maira Perez.jpeg" alt="Maira Pérez" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Maira Pérez</h3>
-                                <p>Cabeleireira</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Maira%20P%C3%A9rez." target="_blank" class="btn-whatsapp-small">Agendar com Maira</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Benedita01.jpeg" alt="Benedita Rodrigues" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Benedita Rodrigues</h3>
-                                <p>Cabeleireira</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Benedita%20Rodrigues." target="_blank" class="btn-whatsapp-small">Agendar com Benedita</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Mariana rita Maquiadora.jpeg" alt="Mariana Rita" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Mariana Rita</h3>
+                                <h3>Héllen Guesser</h3>
                                 <p>Maquiadora</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Mariana%20Rita." target="_blank" class="btn-whatsapp-small">Agendar com Mariana</a>
+                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20H%C3%A9llen%20Guesser." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Agendar com Héllen</a>
                             </div>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Emanuelle Manicure.jpeg" alt="Emanuelle" loading="lazy">
+                            <img src="imagens/ana-clara-teixeira.jpeg" alt="Ana Clara Teixeira, recepcionista e gerente" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
-                                <h3>Emanuelle</h3>
-                                <p>Nail Design</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Emanuelle." target="_blank" class="btn-whatsapp-small">Agendar com Emanuelle</a>
+                                <h3>Ana Clara Teixeira</h3>
+                                <p>Recepcionista & Gerente</p>
+                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Ana%20Clara%20Teixeira." target="_blank" rel="noopener noreferrer" class="btn-whatsapp-small">Falar com Ana Clara</a>
                             </div>
                         </div>
 
                         <div class="team-card">
-                            <img src="imagens/Cleo pontes Micropigmentadora e nail design.jpeg" alt="Cleo Pontes" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Cleo Pontes</h3>
-                                <p>Nail Design & Micro</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Cleo%20Pontes." target="_blank" class="btn-whatsapp-small">Agendar com Cleo</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Ana Paula nail design.jpeg" alt="Ana Paula" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Ana Paula</h3>
-                                <p>Nail Design & Micro</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Ana%20Paula." target="_blank" class="btn-whatsapp-small">Agendar com Ana Paula</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Ana Clara Recepcionista.jpeg" alt="Ana Clara" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Ana Clara</h3>
-                                <p>Recepcionista</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20a%20Ana%20Clara." target="_blank" class="btn-whatsapp-small">Falar com Ana Clara</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Paula Severo Esteticista.jpeg" alt="Paula Severo" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Paula Severo</h3>
-                                <p>Esteticista</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Paula%20Severo." target="_blank" class="btn-whatsapp-small">Agendar com Paula</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Michele.jpeg" alt="Chele Tavares" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Chele Tavares</h3>
-                                <p>Lash Design</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Chele%20Tavares." target="_blank" class="btn-whatsapp-small">Agendar com Chele</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Aline Fontana.jpeg" alt="Aline Fontana" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Aline Fontana</h3>
-                                <p>Depiladora</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20a%20Aline%20Fontana." target="_blank" class="btn-whatsapp-small">Agendar com Aline</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Patrick Lima.jpeg" onerror="this.src='https://placehold.co/400x600/801A39/FFF?text=Patrick+Lima'" alt="Patrick Lima" loading="lazy">
-                            <div class="team-card-overlay">
-                                <h3>Patrick Lima</h3>
-                                <p>Massoterapeuta & Terapias</p>
-                                <a href="https://wa.me/5548988032478?text=Ol%C3%A1%2C%20gostaria%20de%20agendar%20um%20hor%C3%A1rio%20com%20o%20Patrick%20Lima." target="_blank" class="btn-whatsapp-small">Agendar com Patrick</a>
-                            </div>
-                        </div>
-
-                        <div class="team-card">
-                            <img src="imagens/Ingrid Goedert Social midia.jpeg" alt="Ingrid Goedert" loading="lazy">
+                            <img src="imagens/ingrid-goedert.jpeg" alt="Ingrid Goedert, social media do Patty Centro de Beleza" loading="lazy" decoding="async">
                             <div class="team-card-overlay">
                                 <h3>Ingrid Goedert</h3>
-                                <p>Social Midia</p>
+                                <p>Social Media</p>
                             </div>
                         </div>
 
@@ -601,32 +695,172 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <section id="avaliacoes" class="reviews-section">
             <div class="container">
-                <h2 class="section-title fade-in">O que Nossas Clientes Dizem</h2>
-                <div class="reviews-carousel fade-in">
-                    <div class="review-card">
-                        <div class="review-header">
-                            <img src="https://placehold.co/100x100/D4A25C/FFF/png?text=M" alt="Mariana" loading="lazy">
-                            <h4>Mariana Costa</h4>
+                <h2 class="section-title fade-in">Avaliações Reais no Google</h2>
+
+                <div class="google-reputation fade-in" aria-label="Reputação pública no Google">
+                    <div>
+                        <div class="google-score">
+                            <img class="google-logo" src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" width="92" height="30" loading="lazy" decoding="async">
+                            <div>
+                                <div class="google-score-main">
+                                    <strong class="google-rating-number">4,8</strong>
+                                    <span class="google-rating-stars" aria-label="4,8 de 5 estrelas">★★★★★</span>
+                                </div>
+                                <div class="google-review-count">237 avaliações públicas no Perfil da Empresa no Google</div>
+                            </div>
                         </div>
-                        <div class="review-stars">⭐⭐⭐⭐⭐</div>
-                        <p>"O melhor salão que já fui! A Patty entende exatamente o que eu quero e a equipe é incrível. Saio de lá me sentindo poderosa."</p>
-                    </div>
-                     <div class="review-card">
-                        <div class="review-header">
-                            <img src="https://placehold.co/100x100/801A39/FFF/png?text=J" alt="Juliana" loading="lazy">
-                            <h4>Juliana Alves</h4>
+                        <div class="google-audit" style="margin-top:16px;">
+                            <span aria-hidden="true">✓</span>
+                            <span><strong>Dados conferidos no Google em 07/10/2026.</strong><br>Os depoimentos abaixo são identificados como avaliações publicadas no Google. A nota e a quantidade podem mudar conforme novas avaliações forem recebidas.</span>
                         </div>
-                        <div class="review-stars">⭐⭐⭐⭐⭐</div>
-                        <p>"Atendimento impecável e resultado maravilhoso. O ambiente é um luxo, super acolhedor. Virou meu lugar preferido na cidade!"</p>
                     </div>
-                     <div class="review-card">
+                    <div class="google-actions">
+                        <a class="btn-google" href="https://www.google.com/maps/place/?q=place_id:ChIJF8RnRQRKJ5URdIFZ6Akz2VU" target="_blank" rel="noopener noreferrer">Ver todas as avaliações no Google</a>
+                    </div>
+                </div>
+
+                <div class="reviews-carousel fade-in" aria-label="Trechos de avaliações públicas do Google">
+                    <article class="review-card">
                         <div class="review-header">
-                            <img src="https://placehold.co/100x100/333/FFF/png?text=R" alt="Renata" loading="lazy">
-                            <h4>Renata Soares</h4>
+                            <div class="review-person">
+                                <div class="review-avatar" aria-hidden="true">J</div>
+                                <div>
+                                    <h4>Jamily Melo</h4>
+                                    <div class="review-source">Google • 10 meses atrás</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="review-stars">⭐⭐⭐⭐⭐</div>
-                        <p>"As extensões de cílios são perfeitas e duram muito. Além disso, o cuidado com a higiene e os produtos é exemplar. Recomendo de olhos fechados."</p>
-                    </div>
+                        <div class="review-stars" aria-label="5 estrelas">★★★★★</div>
+                        <p>“Excelentes profissionais! ... profissionalismo, educação e atenção.”</p>
+                    </article>
+
+                    <article class="review-card">
+                        <div class="review-header">
+                            <div class="review-person">
+                                <div class="review-avatar" aria-hidden="true">G</div>
+                                <div>
+                                    <h4>Gracilda Pfleger</h4>
+                                    <div class="review-source">Google • 1 ano atrás</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-stars" aria-label="5 estrelas">★★★★★</div>
+                        <p>Relatou atendimento excelente, ambiente acolhedor e profissionais atenciosas, destacando a transformação do cabelo da filha e o serviço de manicure.</p>
+                    </article>
+
+                    <article class="review-card">
+                        <div class="review-header">
+                            <div class="review-person">
+                                <div class="review-avatar" aria-hidden="true">C</div>
+                                <div>
+                                    <h4>Cristiane Santos</h4>
+                                    <div class="review-source">Google • 1 ano atrás</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-stars" aria-label="5 estrelas">★★★★★</div>
+                        <p>Destacou a atenção da equipe, a rapidez da escova e a dedicação durante o atendimento, recomendando o salão.</p>
+                    </article>
+
+                    <article class="review-card">
+                        <div class="review-header">
+                            <div class="review-person">
+                                <div class="review-avatar" aria-hidden="true">K</div>
+                                <div>
+                                    <h4>Kelly Campelo</h4>
+                                    <div class="review-source">Google • 1 ano atrás</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-stars" aria-label="5 estrelas">★★★★★</div>
+                        <p>Destacou a qualidade dos serviços e o cuidado de uma equipe gentil e atenciosa, recomendando o Patty Centro de Beleza.</p>
+                    </article>
+                </div>
+                <p class="review-note fade-in">Trechos e resumos de avaliações públicas. Consulte o Perfil da Empresa no Google para ler os conteúdos completos e a reputação mais recente.</p>
+            </div>
+        </section>
+
+        <section id="confianca" class="trust-section">
+            <div class="container">
+                <h2 class="section-title fade-in">Confiança construída na prática</h2>
+                <p class="trust-intro fade-in">Veja o espaço, a equipe e resultados reais publicados no Instagram oficial do Patty Centro de Beleza. Conteúdo em formato vertical, como você já acompanha nos Reels.</p>
+
+                <div class="stories-carousel fade-in" aria-label="Reels do Instagram do Patty Centro de Beleza">
+                    <article class="story-card">
+                        <div class="story-frame">
+                            <iframe loading="lazy" title="Reel: conheça o espaço Patty Centro de Beleza" src="https://www.instagram.com/pattycentrodebeleza/reel/DXpgj6TBNwm/embed/" allowfullscreen></iframe>
+                        </div>
+                        <div class="story-label">
+                            <div><strong>Nossa marca</strong><span>Espaço, ambiente e experiência</span></div>
+                            <a href="https://www.instagram.com/pattycentrodebeleza/reel/DXpgj6TBNwm/" target="_blank" rel="noopener noreferrer">Abrir Reel</a>
+                        </div>
+                    </article>
+
+                    <article class="story-card">
+                        <div class="story-frame">
+                            <iframe loading="lazy" title="Reel: experiência Patty Centro de Beleza" src="https://www.instagram.com/pattycentrodebeleza/reel/DJraCY5A289/embed/" allowfullscreen></iframe>
+                        </div>
+                        <div class="story-label">
+                            <div><strong>Experiência</strong><span>Profissionais e atendimento</span></div>
+                            <a href="https://www.instagram.com/pattycentrodebeleza/reel/DJraCY5A289/" target="_blank" rel="noopener noreferrer">Abrir Reel</a>
+                        </div>
+                    </article>
+
+                    <article class="story-card">
+                        <div class="story-frame">
+                            <iframe loading="lazy" title="Reel: transformação de corte" src="https://www.instagram.com/pattycentrodebeleza/reel/Dd7QDrSJZhp/embed/" allowfullscreen></iframe>
+                        </div>
+                        <div class="story-label">
+                            <div><strong>Transformação</strong><span>Corte e resultado real</span></div>
+                            <a href="https://www.instagram.com/pattycentrodebeleza/reel/Dd7QDrSJZhp/" target="_blank" rel="noopener noreferrer">Abrir Reel</a>
+                        </div>
+                    </article>
+
+                    <article class="story-card">
+                        <div class="story-frame">
+                            <iframe loading="lazy" title="Reel: progressiva e cuidado com o cabelo" src="https://www.instagram.com/pattycentrodebeleza/reel/DeIG2ttJwO2/embed/" allowfullscreen></iframe>
+                        </div>
+                        <div class="story-label">
+                            <div><strong>Cabelos</strong><span>Progressiva, avaliação e resultado</span></div>
+                            <a href="https://www.instagram.com/pattycentrodebeleza/reel/DeIG2ttJwO2/" target="_blank" rel="noopener noreferrer">Abrir Reel</a>
+                        </div>
+                    </article>
+
+                    <article class="story-card">
+                        <div class="story-frame">
+                            <iframe loading="lazy" title="Reel: maquiagem e cabelo para evento" src="https://www.instagram.com/pattycentrodebeleza/reel/DeKwNPBJFOk/embed/" allowfullscreen></iframe>
+                        </div>
+                        <div class="story-label">
+                            <div><strong>Make + Hair</strong><span>Produção para momentos especiais</span></div>
+                            <a href="https://www.instagram.com/pattycentrodebeleza/reel/DeKwNPBJFOk/" target="_blank" rel="noopener noreferrer">Abrir Reel</a>
+                        </div>
+                    </article>
+
+                    <article class="story-card">
+                        <div class="story-frame">
+                            <iframe loading="lazy" title="Reel: atendimento de unhas" src="https://www.instagram.com/pattycentrodebeleza/reel/Dd904TPJh1o/embed/" allowfullscreen></iframe>
+                        </div>
+                        <div class="story-label">
+                            <div><strong>Nail Design</strong><span>Processo, cuidado e acabamento</span></div>
+                            <a href="https://www.instagram.com/pattycentrodebeleza/reel/Dd904TPJh1o/" target="_blank" rel="noopener noreferrer">Abrir Reel</a>
+                        </div>
+                    </article>
+
+                    <article class="story-card">
+                        <div class="story-frame">
+                            <iframe loading="lazy" title="Vídeo: Dia Especial 60+ do Patty Centro de Beleza" src="https://www.instagram.com/p/DLC1wO8gp1L/embed/" allowfullscreen></iframe>
+                        </div>
+                        <div class="story-label">
+                            <div><strong>Ação social / 60+</strong><span>Dia especial com desconto e acolhimento</span></div>
+                            <a href="https://www.instagram.com/p/DLC1wO8gp1L/" target="_blank" rel="noopener noreferrer">Abrir no Instagram</a>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="trust-proof-grid fade-in">
+                    <div class="trust-proof"><strong>Reputação pública</strong><span>Avaliações e nota vinculadas ao Perfil da Empresa no Google.</span></div>
+                    <div class="trust-proof"><strong>Resultados reais</strong><span>Transformações e atendimentos publicados no Instagram oficial do salão.</span></div>
+                    <div class="trust-proof"><strong>Presença local</strong><span>Atendimento presencial em Forquilhinhas, São José - SC, com rota direta pelo Google Maps.</span></div>
                 </div>
             </div>
         </section>
@@ -644,10 +878,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             Segunda das 13:30h às 19h | terça a Sábado, das 09h às 19h
                         </p>
+                        <a class="route-link" href="https://www.google.com/maps/place/?q=place_id:ChIJF8RnRQRKJ5URdIFZ6Akz2VU" target="_blank" rel="noopener noreferrer" aria-label="Abrir rota para Patty Centro de Beleza no Google Maps">Abrir rota no Google Maps →</a>
                     </div>
                     <div class="location-map">
-                        <iframe 
-                            width="100%" height="100%" style="border:0; min-height: 300px;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=Patty+Centro+de+Beleza+Rua+Pedro+Alvares+Cabral+244+Sao+Jose+SC&t=&z=15&ie=UTF8&iwloc=&output=embed">
+                        <iframe
+                            title="Mapa do Patty Centro de Beleza em Forquilhinhas, São José - SC"
+                            loading="lazy"
+                            allowfullscreen
+                            referrerpolicy="no-referrer-when-downgrade"
+                            src="https://www.google.com/maps?q=place_id:ChIJF8RnRQRKJ5URdIFZ6Akz2VU&output=embed">
                         </iframe>
                     </div>
                 </div>
@@ -659,15 +898,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <img src="imagens/logo-patty-salao.png" alt="Logo Salão da Patty" class="footer-logo" loading="lazy">
+                    <img src="imagens/logo-patty-salao.png" alt="Logo Salão da Patty" class="footer-logo" loading="lazy" decoding="async">
                     <p>Sua beleza em outro nível. Um espaço dedicado a celebrar sua individualidade.</p>
                 </div>
                 <div class="footer-col">
                     <h4>Navegação</h4>
                     <ul>
                         <li><a href="#servicos">Serviços</a></li>
+                        <li><a href="#galeria">Galeria</a></li>
                         <li><a href="#equipe">Equipe</a></li>
                         <li><a href="#avaliacoes">Avaliações</a></li>
+                        <li><a href="#confianca">Confiança</a></li>
                         <li><a href="#contato">Contato</a></li>
                     </ul>
                 </div>
@@ -693,6 +934,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </a>
 
     <script>
+        function loadDeferredGTM() {
+            if (window.__gtmLoaded) return;
+            window.__gtmLoaded = true;
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+            const gtm = document.createElement('script');
+            gtm.async = true;
+            gtm.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-NKZC9T42';
+            document.head.appendChild(gtm);
+        }
+        window.addEventListener('load', () => setTimeout(loadDeferredGTM, 7000), { once:true });
+        ['pointerdown','keydown'].forEach(evt => window.addEventListener(evt, loadDeferredGTM, { once:true, passive:true }));
+
         document.addEventListener('DOMContentLoaded', () => {
             const menuToggle = document.querySelector('.menu-toggle');
             const mainNav = document.querySelector('.main-nav');
