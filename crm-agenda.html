@@ -1,0 +1,73 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><title>Agenda piloto | CRM Patty</title>
+<style>
+:root{--wine:#801a39;--gold:#c79a67;--bg:#f8f4f2;--line:#e8dadd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.45 system-ui,-apple-system,sans-serif;color:#2b1922}
+header{background:var(--wine);color:white;padding:15px max(18px,calc((100vw - 1180px)/2));display:flex;gap:16px;flex-wrap:wrap;align-items:center}header a{color:white}
+main{max-width:1250px;margin:20px auto;padding:0 14px}.card{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+h1{font-size:23px;margin:0 0 8px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button,input{font:inherit;padding:9px;border-radius:8px}button{border:0;background:var(--wine);color:white;cursor:pointer}input{border:1px solid var(--line)}
+.note{border-left:4px solid var(--gold);background:#fff8ee;padding:11px;border-radius:8px;color:#654431}
+.scroller{overflow:auto;border:1px solid var(--line);border-radius:10px}
+.calendar{display:grid;grid-template-columns:76px repeat(var(--cols),minmax(145px,1fr));min-width:calc(76px + var(--cols)*145px)}
+.corner,.col-title{background:#f4eaf0;padding:12px 8px;font-size:13px;font-weight:700;border-right:1px solid var(--line);position:sticky;top:0;z-index:2}
+.corner{left:0;z-index:3}.hour,.cell{padding:6px;border-top:1px solid var(--line);border-right:1px solid var(--line);min-height:68px}
+.hour{background:#fcf6f8;position:sticky;left:0;z-index:1;font-weight:650;color:#69444f}
+.appt{border-radius:7px;padding:5px 7px;margin:2px 0;font-size:12px;box-shadow:0 1px 2px #0001}
+.agendado{background:#d4e6ff;color:#193f72}.atendido{background:#c8f2da;color:#14513c}
+.em_contato,.novo{background:#fff0c8;color:#6e4718}.perdido{background:#f2d0d3;color:#702b3b}
+.hidden{display:none!important}.muted{color:#765e67}
+@media(max-width:650px){main{padding:0 8px}.card{padding:12px}.calendar{grid-template-columns:56px repeat(var(--cols),minmax(125px,1fr))}.hour{font-size:12px}}
+</style></head><body>
+<header><strong>Patty | Agenda do CRM</strong><a href="/crm.html">Leads</a><a href="/crm-clientes.html">Clientes Gendo</a></header>
+<main><div id="login" class="card"><h1>Entrar</h1><form id="login-form" class="row">
+<input id="email" autocomplete="username" type="email" placeholder="E-mail" required>
+<input id="password" autocomplete="current-password" type="password" placeholder="Senha" required><button>Entrar</button></form><p id="login-error" role="alert"></p></div>
+<section id="app" class="hidden">
+<div class="card"><h1>Agenda visual por profissional</h1>
+<p class="note"><strong>Modo piloto:</strong> somente os agendamentos criados no CRM aparecem aqui. Esta agenda não está sincronizada com o Gendo e não deve substituir o calendário operacional do salão nesta fase.</p>
+<div class="row"><button id="prev" title="Dia anterior">‹ Anterior</button><input id="date" type="date" aria-label="Dia da agenda">
+<button id="next">Próximo ›</button><button id="today">Hoje</button><button id="refresh">Atualizar</button><button id="logout">Sair</button></div>
+<p id="status" class="muted" role="status"></p>
+<div class="scroller"><div id="calendar"></div></div>
+<p class="muted">Cores: <span style="background:#d4e6ff;padding:3px 8px">Agendado</span> <span style="background:#c8f2da;padding:3px 8px">Atendido</span> <span style="background:#fff0c8;padding:3px 8px">Em conversa</span>. Horários e profissionais são informados no cadastro do lead.</p>
+</div></section></main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const $=x=>document.getElementById(x);let auth;
+const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pros=["Patty","Benedita","Deimy","Allegra","Héllen","Chele","Maira","Vaneza","Vanya","Não atribuído"];
+function localToday(){const a=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const p=n=>a.find(x=>x.type===n)?.value;return p("year")+"-"+p("month")+"-"+p("day")}
+async function load(){
+ if(!auth?.currentUser)return;
+ try{
+ $("status").textContent="Buscando agenda...";
+ const response=await fetch("/api/crm/agenda?date="+encodeURIComponent($("date").value),{headers:{Authorization:"Bearer "+await auth.currentUser.getIdToken()}});
+ const d=await response.json();if(!response.ok)throw Error(d.error||"Falha ao consultar");
+ const groups=[...new Set([...pros,...d.appointments.map(x=>x.professional||"Não atribuído")])];
+ const hours=Array.from({length:13},(_,i)=>String(i+8).padStart(2,"0"));
+ let html='<div class="calendar" style="--cols:'+groups.length+'"><div class="corner">Hora</div>';
+ html+=groups.map(p=>'<div class="col-title">'+esc(p)+'</div>').join("");
+ for(const h of hours) {
+  html+='<div class="hour">'+h+':00</div>';
+  for(const p of groups) {
+   const appts=d.appointments.filter(a=>(a.professional||"Não atribuído")===p && (a.appointmentTime||"").slice(0,2)===h);
+   const unscheduled=h==="08"?d.appointments.filter(a=>(a.professional||"Não atribuído")===p&&!a.appointmentTime):[];
+   html+='<div class="cell">'+(appts.concat(unscheduled)).map(a=>'<div class="appt '+esc(a.status)+'"><strong>'+esc(a.appointmentTime||"Sem horário")+'</strong> '+esc(a.name)+'<div>'+esc(a.service)+'</div></div>').join("")+'</div>';
+  }
+ }
+ html+='</div>';$("calendar").innerHTML=html;
+ $("status").textContent=d.appointments.length+" agendamentos no CRM para "+$("date").value+(d.partial?" (lista parcial)":"")+".";
+ }catch(e){$("status").textContent=e.message}
+}
+function shift(days){const d=new Date($("date").value+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+days);$("date").value=d.toISOString().slice(0,10);load()}
+$("prev").onclick=()=>shift(-1);$("next").onclick=()=>shift(1);
+$("today").onclick=()=>{$("date").value=localToday();load()};
+$("refresh").onclick=load;$("date").onchange=load;$("logout").onclick=()=>signOut(auth);
+$("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}catch(_){$("login-error").textContent="Falha de autenticação."}};
+(async()=>{try{const r=await fetch("/api/config");if(!r.ok)throw Error("Configuração não encontrada");
+ auth=getAuth(initializeApp((await r.json()).firebase));$("date").value=localToday();
+ onAuthStateChanged(auth,async user=>{$("login").classList.toggle("hidden",!!user&&user.emailVerified);$("app").classList.toggle("hidden",!user||!user.emailVerified);if(user?.emailVerified)await load()});
+ }catch(e){$("login-error").textContent=e.message}})();
+</script></body></html>
