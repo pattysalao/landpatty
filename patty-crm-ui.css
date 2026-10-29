@@ -127,3 +127,8 @@ body.patty-admin{background:var(--patty-canvas)!important;color:var(--patty-ink)
 .patty-admin .patty-nav-link:focus-visible{outline-offset:-2px}
 @media(min-width:861px){.patty-admin .tabs{display:none}}
 @media(max-width:860px){.patty-admin .patty-menu-backdrop{background:rgba(34,19,26,.68);border:0;min-height:0;min-width:0;padding:0;border-radius:0;box-shadow:none}}
+
+.patty-admin #login:not(.hidden){max-width:520px;margin:7vh auto;padding:28px}
+.patty-admin #loginForm input{flex:1 1 180px;min-width:0}
+.patty-admin .panel h3,.patty-admin .card h2{color:#482b3a}
+.patty-admin .patty-topbar-site:hover{background:#faeef3}
