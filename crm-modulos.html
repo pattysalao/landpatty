@@ -1,0 +1,181 @@
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<title>Operação, financeiro e importações | CRM Patty</title>
+<style>
+:root{--wine:#801a39;--wine2:#5d1731;--gold:#d0a36b;--bg:#f8f4f2;--line:#e8dadd;--text:#2d1d23;--muted:#76626b;--good:#196a43}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Arial,sans-serif}
+header{background:var(--wine);color:#fff;padding:13px max(16px,calc((100vw - 1180px)/2));display:flex;flex-wrap:wrap;gap:18px;align-items:center;box-shadow:0 4px 16px #48122222}header strong{font-size:19px}header a{color:#fff;text-decoration:none;font-size:13px}header a:hover{text-decoration:underline}
+main{max-width:1210px;margin:20px auto;padding:0 16px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:19px;margin:14px 0;box-shadow:0 6px 24px #4b223014}
+h1{font-size:26px;margin:0 0 5px}h2{font-size:19px;margin:0 0 10px}h3{font-size:15px}.muted{color:var(--muted)}.small{font-size:12px}.hidden{display:none!important}
+button,input,select,textarea{font:inherit}button{background:var(--wine);color:#fff;border:none;border-radius:9px;cursor:pointer;padding:10px 15px;font-weight:650}button.secondary{background:#fff;color:var(--wine);border:1px solid var(--wine)}button:disabled{opacity:.48;cursor:not-allowed}input,select,textarea{border:1px solid #d9c8ce;border-radius:8px;background:#fff;color:var(--text);padding:9px 10px;min-width:0}label{display:block;font-weight:650;margin:10px 0 4px}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.tabs{display:flex;gap:7px;overflow:auto;padding:8px 0 14px;scrollbar-width:thin}.tabs button{flex:0 0 auto;background:#fff;color:var(--wine);border:1px solid #dfc8d1;font-weight:600;white-space:nowrap;font-size:13px}.tabs button.selected{background:var(--wine);color:#fff}
+.note{background:#fff6e9;border-left:4px solid var(--gold);padding:12px;border-radius:7px;margin:12px 0}.error{color:#ab2842}.success{color:var(--good)}
+.mapping{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.mapping>div{border:1px solid var(--line);border-radius:9px;padding:9px;min-width:0;background:#fffdfc}.mapping select{width:100%}.mapping small{font-weight:400;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin:16px 0}.stat{border:1px solid var(--line);background:#fffaf8;border-radius:10px;padding:13px}.stat b{display:block;font-size:23px}.stat span{font-size:12px;color:var(--muted)}
+.tablebox{max-width:100%;overflow:auto;border:1px solid var(--line);border-radius:9px}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;border-bottom:1px solid var(--line);padding:9px 10px;white-space:nowrap}th{background:#fcf6f8}td.notes{max-width:290px;overflow:hidden;text-overflow:ellipsis}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.fields input,.fields select{width:100%}
+.overlay{position:fixed;inset:0;background:#1d1115aa;display:flex;justify-content:flex-end;z-index:6}.drawer{background:white;width:min(100%,600px);height:100%;overflow:auto;padding:24px}.drawer .fields{grid-template-columns:repeat(2,minmax(0,1fr))}.pill{border:1px solid #ead7c8;background:#fff8f0;border-radius:20px;padding:4px 10px;font-size:12px}
+@media(max-width:780px){.mapping{grid-template-columns:repeat(2,minmax(0,1fr))}.fields{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){main{padding:0 9px}.panel{padding:14px}.mapping,.fields,.drawer .fields{grid-template-columns:1fr}}
+</style></head><body>
+<header><strong>Patty | Operação e relatórios</strong><a href="/crm.html">Leads</a><a href="/crm-agenda.html">Agenda piloto</a><a href="/crm-clientes.html">Clientes Gendo</a></header>
+<main>
+<section id="login" class="panel"><h1>Entrada da equipe</h1><p class="muted">Acesso individual verificado pelo CRM; informações financeiras e importações são restritas à administração.</p>
+<form id="loginForm" class="row"><input id="email" type="email" autocomplete="username" placeholder="E-mail autorizado" required><input id="password" type="password" autocomplete="current-password" placeholder="Senha" required><button>Entrar</button></form><p id="loginError" role="alert" class="error"></p></section>
+<section id="app" class="hidden">
+<div class="panel"><div class="row" style="justify-content:space-between"><div><h1>Módulos do salão</h1><p class="muted" style="margin:0">Serviços, profissionais, atendimentos e relatórios — importação gradual do Gendo.</p></div><button id="logout" class="secondary">Sair</button></div><div class="tabs" id="tabs" aria-label="Módulos"></div><h2 id="moduleTitle"></h2>
+<p class="note" id="moduleNote"></p><p id="status" role="status" class="muted"></p>
+<div id="managerTools">
+<div class="row"><button id="new" class="secondary">+ Cadastro manual</button><input id="file" type="file" accept=".csv,.tsv,text/csv"><button id="preview" class="secondary" disabled>Conferir CSV</button><button id="import" disabled>Importar</button></div>
+<div id="mapSection" class="hidden"><h3>Vincular colunas do CSV aos campos do CRM</h3><p class="small muted">Selecione os campos correspondentes. Colunas ausentes ficam em branco; campos obrigatórios devem estar mapeados. Valores e datas são normalizados antes do envio.</p><div class="mapping" id="mapping"></div>
+<div class="stats" id="previewStats"></div><div class="tablebox"><table><thead id="sampleHead"></thead><tbody id="sampleBody"></tbody></table></div></div>
+<p class="small muted">A importação é idempotente para a mesma referência Gendo ou a mesma linha de CSV. Nunca sobrescreve registros existentes. As importações são históricas e não geram contatos nem mensagens de marketing.</p>
+</div></div>
+<div class="panel"><div class="row" style="justify-content:space-between"><h2>Registros</h2><div class="row"><input id="filter" placeholder="Pesquisar nesta página"><button id="refresh" class="secondary">Atualizar</button><button id="export" class="secondary">Exportar página</button></div></div>
+<p id="listStatus" class="muted" role="status"></p><div class="tablebox"><table><thead id="listHead"></thead><tbody id="listBody"></tbody></table></div><div class="row" style="margin-top:10px"><button id="more" class="secondary hidden">Próxima página</button></div></div>
+<section id="reports" class="panel hidden"><div class="row" style="justify-content:space-between"><h2>Relatório por período</h2><div class="row"><select id="period"><option value="1">Hoje / 1 dia</option><option value="7">7 dias</option><option value="30">30 dias</option><option value="90">90 dias</option><option value="365">12 meses</option></select><button id="loadReport" class="secondary">Atualizar relatório</button></div></div>
+<p class="small muted">O relatório mostra exclusivamente dados do módulo selecionado. Atendimentos, financeiro e faturamento podem representar os mesmos pagamentos; não devem ser somados. A importação não gera receita nova.</p><div class="stats" id="reportStats"></div><div class="tablebox"><table><thead><tr><th>Grupo</th><th>Registros</th><th>Total registrado</th></tr></thead><tbody id="reportRows"></tbody></table></div><p id="reportStatus" role="status" class="muted"></p></section>
+</section></main>
+<div class="overlay hidden" id="editOverlay"><section class="drawer" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="row" style="justify-content:space-between"><h2 id="editTitle">Cadastro</h2><button id="closeEditor" class="secondary">Fechar</button></div>
+<p class="small muted">Cadastro manual realizado somente pela administração. Não substitui, edita ou sincroniza diretamente o Gendo.</p><form id="editForm"><div class="fields" id="editFields"></div><p id="editStatus" class="error" role="alert"></p><button id="save" type="submit">Salvar registro</button></form></section></div>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+const $=id=>document.getElementById(id);const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let auth,schemas={},module='',manager=false,rows=[],cursor=null,fileRecords=[],headers=[],mapping={},editing=null,readyPreview=false,lastReport=null;
+const money=v=>Number.isSafeInteger(v)?(v/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—';
+const moduleNotes={servicos:'Catálogo e preços. Use Código Gendo para identificar o serviço. Não há sincronização automática com a agenda atual.',profissionais:'Equipe e expediente. A liberação de login individual continua sendo feita pelo administrador do Firebase e pela allowlist do CRM.',atendimentos:'Histórico de atendimentos. A receita importada é histórica; não é uma conversão de mídia. Não substitui os agendamentos do Gendo.',financeiro_clientes:'Lançamentos e saldos por cliente. Podem conter débitos e créditos: não equivalem a receita realizada.',faturamento:'Faturamento/caixa histórico. Valores deste relatório podem corresponder a atendimentos; não some os dois módulos.',ticket_clientes:'Relatório histórico de ticket médio; os dados não são novos atendimentos nem conversões de anúncios.',comissoes:'Comissões e valores por profissional. São registros históricos, não liquidações ou pagamentos automáticos.',produtos:'Cadastro de produtos e saldo informado. Não há baixa automática de estoque quando um serviço é concluído.',estoque:'Movimentações históricas. Não alteram automaticamente o saldo no cadastro de produtos; conciliação deverá ser validada.'};
+async function request(url,opts={}){
+ const user=auth?.currentUser;if(!user?.emailVerified)throw Error('É necessário entrar com e-mail confirmado.');
+ const response=await fetch(url,{...opts,headers:{Authorization:'Bearer '+await user.getIdToken(),...(opts.body?{'Content-Type':'application/json'}:{})}});
+ const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'Erro na consulta');return data;
+}
+function cellDisplay(value,type){return value==null||value===''?'—':type==='money'?money(value):typeof value==='boolean'?(value?'Sim':'Não'):String(value)}
+function fieldDef(key){return schemas[module].fields[key]}
+function setModule(name){if(!schemas[name])return;module=name;rows=[];cursor=null;fileRecords=[];headers=[];mapping={};readyPreview=false;
+ $('file').value='';$('mapSection').classList.add('hidden');$('preview').disabled=true;$('import').disabled=true;
+ $('moduleTitle').textContent=schemas[module].label;$('moduleNote').textContent=moduleNotes[module]||'';
+ $('tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b.dataset.module===name));
+ const hidden=schemas[module].manager&&!manager;$('managerTools').classList.toggle('hidden',!manager||hidden);
+ $('reports').classList.toggle('hidden',!manager);$('status').textContent=hidden?'Acesso gerencial necessário.':'Dados carregados com autenticação.';
+ if(hidden){$('listBody').innerHTML='';$('listHead').innerHTML='';$('listStatus').textContent='';return}
+ load(true);if(manager)report();
+}
+function buildTabs(){let html='';for(const [key,def] of Object.entries(schemas)){
+ if(def.manager&&!manager)continue;html+='<button type="button" data-module="'+escape(key)+'">'+escape(def.label)+'</button>'}
+ $('tabs').innerHTML=html;$('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>setModule(b.dataset.module));
+ const first=$('tabs').querySelector('button');if(first)setModule(first.dataset.module);
+}
+async function load(reset){if(reset){rows=[];cursor=null}
+ $('listStatus').textContent='Carregando registros...';try{const r=await request('/api/crm/modulos?module='+encodeURIComponent(module)+(cursor?'&cursor='+encodeURIComponent(cursor):''));
+ rows.push(...r.items);cursor=r.nextCursor;$('more').classList.toggle('hidden',!cursor);
+ renderTable();$('listStatus').textContent=rows.length+' registros carregados'+(cursor?' — existem mais páginas':'')+'.';}
+ catch(e){$('listStatus').textContent=e.message}}
+function renderTable(){const fields=schemas[module].fields;const columns=Object.keys(fields).slice(0,8);
+ $('listHead').innerHTML='<tr>'+columns.map(k=>'<th>'+escape(fields[k][0])+'</th>').join('')+'<th>Ação</th></tr>';
+ const q=$('filter').value.toLowerCase();const shown=rows.filter(x=>!q||columns.some(k=>String(x[k]??'').toLowerCase().includes(q)));
+ $('listBody').innerHTML=shown.map(x=>'<tr>'+columns.map(k=>'<td>'+escape(cellDisplay(x[k],fields[k][1]))+'</td>').join('')+
+ '<td>'+(manager?'<button class="secondary" data-edit="'+escape(x.id)+'">Editar</button>':'—')+'</td></tr>').join('');
+ $('listBody').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>edit(rows.find(x=>x.id===b.dataset.edit)));
+}
+// CSV parser compatível com ponto e vírgula, vírgula, TAB, aspas escapadas e quebras de linha dentro de células.
+function detectDelimiter(text){const first=text.split(/\r?\n/)[0]||'';return [';',',','\t'].sort((a,b)=>first.split(b).length-first.split(a).length)[0]}
+function csvParse(text,delimiter){let out=[],row=[],cell='',quoted=false;
+ for(let i=0;i<text.length;i++){let c=text[i];if(c==='"'){
+   if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted}
+  else if(!quoted&&c===delimiter){row.push(cell);cell=''}
+  else if(!quoted&&(c==='\r'||c==='\n')){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell);if(row.some(x=>x.trim()))out.push(row);row=[];cell=''}
+  else cell+=c;
+ }if(quoted)throw Error('CSV com aspas não fechadas');row.push(cell);if(row.some(x=>x.trim()))out.push(row);return out;
+}
+const simplify=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+const synonyms={code:['codigo','cod','id','sku'],sourceId:['codigo','id','numero','idregistro'],name:['nome','servico','produto','profissional','descricao'],date:['data','dataatendimento','datapagamento','datamovimento','dia'],priceCents:['preco','precoreal','valor','valorservico'],durationMin:['duracao','tempo','minutos'],professional:['profissional','colaborador','funcionario'],customerCode:['codigocliente','clienteid','codcliente'],customerName:['nomecliente','cliente','paciente'],service:['servico','procedimento'],amountCents:['valor','faturado','total','valorbruto','pagamento'],commissionCents:['comissao','valorcomissao'],grossCents:['base','valorbruto'],visits:['visitas','atendimentos','quantidade'],stockQty:['estoque','saldo','quantidade'],saleCents:['precovenda','preco'],costCents:['custo','precocusto'],quantity:['quantidade','qtde','qtd'],totalCents:['total','faturado'],averageCents:['ticketmedio','media'],birthDate:['nascimento'],period:['periodo','mes','ano'],category:['categoria','grupo'],type:['tipo','situacao','movimento'],active:['ativo','status'],status:['status','situacao'],customerCode:['codigocliente','codcliente','codigopaciente'],productCode:['codigoproduto','codigo','sku'],productName:['produto','nomeproduto']};
+function suggest(key,label,headerList){const candidates=[simplify(key),simplify(label),...(synonyms[key]||[])];
+ for(const c of candidates){let i=headerList.findIndex(x=>simplify(x)===c);if(i>=0)return String(i)}return ''}
+function value(type,s){const raw=String(s??'').trim();if(!raw)return null;
+ if(type==='text')return raw.slice(0,250);
+ if(type==='date'){
+  if(/^\d{4}-\d{2}-\d{2}$/.test(raw))return raw;
+  const m=raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');return null;
+ }
+ if(type==='bool')return /^(1|sim|yes|true|ativo)$/i.test(raw)?true:/^(0|nao|não|no|false|inativo)$/i.test(raw)?false:null;
+ let x=raw.replace(/R\$|\s/g,'').replace(/[()]/g,'').replace(/[^0-9,.-]/g,'');
+ if(x.includes(',')&&x.includes('.')){x=x.lastIndexOf(',')>x.lastIndexOf('.')?x.replace(/\./g,'').replace(',','.'):x.replace(/,/g,'')}
+ else if(x.includes(','))x=x.replace(',','.');
+ else if(x.includes('.')&&/^\d{1,3}(\.\d{3})+$/.test(x))x=x.replace(/\./g,'');
+ const n=Number(x);if(!Number.isFinite(n)||!x)return null;
+ if(type==='money')return Math.round(n*100);
+ if(type==='int')return Number.isInteger(n)?n:null;
+ return n;
+}
+function csvToRecords(){const fields=schemas[module].fields;return fileRecords.map((r,i)=>{
+ let rec={rowIndex:i+2};for(const [key,def] of Object.entries(fields)){
+  const idx=Number(mapping[key]);if(mapping[key]!==undefined&&mapping[key]!==''&&Number.isSafeInteger(idx))rec[key]=value(def[1],r[idx])}
+ return rec;
+})}
+function showSample(){const data=csvToRecords().slice(0,4), keys=Object.keys(schemas[module].fields).filter(k=>mapping[k]!=='');
+ $('sampleHead').innerHTML='<tr>'+keys.map(k=>'<th>'+escape(schemas[module].fields[k][0])+'</th>').join('')+'</tr>';
+ $('sampleBody').innerHTML=data.map(rec=>'<tr>'+keys.map(k=>'<td>'+escape(cellDisplay(rec[k],fieldDef(k)[1]))+'</td>').join('')+'</tr>').join('')}
+function buildMapping(){const fields=schemas[module].fields;const options='<option value="">— Não importar —</option>'+headers.map((h,i)=>'<option value="'+i+'">'+escape(h||'(sem título)')+' ['+(i+1)+']</option>').join('');
+ $('mapping').innerHTML=Object.entries(fields).map(([key,def])=>'<div><label for="map-'+escape(key)+'">'+escape(def[0])+(def[2]?' *':'')+'</label><select id="map-'+escape(key)+'" data-map="'+escape(key)+'">'+options+'</select><small>'+escape(def[1])+'</small></div>').join('');
+ $('mapping').querySelectorAll('[data-map]').forEach(sel=>{const key=sel.dataset.map;sel.value=suggest(key,fields[key][0],headers);mapping[key]=sel.value;
+ sel.onchange=()=>{mapping[key]=sel.value;readyPreview=false;$('import').disabled=true;showSample()}});
+ showSample();$('mapSection').classList.remove('hidden');$('preview').disabled=false;
+}
+$('file').onchange=async()=>{fileRecords=[];headers=[];mapping={};readyPreview=false;$('preview').disabled=true;$('import').disabled=true;$('mapSection').classList.add('hidden');
+ try{const f=$('file').files?.[0];if(!f)return;if(f.size>20*1024*1024)throw Error('Arquivo maior que 20 MB. Exporte em páginas.');
+ const buf=await f.arrayBuffer();let text;
+ try{text=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(_){text=new TextDecoder('windows-1252').decode(buf)}
+ const table=csvParse(text.replace(/^\uFEFF/,''),detectDelimiter(text));if(table.length<2)throw Error('CSV não contém linhas de dados');
+ headers=table[0].map((v,i)=>v.trim()||'Coluna '+(i+1));fileRecords=table.slice(1).filter(r=>r.some(x=>x.trim()));
+ $('status').textContent='CSV lido: '+fileRecords.length+' linhas. Confira o mapeamento e depois use “Conferir CSV”.';buildMapping();
+ }catch(e){$('status').textContent='Arquivo inválido: '+e.message}
+};
+function summaryBox(t){$('previewStats').innerHTML=[['Registros',t.received],['Válidos',t.valid],['Existentes',t.existing],['Novos',t.created]].map(([label,n])=>'<div class="stat"><b>'+escape(n||0)+'</b><span>'+label+'</span></div>').join('')}
+async function runImport(action){const records=csvToRecords(),total={received:0,valid:0,invalid:0,duplicatesFile:0,existing:0,created:0,errors:[]};
+ for(let i=0;i<records.length;i+=50){const r=await request('/api/crm/modulos?module='+encodeURIComponent(module),{method:'POST',body:JSON.stringify({action,records:records.slice(i,i+50)})});
+  for(const k of ['received','valid','invalid','duplicatesFile','existing','created'])total[k]+=r[k]||0;
+  if(r.errors?.length&&total.errors.length<10)total.errors.push(...r.errors.slice(0,10-total.errors.length));
+  $('status').textContent=(action==='preview'?'Conferindo':'Importando')+' '+Math.min(i+50,records.length)+'/'+records.length;
+ }summaryBox(total);return total}
+$('preview').onclick=async()=>{$('preview').disabled=true;$('import').disabled=true;
+ try{const t=await runImport('preview');readyPreview=true;$('import').disabled=!t.created;
+ $('status').textContent='Prévia: '+t.created+' possíveis novos registros, '+t.existing+' existentes, '+t.invalid+' inválidos.'+
+  (t.errors.length?' Exemplo: linha '+t.errors[0].row+' — '+t.errors[0].reason:'');
+ }catch(e){$('status').textContent=e.message}finally{$('preview').disabled=false}};
+$('import').onclick=async()=>{if(!readyPreview)return;
+ if(!confirm('Confirmar importação histórica de '+fileRecords.length+' linhas no módulo '+schemas[module].label+'? Nenhum registro será sobrescrito e nenhum aviso será enviado.'))return;
+ $('import').disabled=true;$('preview').disabled=true;
+ try{const t=await runImport('import');$('status').textContent='Importação concluída: '+t.created+' novos, '+t.existing+' existentes, '+t.invalid+' inválidos. Confira os relatórios e os dados.';await load(true);await report()}
+ catch(e){$('status').textContent='Importação interrompida: '+e.message+'. Lotes anteriores são preservados; refaça a prévia.'}
+ finally{$('preview').disabled=false}};
+function editorField(key,def,v){const type=def[1];const val=v==null?'':type==='money'?String(v/100).replace('.',','):String(v);
+ const input=type==='bool'?'<select name="'+escape(key)+'"><option value="">— Não informado —</option><option value="true" '+(v===true?'selected':'')+'>Sim</option><option value="false" '+(v===false?'selected':'')+'>Não</option></select>':
+ '<input name="'+escape(key)+'" '+(type==='date'?'type="date"':type==='int'||type==='decimal'||type==='money'?'inputmode="decimal"':'type="text"')+' value="'+escape(val)+'" '+(def[2]?'required':'')+' maxlength="250">';
+ return '<div><label>'+escape(def[0])+(def[2]?' *':'')+'</label>'+input+'</div>'}
+function edit(record){editing=record||null;$('editTitle').textContent=editing?'Editar registro':'Novo registro';$('editStatus').textContent='';
+ $('editFields').innerHTML=Object.entries(schemas[module].fields).map(([key,def])=>editorField(key,def,editing?.[key])).join('');$('editOverlay').classList.remove('hidden')}
+$('new').onclick=()=>edit(null);$('closeEditor').onclick=()=>{$('editOverlay').classList.add('hidden')};
+$('editOverlay').onclick=e=>{if(e.target===$('editOverlay'))$('closeEditor').click()};
+$('editForm').onsubmit=async e=>{e.preventDefault();$('save').disabled=true;
+ try{const item={};for(const [key,def] of Object.entries(schemas[module].fields)){
+  const el=$('editForm').elements.namedItem(key);if(el)item[key]=value(def[1],el.value)}
+  const response=await request('/api/crm/modulos?module='+encodeURIComponent(module),{
+   method:editing?'PATCH':'POST',body:JSON.stringify(editing?{id:editing.id,item}:{action:'create',item})});
+  $('editOverlay').classList.add('hidden');$('status').textContent='Registro salvo no módulo '+schemas[module].label+'.';await load(true);await report();
+ }catch(err){$('editStatus').textContent=err.message}finally{$('save').disabled=false}};
+async function report(){if(!manager||!module)return;
+ $('reportStatus').textContent='Calculando relatório...';try{const d=await request('/api/crm/modulos?module='+encodeURIComponent(module)+'&mode=report&period='+$('period').value);lastReport=d;
+ $('reportStats').innerHTML=[['Registros',d.records],['Total do módulo',money(d.totalCents)],['Com valor',d.withAmount],['Média dos valores',money(d.averageCents)]].map(([label,val])=>'<div class="stat"><b>'+escape(val)+'</b><span>'+label+'</span></div>').join('');
+ $('reportRows').innerHTML=d.groups.map(x=>'<tr><td>'+escape(x.label)+'</td><td>'+escape(x.count)+'</td><td>'+escape(money(x.totalCents))+'</td></tr>').join('');
+ $('reportStatus').textContent=(d.partial?'Relatório parcial: mais de 1.000 registros no período. ':'')+d.warning;
+ }catch(e){$('reportStatus').textContent=e.message}}
+$('loadReport').onclick=report;$('period').onchange=report;$('refresh').onclick=()=>load(true);$('more').onclick=()=>load(false);$('filter').oninput=renderTable;
+$('export').onclick=()=>{const cols=Object.keys(schemas[module].fields);const header=cols.map(k=>schemas[module].fields[k][0]);const csv=[header,...rows.map(x=>cols.map(k=>String(x[k]??'')))].map(r=>r.map(v=>'"'+(/^\s*[=+@]/.test(v)?'\''+v:v).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+ const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const u=URL.createObjectURL(blob);const link=document.createElement('a');link.href=u;link.download='patty-'+module+'-pagina.csv';link.click();URL.revokeObjectURL(u)};
+$('logout').onclick=()=>signOut(auth);
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await signInWithEmailAndPassword(auth,$('email').value,$('password').value)}catch(_){$('loginError').textContent='Verifique o acesso com a administração'}};
+(async()=>{try{const resp=await fetch('/api/config',{cache:'no-store'});if(!resp.ok)throw Error('Configuração do CRM indisponível');const config=await resp.json();auth=getAuth(initializeApp(config.firebase));
+ onAuthStateChanged(auth,async user=>{const ok=!!user?.emailVerified;$('login').classList.toggle('hidden',ok);$('app').classList.toggle('hidden',!ok);
+ if(ok){try{const r=await request('/api/crm/modulos');schemas=r.modules;manager=r.isManager;buildTabs()}catch(e){$('status').textContent=e.message}}});
+ }catch(e){$('loginError').textContent=e.message}})();
+</script></body></html>
