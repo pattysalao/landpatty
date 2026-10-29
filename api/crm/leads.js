@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       const date = body.appointmentDate || null;
       const appointmentTime = body.appointmentTime || null;
       const professional = getText(body.professional,60) || null;
-      if (appointmentTime && !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(appointmentTime)) return send(res,400,{error:"Horário inválido"});
+      if (appointmentTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(appointmentTime)) return send(res,400,{error:"Horário inválido"});
       const followUp = body.followUpDate || null;
       const revenue = body.revenueCents ?? null;
       const expected = body.estimatedRevenueCents ?? null;
@@ -144,7 +144,7 @@ export default async function handler(req, res) {
     if ("appointmentTime" in body) {
       if (body.appointmentTime !== null && typeof body.appointmentTime !== "string")
         return send(res,400,{error:"Horário inválido"});
-      if (body.appointmentTime && !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(body.appointmentTime))
+      if (body.appointmentTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(body.appointmentTime))
         return send(res,400,{error:"Horário inválido"});
       update.appointmentTime = body.appointmentTime || null;
     }
