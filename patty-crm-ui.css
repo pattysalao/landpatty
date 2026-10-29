@@ -42,7 +42,7 @@ body.patty-admin{background:var(--patty-canvas)!important;color:var(--patty-ink)
 .patty-admin .toolbar{gap:15px;margin-bottom:21px}
 .patty-admin .toolbar p{font-size:13px}
 .patty-admin button,.patty-admin a.primary,.patty-admin button.primary{min-height:40px;border-radius:10px;font-weight:675;transition:background .16s,transform .16s,box-shadow .16s}
-.patty-admin button:not(.secondary):not(.patty-mobile-toggle):not(.patty-ghost),.patty-admin button.primary{background:var(--patty-wine);border:1px solid var(--patty-wine);color:white}
+.patty-admin button:not(.secondary):not(.patty-mobile-toggle):not(.patty-menu-backdrop):not(.patty-ghost),.patty-admin button.primary{background:var(--patty-wine);border:1px solid var(--patty-wine);color:white}
 .patty-admin button:hover:not(:disabled),.patty-admin a.primary:hover{filter:brightness(.96)}
 .patty-admin button:active:not(:disabled){transform:translateY(1px)}
 .patty-admin .secondary,.patty-admin button.secondary{background:#fff;color:var(--patty-wine);border:1px solid #e1d3d8}
@@ -113,3 +113,17 @@ body.patty-admin{background:var(--patty-canvas)!important;color:var(--patty-ink)
  .patty-admin #file{max-width:100%;width:100%}
 }
 @media(prefers-reduced-motion:reduce){.patty-admin *{scroll-behavior:auto!important;transition:none!important}}
+
+
+/* App shell refinements */
+.patty-admin .patty-topbar-site svg,.patty-admin .patty-side-bottom svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px}
+.patty-admin [data-legacy-navigation="true"]{display:none!important}
+.patty-admin .patty-nav-link[hidden]{display:none!important}
+.patty-admin:not(.patty-auth-ready) .patty-sidebar{display:none!important}
+.patty-admin:not(.patty-auth-ready) .patty-workspace{width:100%;max-width:100%}
+.patty-admin:not(.patty-auth-ready) .patty-mobile-toggle{display:none!important}
+.patty-admin .patty-topbar .patty-logout{flex-shrink:0;font-size:12px;padding:8px 12px;min-height:36px}
+.patty-admin .drawer{max-width:100%;box-sizing:border-box}
+.patty-admin .patty-nav-link:focus-visible{outline-offset:-2px}
+@media(min-width:861px){.patty-admin .tabs{display:none}}
+@media(max-width:860px){.patty-admin .patty-menu-backdrop{background:rgba(34,19,26,.68);border:0;min-height:0;min-width:0;padding:0;border-radius:0;box-shadow:none}}
