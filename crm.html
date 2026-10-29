@@ -65,6 +65,7 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 </section>
 <section id="app" class="hidden">
 <div class="toolbar"><div><h1 style="margin:0">Contatos e agendamentos</h1><p class="muted" style="margin:0">Leads do site e contatos cadastrados pela equipe</p></div><div class="actions" style="margin:0"><button id="manual-add" class="primary">+ Novo lead</button><button id="reload" class="secondary">Atualizar</button></div></div>
+<div class="row" style="display:flex;flex-wrap:wrap;gap:10px;margin:0 0 15px"><a class="primary" href="/crm-agenda.html" style="display:inline-block;text-decoration:none;background:#801a39;color:white;padding:10px 15px;border-radius:10px">📅 Agenda por profissional (piloto)</a><a href="/crm-clientes.html" style="display:inline-block;border:1px solid #801a39;padding:9px 15px;border-radius:10px;text-decoration:none">👥 Clientes / Importação Gendo</a></div>
 <div class="cards">
 <div class="metric"><span>Registros carregados</span><strong id="count">0</strong></div>
 <div class="metric"><span>Novos</span><strong id="new">0</strong></div>
@@ -120,6 +121,8 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <option value="perdido">Perdido</option></select></div>
 <div><label for="manual-date">Data agendada</label><input id="manual-date" type="date"></div>
 <div><label for="manual-followup">Próximo retorno</label><input id="manual-followup" type="date"></div>
+<div><label for="manual-time">Horário agendado</label><input id="manual-time" type="time"></div>
+<div><label for="manual-professional">Profissional</label><input id="manual-professional" maxlength="60" list="patty-pros" placeholder="Selecionar / digitar nome"></div>
 <div><label for="manual-estimate">Valor previsto (R$)</label><input id="manual-estimate" inputmode="decimal" placeholder="Ex: 120,00"></div>
 <div><label for="manual-revenue">Valor recebido (R$)</label><input id="manual-revenue" inputmode="decimal" placeholder="Ex: 120,00"></div>
 <div class="full"><label style="display:flex;align-items:center;gap:8px">
@@ -136,6 +139,8 @@ Cadastro de teste (não incluir nos relatórios)</label></div>
 <div class="full"><label for="detail-status">Situação</label><select id="detail-status"><option value="novo">Novo lead</option><option value="em_contato">Em conversa</option><option value="agendado">Agendado</option><option value="atendido">Atendido</option><option value="perdido">Perdido</option></select></div>
 <div><label for="detail-date">Data agendada</label><input type="date" id="detail-date"></div>
 <div><label for="detail-followup">Próximo retorno</label><input type="date" id="detail-followup"></div>
+<div><label for="detail-time">Horário agendado</label><input type="time" id="detail-time"></div>
+<div><label for="detail-professional">Profissional</label><input id="detail-professional" maxlength="60" list="patty-pros"></div>
 <div><label for="detail-estimate">Valor previsto (R$)</label><input id="detail-estimate" inputmode="decimal" placeholder="Ex: 120,00"></div>
 <div><label for="detail-revenue">Valor efetivamente recebido (R$)</label><input id="detail-revenue" inputmode="decimal" placeholder="Ex: 120,00"></div>
 <div><label for="detail-loss">Motivo da perda</label><select id="detail-loss">
@@ -150,6 +155,7 @@ Registro de teste (não incluir nos relatórios)</label></div>
 <div class="actions"><a id="open-wa" class="primary" rel="noopener noreferrer" target="_blank">Abrir WhatsApp</a><button id="save" class="primary">Salvar alterações</button></div>
 <p id="detail-error" class="error" role="alert"></p>
 </section></div>
+<datalist id="patty-pros"><option value="Patty"><option value="Benedita"><option value="Deimy"><option value="Allegra"><option value="Héllen"><option value="Chele"><option value="Maira"><option value="Vaneza"><option value="Vanya"></datalist>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
@@ -276,6 +282,8 @@ function openLead(id) {
   $("detail-origin").textContent="Origem: "+(selected.campaign?.utm_source || selected.source || "Não informada");
   $("detail-status").value=selected.status;
   $("detail-date").value=selected.appointmentDate || "";
+  $("detail-time").value=selected.appointmentTime || "";
+  $("detail-professional").value=selected.professional || "";
   $("detail-followup").value=selected.followUpDate || "";
   $("detail-revenue").value=money(selected.revenueCents);
   $("detail-estimate").value=money(selected.estimatedRevenueCents);
@@ -321,7 +329,8 @@ $("manual-form").onsubmit=async event=>{
     await request("/api/crm/leads",{method:"POST",body:JSON.stringify({
       name:$("manual-name").value.trim(), phone:$("manual-phone").value.trim(),
       service:$("manual-service").value, source:$("manual-source").value,
-      status, appointmentDate, followUpDate:$("manual-followup").value||null,
+      status, appointmentDate, appointmentTime:$("manual-time").value||null,
+      professional:$("manual-professional").value||null, followUpDate:$("manual-followup").value||null,
       revenueCents,estimatedRevenueCents:moneyToCents($("manual-estimate").value),
       isTest:$("manual-test").checked,
       notes:$("manual-notes").value
@@ -345,6 +354,7 @@ $("save").onclick=async()=>{
     await request("/api/crm/leads", {method:"PATCH",body:JSON.stringify({
       id:selected.id,status:$("detail-status").value,
       appointmentDate:$("detail-date").value||null,
+      appointmentTime:$("detail-time").value||null, professional:$("detail-professional").value||null,
       followUpDate:$("detail-followup").value||null,
       revenueCents,estimatedRevenueCents,
       lostReason:$("detail-loss").value || null,
