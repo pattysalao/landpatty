@@ -23,6 +23,7 @@ const encode = doc => {
     estimatedRevenueCents: d.estimatedRevenueCents ?? null,
     lostReason: d.lostReason || null, isTest: d.isTest === true,
     appointmentDate: d.appointmentDate || null,
+    appointmentTime: d.appointmentTime || null, professional: d.professional || null,
     followUpDate: d.followUpDate || null, notes: d.notes || "",
     createdAt: toIso(d.createdAt), updatedAt: toIso(d.updatedAt) };
 };
@@ -42,6 +43,9 @@ export default async function handler(req, res) {
       const status = getText(body.status, 20) || "novo";
       const notes = getText(body.notes, 600);
       const date = body.appointmentDate || null;
+      const appointmentTime = body.appointmentTime || null;
+      const professional = getText(body.professional,60) || null;
+      if (appointmentTime && !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(appointmentTime)) return send(res,400,{error:"Horário inválido"});
       const followUp = body.followUpDate || null;
       const revenue = body.revenueCents ?? null;
       const expected = body.estimatedRevenueCents ?? null;
@@ -72,6 +76,7 @@ export default async function handler(req, res) {
       await coll.doc(reference).create({
         reference, name, phone, service, source: "cadastro_manual_" + source,
         campaign: {}, status, notes, appointmentDate: date,
+        appointmentTime, professional,
         followUpDate: followUp, revenueCents: revenue,
         estimatedRevenueCents: expected, isTest, lostReason: null,
         ...(status === "agendado" ? {bookedAt: now} : {}),
@@ -135,6 +140,18 @@ export default async function handler(req, res) {
       if (body.appointmentDate !== null && !validDate(body.appointmentDate))
         return send(res, 400, { error: "Data inválida" });
       update.appointmentDate = body.appointmentDate;
+    }
+    if ("appointmentTime" in body) {
+      if (body.appointmentTime !== null && typeof body.appointmentTime !== "string")
+        return send(res,400,{error:"Horário inválido"});
+      if (body.appointmentTime && !/^([01]\\d|2[0-3]):[0-5]\\d$/.test(body.appointmentTime))
+        return send(res,400,{error:"Horário inválido"});
+      update.appointmentTime = body.appointmentTime || null;
+    }
+    if ("professional" in body) {
+      if (body.professional !== null && typeof body.professional !== "string")
+        return send(res,400,{error:"Profissional inválida"});
+      update.professional = getText(body.professional,60)||null;
     }
     if ("notes" in body) update.notes = getText(body.notes, 600);
     if (!Object.keys(update).length) return send(res, 400, { error: "Sem alterações" });
