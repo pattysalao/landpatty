@@ -15,7 +15,9 @@ button,input,select,textarea{font:inherit}button{background:var(--wine);color:#f
 .overlay{position:fixed;inset:0;background:#1d1115aa;display:flex;justify-content:flex-end;z-index:6}.drawer{background:white;width:min(100%,600px);height:100%;overflow:auto;padding:24px}.drawer .fields{grid-template-columns:repeat(2,minmax(0,1fr))}.pill{border:1px solid #ead7c8;background:#fff8f0;border-radius:20px;padding:4px 10px;font-size:12px}
 @media(max-width:780px){.mapping{grid-template-columns:repeat(2,minmax(0,1fr))}.fields{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:460px){main{padding:0 9px}.panel{padding:14px}.mapping,.fields,.drawer .fields{grid-template-columns:1fr}}
-</style></head><body>
+</style><link rel="stylesheet" href="/patty-crm-ui.css?v=1">
+<script src="/patty-crm-ui.js?v=1" defer></script>
+</head><body>
 <header><strong>Patty | Operação e relatórios</strong><a href="/crm.html">Leads</a><a href="/crm-agenda.html">Agenda piloto</a><a href="/crm-clientes.html">Clientes Gendo</a></header>
 <main>
 <section id="login" class="panel"><h1>Entrada da equipe</h1><p class="muted">Acesso individual verificado pelo CRM; informações financeiras e importações são restritas à administração.</p>
@@ -50,7 +52,7 @@ async function request(url,opts={}){
 }
 function cellDisplay(value,type){return value==null||value===''?'—':type==='money'?money(value):typeof value==='boolean'?(value?'Sim':'Não'):String(value)}
 function fieldDef(key){return schemas[module].fields[key]}
-function setModule(name){if(!schemas[name])return;module=name;rows=[];cursor=null;fileRecords=[];headers=[];mapping={};readyPreview=false;
+function setModule(name){if(!schemas[name])return;module=name;if(location.hash.slice(1)!==name){history.replaceState(null,'','#'+name);window.dispatchEvent(new Event('hashchange'));}rows=[];cursor=null;fileRecords=[];headers=[];mapping={};readyPreview=false;
  $('file').value='';$('mapSection').classList.add('hidden');$('preview').disabled=true;$('import').disabled=true;
  $('moduleTitle').textContent=schemas[module].label;$('moduleNote').textContent=moduleNotes[module]||'';
  $('tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b.dataset.module===name));
@@ -62,8 +64,9 @@ function setModule(name){if(!schemas[name])return;module=name;rows=[];cursor=nul
 function buildTabs(){let html='';for(const [key,def] of Object.entries(schemas)){
  if(def.manager&&!manager)continue;html+='<button type="button" data-module="'+escape(key)+'">'+escape(def.label)+'</button>'}
  $('tabs').innerHTML=html;$('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>setModule(b.dataset.module));
- const first=$('tabs').querySelector('button');if(first)setModule(first.dataset.module);
+ const first=$('tabs').querySelector('button');if(first){const key=location.hash.slice(1);setModule(schemas[key]?key:first.dataset.module);}
 }
+window.addEventListener('hashchange',()=>{const key=location.hash.slice(1);if(schemas[key]&&key!==module)setModule(key)});
 async function load(reset){if(reset){rows=[];cursor=null}
  $('listStatus').textContent='Carregando registros...';try{const r=await request('/api/crm/modulos?module='+encodeURIComponent(module)+(cursor?'&cursor='+encodeURIComponent(cursor):''));
  rows.push(...r.items);cursor=r.nextCursor;$('more').classList.toggle('hidden',!cursor);
