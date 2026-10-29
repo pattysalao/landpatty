@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<title>Clientes Gendo | CRM Patty</title>
+<style>
+:root{--wine:#801a39;--gold:#c79a67;--bg:#f8f4f2;--line:#e8dadd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.5 system-ui,-apple-system,sans-serif;color:#2b1c22}
+header{background:var(--wine);padding:15px max(18px,calc((100vw - 1080px)/2));display:flex;gap:16px;align-items:center;flex-wrap:wrap;color:white}
+header strong{font-size:20px}header a{color:white}main{max-width:1100px;margin:24px auto;padding:0 18px}
+.card{background:white;padding:22px;border:1px solid var(--line);border-radius:15px;margin-bottom:16px;box-shadow:0 4px 16px #581a3010}
+h1{font-size:27px;margin:0 0 8px}h2{font-size:19px;margin:0 0 10px}
+small,.muted{color:#75626a}.notice{border-left:4px solid var(--gold);padding:10px;background:#fff6e9;border-radius:6px}
+button,input{font:inherit}button{cursor:pointer;border:0;background:var(--wine);color:white;border-radius:9px;padding:10px 16px;font-weight:700}
+button:disabled{opacity:.45;cursor:not-allowed}button.secondary{color:var(--wine);background:white;border:1px solid var(--wine)}
+input{border:1px solid #d5bfc7;padding:11px;border-radius:8px;max-width:100%}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:10px 0}.hidden{display:none!important}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat>div{border:1px solid var(--line);padding:12px;border-radius:10px}
+.stat b{display:block;font-size:25px}.stat span{font-size:12px;color:#735e67}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left}
+.tablewrap{overflow:auto}#message{font-weight:600}a{color:var(--wine)}
+@media(max-width:650px){.stat{grid-template-columns:repeat(2,1fr)}.card{padding:15px}}
+</style></head><body>
+<header><strong>Patty | Clientes e histórico</strong><a href="/crm.html">Leads</a><a href="/crm-agenda.html">Agenda piloto</a></header>
+<main>
+<section id="login" class="card"><h1>Acesso administrativo</h1><p>Esta área contém dados pessoais e históricos financeiros e requer autorização gerencial.</p>
+<form id="login-form" class="row"><input type="email" id="email" placeholder="E-mail autorizado" autocomplete="username" required>
+<input type="password" id="password" placeholder="Senha" autocomplete="current-password" required>
+<button>Entrar</button></form><p id="login-error" role="alert"></p></section>
+<section id="app" class="hidden">
+<div class="card"><h1>Importação do Gendo</h1>
+<p class="notice"><strong>Migração paralela:</strong> o Gendo continua como sistema operacional. Os clientes históricos entram em uma coleção separada e não são contabilizados como leads de campanhas nem como receita atual. Nenhuma mensagem é enviada.</p>
+<p>Use o CSV exportado em <b>Clientes → Listagem → Salvar em Excel</b>. Se o Gendo mostrar no máximo 5.000 por página, exporte todas as páginas. Os códigos de origem são mantidos e os cadastros existentes não são sobrescritos.</p>
+<div class="row"><input id="file" type="file" accept=".csv,text/csv"><button id="preview" class="secondary" disabled>Conferir duplicados</button><button id="import" disabled>Importar cadastros</button></div>
+<div id="summary" class="stat"></div>
+<p id="message" role="status"></p>
+<p class="muted"><small>Importação restrita à administração. A origem não comprova consentimento para marketing: todos entram sem opt-in. CPF não é importado. Valores históricos não integram o caixa atual.</small></p>
+</div>
+<div class="card"><h2>Clientes já importados</h2><div class="row"><button id="load" class="secondary">Atualizar lista</button><input id="q" placeholder="Filtrar página por nome/código"></div><p id="list-message" role="status"></p>
+<div class="tablewrap"><table><thead><tr><th>Código Gendo</th><th>Nome</th><th>Contato</th><th>Visitas</th><th>Última visita</th><th>Faturado histórico</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="row"><button id="more" class="secondary hidden">Próxima página</button><button id="logout" class="secondary">Sair</button></div></div>
+</section></main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const $=x=>document.getElementById(x);let auth,customers=[],cursor=null,records=[],previewed=false;
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const currency=v=>Number.isSafeInteger(v)?(v/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"Não informado";
+async function req(url,opts={}){
+ const user=auth?.currentUser;if(!user||!user.emailVerified)throw Error("Entre com um e-mail verificado.");
+ const response=await fetch(url,{...opts,headers:{"Authorization":"Bearer "+await user.getIdToken(),...(opts.body?{"Content-Type":"application/json"}:{})}});
+ const json=await response.json().catch(()=>({}));if(!response.ok)throw Error(json.error||"Falha na solicitação");return json;
+}
+function csvRows(text){
+ let rows=[],row=[],cell="",quoted=false;
+ for(let i=0;i<text.length;i++){const c=text[i];
+  if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++}else quoted=!quoted}
+  else if(!quoted&&c===";"){row.push(cell);cell=""}
+  else if(!quoted&&(c==="\n"||c==="\r")){if(c==="\r"&&text[i+1]==="\n")i++;row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell=""}
+  else cell+=c;
+ }
+ if(quoted)throw Error("CSV com aspas incompletas");
+ row.push(cell);if(row.some(v=>v.trim()))rows.push(row);return rows;
+}
+function moneyToCents(s){
+ const v=String(s||"").trim().replace(/\./g,"").replace(",",".");
+ if(!/^-?\d+(\.\d{1,2})?$/.test(v))return null;
+ const n=Math.round(Number(v)*100);return Number.isSafeInteger(n)?n:null;
+}
+function parseGendo(rows){
+ if(!rows.length)throw Error("CSV vazio");
+ const h=rows[0].map(x=>x.replace(/^\uFEFF/,"").trim().toLowerCase());
+ const at=(row,name)=>{const i=h.indexOf(name.toLowerCase());return i<0?"":String(row[i]||"").trim()};
+ if(!h.includes("código")||!h.includes("nome")||!h.includes("telefone"))throw Error("Colunas Código, Nome ou Telefone ausentes.");
+ return rows.slice(1).filter(r=>r.some(Boolean)).map(r=>({
+  gendoCode:at(r,"Código"),name:at(r,"Nome"),
+  phone:(at(r,"DDI")||"55")+at(r,"Telefone").replace(/\D/g,""),
+  email:at(r,"E-mail"),birthDate:at(r,"Data de Nascimento"),
+  lastVisit:at(r,"Ultima Visita"),visits:Number(at(r,"Visitas")||0),
+  historicalBilledCents:moneyToCents(at(r,"Faturado")),
+  historicalBalanceCents:moneyToCents(at(r,"Saldo"))
+ }));
+}
+function showStats(totals){
+ $("summary").innerHTML=["Recebidos","Válidos","Já existentes","Novos"].map((label,i)=>
+  '<div><b>'+[totals.received||0,totals.valid||0,totals.existing||0,totals.created||0][i]+'</b><span>'+label+'</span></div>').join("");
+}
+$("file").onchange=async()=>{previewed=false;records=[];$("import").disabled=true;$("preview").disabled=true;$("summary").innerHTML="";
+ try{
+  const f=$("file").files?.[0];if(!f)return;if(f.size>15*1024*1024)throw Error("Arquivo maior que 15 MB; exporte por páginas.");
+  const buffer=await f.arrayBuffer();let str;
+  try{str=new TextDecoder("utf-8",{fatal:true}).decode(buffer)}catch(_){str=new TextDecoder("windows-1252").decode(buffer)}
+  records=parseGendo(csvRows(str));$("preview").disabled=!records.length;
+  $("message").textContent=records.length+" linhas lidas. Confira os duplicados antes de importar.";
+ }catch(e){$("message").textContent=e.message}
+};
+async function batchRun(dryRun){
+ const total={received:0,valid:0,invalid:0,existing:0,created:0,duplicatesInFile:0,conflicts:0};
+ for(let i=0;i<records.length;i+=50){
+  const result=await req("/api/crm/customers",{method:"POST",body:JSON.stringify({dryRun,records:records.slice(i,i+50)})});
+  for(const k of Object.keys(total))total[k]+=result[k]||0;
+  $("message").textContent=(dryRun?"Conferindo":"Importando")+" "+Math.min(i+50,records.length)+" / "+records.length;
+ }
+ showStats(total);return total;
+}
+$("preview").onclick=async()=>{ $("preview").disabled=true;$("import").disabled=true;try{
+ const t=await batchRun(true);previewed=true;$("import").disabled=!t.created;
+ $("message").textContent="Prévia pronta: "+t.created+" registros novos possíveis; "+t.existing+" existentes; "+(t.invalid+t.duplicatesInFile)+" inválidos/duplicados no arquivo.";
+ }catch(e){$("message").textContent=e.message}finally{$("preview").disabled=false}};
+$("import").onclick=async()=>{if(!previewed)return;
+ if(!confirm("Importar apenas os cadastros novos do Gendo? Esta operação não substitui dados existentes, não gera leads nem envia mensagens."))return;
+ $("import").disabled=true;$("preview").disabled=true;
+ try{const t=await batchRun(false);$("message").textContent="Concluído: "+t.created+" novos cadastros; "+t.existing+" já existentes; "+t.conflicts+" falhas. Confira o CRM.";await load(true)}
+ catch(e){$("message").textContent="Importação interrompida: "+e.message+" (os lotes anteriores foram preservados; a próxima execução ignora duplicados)."}
+ finally{$("preview").disabled=false}};
+async function load(reset){
+ if(reset){customers=[];cursor=null}
+ try{const r=await req("/api/crm/customers"+(cursor?"?cursor="+encodeURIComponent(cursor):""));
+  customers.push(...r.customers);cursor=r.nextCursor;$("more").classList.toggle("hidden",!cursor);render();
+  $("list-message").textContent=customers.length+" clientes carregados"+(cursor?" — há outras páginas":"")+".";
+ }catch(e){$("list-message").textContent=e.message}
+}
+function render(){
+ const q=$("q").value.toLowerCase();const rows=customers.filter(x=>[x.name,x.phone,x.gendoCode].some(v=>String(v||"").toLowerCase().includes(q)));
+ $("rows").innerHTML=rows.map(x=>'<tr><td>'+esc(x.gendoCode)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.phone)+'</td><td>'+esc(x.visits)+'</td><td>'+esc(x.lastVisit||"—")+'</td><td>'+esc(currency(x.historicalBilledCents))+'</td></tr>').join("");
+}
+$("q").oninput=render;$("load").onclick=()=>load(true);$("more").onclick=()=>load(false);
+$("logout").onclick=()=>signOut(auth);
+$("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}catch(_){$("login-error").textContent="Não foi possível entrar."}};
+(async()=>{try{const r=await fetch("/api/config",{cache:"no-store"});if(!r.ok)throw Error("Configuração indisponível");
+ const c=await r.json();auth=getAuth(initializeApp(c.firebase));
+ onAuthStateChanged(auth,async user=>{$("login").classList.toggle("hidden",!!user&&user.emailVerified);$("app").classList.toggle("hidden",!user||!user.emailVerified);if(user?.emailVerified)await load(true)});
+ }catch(e){$("login-error").textContent=e.message}})();
+</script></body></html>
