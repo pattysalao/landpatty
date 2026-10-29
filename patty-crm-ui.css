@@ -1,0 +1,115 @@
+/* Patty Centro de Beleza — CRM Design System, 29/10/2026 */
+:root{--patty-wine:#801a39;--patty-wine-dark:#57162c;--patty-gold:#d4a25c;--patty-rose:#f9f0f2;--patty-surface:#fff;--patty-canvas:#f8f7f6;--patty-ink:#302631;--patty-sub:#817681;--patty-border:#ede8e8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body.patty-admin{background:var(--patty-canvas)!important;color:var(--patty-ink);font:14px/1.55 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.patty-admin .hidden{display:none!important}
+.patty-admin .patty-shell{display:flex;min-height:100vh;align-items:stretch}
+.patty-admin .patty-sidebar{width:262px;flex:0 0 262px;position:sticky;top:0;z-index:50;height:100vh;background:#fff;border-right:1px solid var(--patty-border);display:flex;flex-direction:column;box-shadow:3px 0 18px #56233806}
+.patty-admin .patty-brand{display:flex;align-items:center;gap:11px;padding:22px 19px 20px;border-bottom:1px solid var(--patty-border);color:var(--patty-wine);text-decoration:none}
+.patty-admin .patty-brand-logo{height:43px;width:43px;flex:0 0 43px;border-radius:13px;background:var(--patty-rose);padding:7px;object-fit:contain}
+.patty-admin .patty-brand-text{display:flex;flex-direction:column;line-height:1.1}
+.patty-admin .patty-brand-text strong{font:700 19px/1.2 Georgia,serif;letter-spacing:-.4px}
+.patty-admin .patty-brand-text small{margin-top:5px;font-size:11px;color:var(--patty-sub);letter-spacing:.03em}
+.patty-admin .patty-side-scroll{overflow-y:auto;overflow-x:hidden;flex:1;padding:18px 12px 24px;scrollbar-width:thin;scrollbar-color:#e5d5da transparent}
+.patty-admin .patty-nav-group+.patty-nav-group{margin-top:21px}
+.patty-admin .patty-nav-heading{font:700 10px/1.5 Inter,system-ui,sans-serif;color:#998b91;text-transform:uppercase;letter-spacing:.135em;margin:0 9px 8px}
+.patty-admin .patty-nav-link{display:flex;align-items:center;gap:12px;min-height:43px;padding:10px 13px;color:#5c515a;text-decoration:none;border-radius:10px;font-weight:570;font-size:13px;transition:background .16s,color .16s;position:relative}
+.patty-admin .patty-nav-link:hover{background:#fbf3f5;color:var(--patty-wine)}
+.patty-admin .patty-nav-link[aria-current="page"]{background:#f8eaf0;color:var(--patty-wine);font-weight:760}
+.patty-admin .patty-nav-link[aria-current="page"]:before{content:"";position:absolute;left:0;top:11px;bottom:11px;border-radius:4px;width:3px;background:var(--patty-wine)}
+.patty-admin .patty-nav-link svg{height:18px;width:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.patty-admin .patty-side-bottom{padding:14px 16px;border-top:1px solid var(--patty-border)}
+.patty-admin .patty-side-bottom p{font-size:11px;color:#998b91;margin:7px 2px}
+.patty-admin .patty-side-bottom a{color:var(--patty-wine);text-decoration:none;font-weight:650}
+.patty-admin .patty-workspace{min-width:0;flex:1;max-width:calc(100% - 262px)}
+.patty-admin .patty-topbar{position:sticky;top:0;z-index:35;display:flex!important;align-items:center;justify-content:space-between;gap:12px;height:74px;padding:0 29px;background:#fff;border-bottom:1px solid var(--patty-border);color:var(--patty-ink);box-shadow:none}
+.patty-admin .patty-legacy-header{display:none!important}
+.patty-admin .patty-topbar-start,.patty-admin .patty-topbar-end{display:flex;align-items:center;gap:12px;min-width:0}
+.patty-admin .patty-topbar-start{flex:1}
+.patty-admin .patty-page-title{display:block;font-weight:770;font-size:15px;letter-spacing:-.02em;color:#352634;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.patty-admin .patty-page-caption{display:block;font-size:11px;color:var(--patty-sub);font-weight:450}
+.patty-admin .patty-topbar-site{display:flex;align-items:center;gap:6px;border-radius:9px;padding:9px 11px;background:#faf7f8;border:1px solid var(--patty-border);text-decoration:none;color:var(--patty-wine);font-size:12px;font-weight:650}
+.patty-admin .patty-mobile-toggle{display:none;border:1px solid var(--patty-border)!important;color:var(--patty-wine)!important;background:#fff!important;border-radius:10px!important;padding:9px!important;width:43px;height:43px;align-items:center;justify-content:center}
+.patty-admin .patty-mobile-toggle svg{height:21px;width:21px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.patty-admin .patty-menu-backdrop{display:none}
+.patty-admin .patty-workspace>main{max-width:1540px!important;margin:0 auto!important;padding:26px clamp(16px,2.7vw,42px) 46px!important;min-height:calc(100vh - 74px)}
+.patty-admin .panel,.patty-admin .card{border:1px solid var(--patty-border);background:#fff;border-radius:16px;padding:22px;box-shadow:0 3px 18px #5b253708}
+.patty-admin .login{max-width:460px;margin:6vh auto}
+.patty-admin .login h1,.patty-admin h1{font-weight:770;letter-spacing:-.045em;color:#362330}
+.patty-admin h1{font-size:clamp(21px,2.3vw,28px)}
+.patty-admin h2{font-weight:740;letter-spacing:-.025em;color:#402a39}
+.patty-admin .toolbar{gap:15px;margin-bottom:21px}
+.patty-admin .toolbar p{font-size:13px}
+.patty-admin button,.patty-admin a.primary,.patty-admin button.primary{min-height:40px;border-radius:10px;font-weight:675;transition:background .16s,transform .16s,box-shadow .16s}
+.patty-admin button:not(.secondary):not(.patty-mobile-toggle):not(.patty-ghost),.patty-admin button.primary{background:var(--patty-wine);border:1px solid var(--patty-wine);color:white}
+.patty-admin button:hover:not(:disabled),.patty-admin a.primary:hover{filter:brightness(.96)}
+.patty-admin button:active:not(:disabled){transform:translateY(1px)}
+.patty-admin .secondary,.patty-admin button.secondary{background:#fff;color:var(--patty-wine);border:1px solid #e1d3d8}
+.patty-admin .secondary:hover{background:var(--patty-rose)}
+.patty-admin input,.patty-admin select,.patty-admin textarea{border-radius:10px!important;border:1px solid #e3dadd!important;background:#fff;min-height:41px}
+.patty-admin input:focus-visible,.patty-admin select:focus-visible,.patty-admin textarea:focus-visible,.patty-admin button:focus-visible,.patty-admin a:focus-visible{outline:2px solid var(--patty-gold)!important;outline-offset:2px}
+.patty-admin .metric,.patty-admin .stat{border:1px solid var(--patty-border);border-radius:14px;background:#fff;box-shadow:0 2px 12px #682d3d05}
+.patty-admin .metric span,.patty-admin .stat span{color:var(--patty-sub)}
+.patty-admin .metric strong,.patty-admin .stat b{color:var(--patty-wine)}
+.patty-admin .cards{gap:14px}
+.patty-admin .cards .metric{padding:20px}
+.patty-admin .lead{border-color:var(--patty-border);box-shadow:0 2px 10px #4b223007}
+.patty-admin .lead:hover{border-color:#d6bbc4}
+.patty-admin .tag{background:#faedf1}
+.patty-admin .insights-grid{gap:12px}
+.patty-admin .insights-grid .metric{padding:14px}
+.patty-admin .filters{gap:10px;padding:8px 0 4px}
+.patty-admin .tabs{gap:8px;padding:8px 0 12px;scrollbar-width:thin}
+.patty-admin .tabs button{background:#fff!important;border:1px solid #e8d9df!important;color:#7f5e6b!important;padding:9px 12px!important;border-radius:9px!important;white-space:nowrap;font-size:12px}
+.patty-admin .tabs button.selected{background:#f7e8ee!important;border-color:#e9c9d5!important;color:var(--patty-wine)!important}
+.patty-admin .note,.patty-admin .notice{background:#fff8ed;border:1px solid #f4e4c8;border-left:3px solid var(--patty-gold);color:#775b3d;border-radius:10px;padding:12px 14px}
+.patty-admin table{border-collapse:separate;border-spacing:0;width:100%}
+.patty-admin th{background:#fbf8f8;color:#796a75;font-size:11px;letter-spacing:.018em;font-weight:740}
+.patty-admin th,.patty-admin td{padding:12px 13px;border-bottom:1px solid var(--patty-border)}
+.patty-admin tr:hover td{background:#fdfafb}
+.patty-admin .tablebox,.patty-admin .tablewrap,.patty-admin .scroller{border-radius:12px;border:1px solid var(--patty-border);overflow:auto}
+.patty-admin .scroller{max-width:100%;scrollbar-width:thin}
+.patty-admin .calendar{min-width:calc(76px + var(--cols)*145px)}
+.patty-admin .corner,.patty-admin .col-title{background:#f9edf1;color:#61243b}
+.patty-admin .appt{border-radius:9px}
+.patty-admin .drawer{z-index:80}
+.patty-admin .overlay{z-index:85}
+.patty-admin .drawer .panel{box-shadow:-8px 0 30px #42233020}
+.patty-admin .patty-page-actions{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 20px}
+.patty-admin .patty-quicklink{display:inline-flex;align-items:center;gap:9px;padding:10px 13px;border-radius:10px;text-decoration:none!important;background:#fff;color:var(--patty-wine);border:1px solid var(--patty-border);font-weight:650;font-size:12px}
+.patty-admin .patty-quicklink:hover{background:var(--patty-rose);border-color:#e9d3da}
+.patty-admin .patty-quicklink svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.patty-admin #login-panel,.patty-admin #verify-panel,.patty-admin #login{box-shadow:0 14px 42px #6b3b4915}
+.patty-admin .smallnote,.patty-admin .muted,.patty-admin small{line-height:1.55}
+@media(max-width:1120px){.patty-admin .patty-sidebar{width:226px;flex-basis:226px}.patty-admin .patty-workspace{max-width:calc(100% - 226px)}.patty-admin .patty-workspace>main{padding:22px 20px 34px!important}}
+@media(max-width:860px){
+ .patty-admin .patty-sidebar{position:fixed;top:0;left:0;height:100dvh;width:min(282px,86vw);transform:translateX(-102%);transition:transform .2s ease;box-shadow:12px 0 38px #3d203020;z-index:105}
+ .patty-admin .patty-workspace{max-width:100%;width:100%}
+ .patty-admin .patty-mobile-toggle{display:flex}
+ .patty-admin .patty-topbar{height:64px;padding:0 16px}
+ .patty-admin .patty-workspace>main{padding:20px 14px 35px!important}
+ .patty-admin.patty-nav-open .patty-sidebar{transform:translateX(0)}
+ .patty-admin .patty-menu-backdrop{display:block;position:fixed;inset:0;background:#28141da6;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+ .patty-admin.patty-nav-open .patty-menu-backdrop{opacity:1;pointer-events:auto}
+ .patty-admin .patty-topbar-site{padding:9px;white-space:nowrap}
+ .patty-admin .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .patty-admin .insights-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .patty-admin .patty-page-caption{display:none}
+}
+@media(max-width:480px){
+ .patty-admin .patty-topbar-site span{display:none}
+ .patty-admin .patty-topbar-end{gap:7px}
+ .patty-admin .panel,.patty-admin .card{padding:16px}
+ .patty-admin .cards .metric{padding:14px}
+ .patty-admin .metric strong{font-size:23px}
+ .patty-admin .insights-grid .metric strong{font-size:20px;overflow-wrap:anywhere}
+ .patty-admin .toolbar{align-items:flex-start}
+ .patty-admin .toolbar .actions{width:100%}
+ .patty-admin .toolbar .actions button{flex:1}
+ .patty-admin .filters input,.patty-admin .filters select{max-width:none;width:100%}
+ .patty-admin .stat{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .patty-admin .row{gap:9px}
+ .patty-admin #file{max-width:100%;width:100%}
+}
+@media(prefers-reduced-motion:reduce){.patty-admin *{scroll-behavior:auto!important;transition:none!important}}
