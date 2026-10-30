@@ -25,14 +25,14 @@ button,input,select,textarea{font:inherit}button{background:var(--wine);color:#f
 <form id="loginForm" class="row"><input id="email" type="email" autocomplete="username" placeholder="E-mail autorizado" required><input id="password" type="password" autocomplete="current-password" placeholder="Senha" required><button>Entrar</button></form><p id="loginError" role="alert" class="error"></p></section>
 <section id="app" class="hidden">
 <div class="panel"><div class="row" style="justify-content:space-between"><div><h1>Operação do salão</h1><p class="muted" style="margin:0">Serviços, profissionais, atendimentos e relatórios — importação gradual do Gendo.</p></div><button id="logout" class="secondary">Sair</button></div><div class="tabs" id="tabs" aria-label="Módulos"></div><h2 id="moduleTitle"></h2>
-<p class="note" id="moduleNote"></p><p id="status" role="status" class="muted"></p>
+<p class="note" id="moduleNote"></p><p id="status" role="status" class="muted"></p><progress id="importProgress" class="patty-import-progress hidden" value="0" max="100" aria-label="Progresso da importação"></progress><div id="importErrors" class="patty-import-errors hidden" role="status"></div>
 <div id="managerTools">
 <div class="row"><button id="new" class="secondary">+ Adicionar registro</button><input id="file" type="file" accept=".csv,.tsv,text/csv"><button id="preview" class="secondary" disabled>Validar arquivo</button><button id="import" disabled>Importar registros</button></div>
 <div id="mapSection" class="hidden"><h3>Vincular colunas do CSV aos campos do CRM</h3><p class="small muted">Selecione os campos correspondentes. Colunas ausentes ficam em branco; campos obrigatórios devem estar mapeados. Valores e datas são normalizados antes do envio.</p><div class="mapping" id="mapping"></div>
 <div class="stats" id="previewStats"></div><div class="tablebox"><table><thead id="sampleHead"></thead><tbody id="sampleBody"></tbody></table></div></div>
 <p class="small muted">A importação é idempotente para a mesma referência Gendo ou a mesma linha de CSV. Nunca sobrescreve registros existentes. As importações são históricas e não geram contatos nem mensagens de marketing.</p>
 </div></div>
-<div class="panel"><div class="row" style="justify-content:space-between"><h2>Registros</h2><div class="row"><input id="filter" placeholder="Pesquisar nesta página"><button id="refresh" class="secondary">Atualizar</button><button id="export" class="secondary">Exportar página</button></div></div>
+<div class="panel"><div class="row" style="justify-content:space-between"><h2>Registros</h2><div class="row"><input id="filter" placeholder="Filtrar registros carregados"><button id="refresh" class="secondary">Atualizar</button><button id="export" class="secondary">Exportar página</button></div></div>
 <p id="listStatus" class="muted" role="status"></p><div class="tablebox"><table><thead id="listHead"></thead><tbody id="listBody"></tbody></table></div><div class="row" style="margin-top:10px"><button id="more" class="secondary hidden">Próxima página</button></div></div>
 <section id="reports" class="panel hidden"><div class="row" style="justify-content:space-between"><h2>Relatório por período</h2><div class="row"><select id="period"><option value="1">Hoje / 1 dia</option><option value="7">7 dias</option><option value="30">30 dias</option><option value="90">90 dias</option><option value="365">12 meses</option></select><button id="loadReport" class="secondary">Atualizar relatório</button></div></div>
 <p class="small muted">O relatório mostra exclusivamente dados do módulo selecionado. Atendimentos, financeiro e faturamento podem representar os mesmos pagamentos; não devem ser somados. A importação não gera receita nova.</p><div class="stats" id="reportStats"></div><div class="tablebox"><table><thead><tr><th>Grupo</th><th>Registros</th><th>Total registrado</th></tr></thead><tbody id="reportRows"></tbody></table></div><p id="reportStatus" role="status" class="muted"></p></section>
@@ -54,7 +54,7 @@ async function request(url,opts={}){
 function cellDisplay(value,type){return value==null||value===''?'—':type==='money'?money(value):typeof value==='boolean'?(value?'Sim':'Não'):String(value)}
 function fieldDef(key){return schemas[module].fields[key]}
 function setModule(name){if(!schemas[name])return;module=name;if(location.hash.slice(1)!==name){history.replaceState(null,'','#'+name);window.dispatchEvent(new Event('hashchange'));}rows=[];cursor=null;fileRecords=[];headers=[];mapping={};readyPreview=false;
- $('file').value='';$('mapSection').classList.add('hidden');$('preview').disabled=true;$('import').disabled=true;
+ $('file').value='';$('mapSection').classList.add('hidden');$('preview').disabled=true;$('import').disabled=true;$('importProgress').classList.add('hidden');$('importErrors').classList.add('hidden');
  $('moduleTitle').textContent=schemas[module].label;$('moduleNote').textContent=moduleNotes[module]||'';
  $('tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b.dataset.module===name));
  const hidden=schemas[module].manager&&!manager;$('managerTools').classList.toggle('hidden',!manager||hidden);
@@ -65,9 +65,9 @@ function setModule(name){if(!schemas[name])return;module=name;if(location.hash.s
 function buildTabs(){let html='';for(const [key,def] of Object.entries(schemas)){
  if(def.manager&&!manager)continue;html+='<button type="button" data-module="'+escape(key)+'">'+escape(def.label)+'</button>'}
  $('tabs').innerHTML=html;$('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>setModule(b.dataset.module));
- const first=$('tabs').querySelector('button');if(first){const key=location.hash.slice(1);setModule(schemas[key]?key:first.dataset.module);}
+ const first=$('tabs').querySelector('button');if(first){const key=location.hash.slice(1);setModule(schemas[key]&&(!schemas[key].manager||manager)?key:first.dataset.module);}
 }
-window.addEventListener('hashchange',()=>{const key=location.hash.slice(1);if(schemas[key]&&key!==module)setModule(key)});
+window.addEventListener('hashchange',()=>{const key=location.hash.slice(1);if(schemas[key]&&(!schemas[key].manager||manager)&&key!==module)setModule(key)});
 async function load(reset){if(reset){rows=[];cursor=null}
  $('listStatus').textContent='Carregando registros...';try{const r=await request('/api/crm/modulos?module='+encodeURIComponent(module)+(cursor?'&cursor='+encodeURIComponent(cursor):''));
  rows.push(...r.items);cursor=r.nextCursor;$('more').classList.toggle('hidden',!cursor);
@@ -134,13 +134,14 @@ $('file').onchange=async()=>{fileRecords=[];headers=[];mapping={};readyPreview=f
  $('status').textContent='CSV lido: '+fileRecords.length+' linhas. Confira o mapeamento e depois use “Conferir CSV”.';buildMapping();
  }catch(e){$('status').textContent='Arquivo inválido: '+e.message}
 };
+function showImportErrors(errors){const box=$('importErrors');box.classList.toggle('hidden',!errors?.length);box.textContent='';if(errors?.length){const title=document.createElement('strong');title.textContent='Registros que precisam de revisão';box.append(title);const list=document.createElement('ul');errors.forEach(x=>{const li=document.createElement('li');li.textContent='Linha '+x.row+': '+x.reason;list.append(li)});box.append(list)}}
 function summaryBox(t){$('previewStats').innerHTML=[['Registros',t.received],['Válidos',t.valid],['Existentes',t.existing],['Novos',t.created]].map(([label,n])=>'<div class="stat"><b>'+escape(n||0)+'</b><span>'+label+'</span></div>').join('')}
-async function runImport(action){const records=csvToRecords(),total={received:0,valid:0,invalid:0,duplicatesFile:0,existing:0,created:0,errors:[]};
+async function runImport(action){const records=csvToRecords(),total={received:0,valid:0,invalid:0,duplicatesFile:0,existing:0,created:0,errors:[]};const progress=$('importProgress');progress.value=0;progress.classList.remove('hidden');showImportErrors([]);
  for(let i=0;i<records.length;i+=50){const r=await request('/api/crm/modulos?module='+encodeURIComponent(module),{method:'POST',body:JSON.stringify({action,records:records.slice(i,i+50)})});
   for(const k of ['received','valid','invalid','duplicatesFile','existing','created'])total[k]+=r[k]||0;
   if(r.errors?.length&&total.errors.length<10)total.errors.push(...r.errors.slice(0,10-total.errors.length));
-  $('status').textContent=(action==='preview'?'Conferindo':'Importando')+' '+Math.min(i+50,records.length)+'/'+records.length;
- }summaryBox(total);return total}
+  $('status').textContent=(action==='preview'?'Conferindo':'Importando')+' '+Math.min(i+50,records.length)+'/'+records.length;progress.value=Math.round(100*Math.min(i+50,records.length)/records.length);
+ }summaryBox(total);showImportErrors(total.errors);return total}
 $('preview').onclick=async()=>{$('preview').disabled=true;$('import').disabled=true;
  try{const t=await runImport('preview');readyPreview=true;$('import').disabled=!t.created;
  $('status').textContent='Prévia: '+t.created+' possíveis novos registros, '+t.existing+' existentes, '+t.invalid+' inválidos.'+
