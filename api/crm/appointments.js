@@ -47,7 +47,7 @@ export default async function handler(req,res){
    if(phone&&(phone.length<10||phone.length>13))
      return send(res,400,{error:"Telefone inválido. Deixe em branco se não estiver disponível."});
    const refCode=createHash("sha256").update(professional.toLocaleLowerCase("pt-BR")).digest("hex").slice(0,14);
-   const key="appt-"+date.replace(/-/g,"")+"-"+refCode+"-"+appointmentTime.replace(":","");
+   const baseKey="appt-"+date.replace(/-/g,"")+"-"+refCode+"-"+appointmentTime.replace(":","");
    const before=await coll.where("date","==",date).limit(401).get();
    if(before.size>400)return send(res,409,{error:"Agenda com muitos registros para verificar disponibilidade."});
    const start=minute(appointmentTime),end=start+durationMin;
@@ -60,6 +60,8 @@ export default async function handler(req,res){
    });
    if(occupied)return send(res,409,{error:"Horário ocupado ou bloqueado nessa agenda. Escolha outro horário."});
    const now=firebaseAdmin().firestore.FieldValue.serverTimestamp();
+   // Unique suffix allows a cancelled slot to be booked again without modifying its history.
+   const key=baseKey+"-"+createHash("sha256").update(staff.email+Date.now()+Math.random()).digest("hex").slice(0,10);
    try{
     await coll.doc(key).create({recordType,name:recordType==="block"?"Horário bloqueado":name,
       service:recordType==="block"?"Bloqueio":service,professional,date,appointmentTime,durationMin,
@@ -75,7 +77,7 @@ export default async function handler(req,res){
   }
   const b=typeof req.body==="string"?JSON.parse(req.body):req.body||{};
   const id=str(b.id,100),status=str(b.status,30);
-  if(!/^appt-\d{8}-[a-f0-9]{14}-\d{4}$/.test(id))
+  if(!/^appt-\d{8}-[a-f0-9]{14}-\d{4}-[a-f0-9]{10}$/.test(id))
     return send(res,400,{error:"Identificador de agenda inválido."});
   if(!statuses.has(status)&&status!=="liberado")return send(res,400,{error:"Situação inválida."});
   const doc=await coll.doc(id).get();
