@@ -20,7 +20,8 @@ button,input,select,textarea{font:inherit}button{background:var(--wine);color:#f
 </head><body>
 <header><strong>Patty | Operação e relatórios</strong><a href="/crm.html">Leads</a><a href="/crm-agenda.html">Agenda piloto</a><a href="/crm-clientes.html">Clientes Gendo</a></header>
 <main>
-<section id="login" class="panel"><h1>Entrada da equipe</h1><p class="muted">Acesso individual verificado pelo CRM; informações financeiras e importações são restritas à administração.</p>
+<section id="auth-loading" class="panel login" role="status"><strong>Restaurando sessão…</strong><p class="muted">Verificando acesso ao CRM da Patty.</p></section>
+<section id="login" class="panel hidden"><h1>Entrada da equipe</h1><p class="muted">Acesso individual verificado pelo CRM; informações financeiras e importações são restritas à administração.</p>
 <form id="loginForm" class="row"><input id="email" type="email" autocomplete="username" placeholder="E-mail autorizado" required><input id="password" type="password" autocomplete="current-password" placeholder="Senha" required><button>Entrar</button></form><p id="loginError" role="alert" class="error"></p></section>
 <section id="app" class="hidden">
 <div class="panel"><div class="row" style="justify-content:space-between"><div><h1>Operação do salão</h1><p class="muted" style="margin:0">Serviços, profissionais, atendimentos e relatórios — importação gradual do Gendo.</p></div><button id="logout" class="secondary">Sair</button></div><div class="tabs" id="tabs" aria-label="Módulos"></div><h2 id="moduleTitle"></h2>
@@ -39,8 +40,8 @@ button,input,select,textarea{font:inherit}button{background:var(--wine);color:#f
 <div class="overlay hidden" id="editOverlay"><section class="drawer" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="row" style="justify-content:space-between"><h2 id="editTitle">Cadastro</h2><button id="closeEditor" class="secondary">Fechar</button></div>
 <p class="small muted">Cadastro manual realizado somente pela administração. Não substitui, edita ou sincroniza diretamente o Gendo.</p><form id="editForm"><div class="fields" id="editFields"></div><p id="editStatus" class="error" role="alert"></p><button id="save" type="submit">Salvar registro</button></form></section></div>
 <script type="module">
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
+import {onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
 const $=id=>document.getElementById(id);const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let auth,schemas={},module='',manager=false,rows=[],cursor=null,fileRecords=[],headers=[],mapping={},editing=null,readyPreview=false,lastReport=null;
 const money=v=>Number.isSafeInteger(v)?(v/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—';
@@ -177,8 +178,20 @@ $('export').onclick=()=>{const cols=Object.keys(schemas[module].fields);const he
  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const u=URL.createObjectURL(blob);const link=document.createElement('a');link.href=u;link.download='patty-'+module+'-pagina.csv';link.click();URL.revokeObjectURL(u)};
 $('logout').onclick=()=>signOut(auth);
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginError').textContent='';try{await signInWithEmailAndPassword(auth,$('email').value,$('password').value)}catch(_){$('loginError').textContent='Verifique o acesso com a administração'}};
-(async()=>{try{const resp=await fetch('/api/config',{cache:'no-store'});if(!resp.ok)throw Error('Configuração do CRM indisponível');const config=await resp.json();auth=getAuth(initializeApp(config.firebase));
- onAuthStateChanged(auth,async user=>{const ok=!!user?.emailVerified;$('login').classList.toggle('hidden',ok);$('app').classList.toggle('hidden',!ok);
- if(ok){try{const r=await request('/api/crm/modulos');schemas=r.modules;manager=r.isManager;buildTabs()}catch(e){$('status').textContent=e.message}}});
- }catch(e){$('loginError').textContent=e.message}})();
+(async()=>{try{
+ const session=await initPattyAuth();auth=session.auth;
+ onAuthStateChanged(auth,async user=>{
+   showPattyAuthState(user,session.persistence);
+   $("auth-loading").classList.add("hidden");
+   const ok=!!user?.emailVerified;
+   $("login").classList.toggle("hidden",ok);
+   $("app").classList.toggle("hidden",!ok);
+   if(ok){
+     const access=await loadPattyPermissions(auth);
+     if(access.authorized){schemas=access.modules;manager=access.manager;buildTabs()}
+     else $("status").textContent=access.status===403?"Este usuário não está autorizado no CRM.":"Não foi possível validar o acesso. Tente atualizar a página.";
+   }
+ });
+ }catch(e){$("auth-loading").classList.add("hidden");$("login").classList.remove("hidden");$("loginError").textContent=e.message}
+})();
 </script></body></html>
