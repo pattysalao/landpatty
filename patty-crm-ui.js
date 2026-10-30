@@ -45,6 +45,15 @@ function launch(){
  left.append(toggle,label);
  const right=document.createElement("div");right.className="patty-topbar-end";
  right.innerHTML='<a class="patty-topbar-site" href="/" target="_blank" rel="noopener noreferrer">'+svg("external")+' <span>Ver site</span></a>';
+ const sessionPill=document.createElement("span");
+ sessionPill.className="patty-session-pill";
+ sessionPill.setAttribute("aria-live","polite");
+ right.prepend(sessionPill);
+ window.addEventListener("patty:auth",e=>{
+   const detail=e.detail||{};
+   sessionPill.textContent=detail.signedIn?(detail.email||"Sessão ativa"):"";
+   sessionPill.title=detail.persistence==="session"?"Sessão válida apenas nesta aba":detail.signedIn?"Sessão ativa neste navegador":"";
+ });
  const headerLogout=legacy.querySelector("#logout");
  if(headerLogout){headerLogout.classList.add("patty-logout");right.prepend(headerLogout)}
  top.append(left,right);
@@ -62,6 +71,10 @@ function launch(){
   const url=location.pathname+location.hash;
   sidebar.querySelectorAll(".patty-nav-link").forEach(a=>{
    const href=a.getAttribute("data-nav-href");
+   const managerOnly = href==="/crm-clientes.html" ||
+      (href.startsWith("/crm-modulos.html#") &&
+       !["servicos","profissionais"].includes(href.split("#")[1]));
+   a.hidden = managerOnly && !document.body.classList.contains("patty-manager");
    const active=href===url || (location.pathname!=="/crm-modulos.html"&&href===location.pathname);
    if(active)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")
   });
@@ -70,6 +83,7 @@ function launch(){
  }
  updateActive();
  window.addEventListener("hashchange",updateActive);
+ new MutationObserver(updateActive).observe(document.body,{attributes:true,attributeFilter:["class"]});
  const app=document.getElementById("app");
  function updateAuth(){
   const ready=!!app&&!app.classList.contains("hidden");
