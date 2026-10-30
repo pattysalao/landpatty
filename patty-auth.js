@@ -15,8 +15,8 @@ export async function initPattyAuth() {
     const firebase = config.firebase;
     if (!firebase?.apiKey || !firebase?.projectId || !firebase?.appId)
       throw new Error("O acesso ainda não está configurado. Avise a administração.");
-    const name = "patty-crm";
-    const app = getApps().find(x => x.name === name) || initializeApp(firebase, name);
+    // Keep the existing [DEFAULT] Firebase app name to preserve already signed-in sessions.
+    const app = getApps().find(x => x.name === "[DEFAULT]") || initializeApp(firebase);
     const auth = getAuth(app);
     // Wait for the persisted user to be restored before choosing which screen to show.
     await auth.authStateReady();
