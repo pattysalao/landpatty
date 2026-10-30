@@ -33,19 +33,19 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:9px;borde
 <div class="card"><h1>Importação do Gendo</h1>
 <p class="notice"><strong>Migração paralela:</strong> o Gendo continua como sistema operacional. Os clientes históricos entram em uma coleção separada e não são contabilizados como leads de campanhas nem como receita atual. Nenhuma mensagem é enviada.</p>
 <p>Use o CSV exportado em <b>Clientes → Listagem → Salvar em Excel</b>. Se o Gendo mostrar no máximo 5.000 por página, exporte todas as páginas. Os códigos de origem são mantidos e os cadastros existentes não são sobrescritos.</p>
-<div class="row"><input id="file" type="file" accept=".csv,text/csv"><button id="preview" class="secondary" disabled>Conferir arquivo</button><button id="import" disabled>Importar clientes</button></div>
+<div class="row"><input id="file" type="file" accept=".csv,text/csv" multiple aria-label="Selecionar todos os CSVs exportados do Gendo"><button id="preview" class="secondary" disabled>Conferir arquivo</button><button id="import" disabled>Importar clientes</button></div>
 <div id="summary" class="stat"></div>
 <p id="message" role="status"></p><progress id="importProgress" class="patty-import-progress hidden" max="100" value="0" aria-label="Progresso da importação"></progress>
 <p class="muted"><small>Importação restrita à administração. A origem não comprova consentimento para marketing: todos entram sem opt-in. CPF não é importado. Valores históricos não integram o caixa atual.</small></p>
 </div>
-<div class="card"><h2>Clientes já importados</h2><div class="row"><button id="load" class="secondary">Atualizar lista</button><input id="q" placeholder="Nome, código ou telefone" aria-label="Pesquisar cliente"><button id="searchAll" class="secondary" type="button">Buscar na base inteira</button></div><p id="list-message" role="status"></p>
+<div class="card"><h2>Clientes já importados</h2><div class="stat" style="margin:12px 0"><div><b id="customerTotal">—</b><span>Clientes no banco</span></div><div><b id="expectedTotal">11.681</b><span>Registros nos CSVs recebidos</span></div><div><b id="remainingTotal">—</b><span>Diferença estimada</span></div></div><div class="row"><label for="perPage">Por página</label><select id="perPage"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select><button id="load" class="secondary">Atualizar lista</button><input id="q" placeholder="Nome, código ou telefone" aria-label="Pesquisar cliente"><button id="searchAll" class="secondary" type="button">Buscar na base inteira</button></div><p id="list-message" role="status"></p>
 <div class="tablewrap"><table><thead><tr><th>Código Gendo</th><th>Nome</th><th>Contato</th><th>Visitas</th><th>Última visita</th><th>Faturado histórico</th></tr></thead><tbody id="rows"></tbody></table></div>
-<div class="row"><button id="more" class="secondary hidden">Próxima página</button><button id="logout" class="secondary">Sair</button></div></div>
+<div class="row"><button id="prevPage" class="secondary" disabled>Anterior</button><strong id="pageLabel">Página 1</strong><button id="more" class="secondary" disabled>Próxima</button><button id="logout" class="secondary">Sair</button></div></div>
 </section></main>
 <script type="module">
 import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
 import {signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-const $=x=>document.getElementById(x);let auth,customers=[],cursor=null,records=[],previewed=false;
+const $=x=>document.getElementById(x);let auth,customers=[],cursor=null,records=[],previewed=false,currentPage=0,pageCursors=[null],expected=11681;
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const currency=v=>Number.isSafeInteger(v)?(v/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"Não informado";
 async function req(url,opts={}){
@@ -87,13 +87,23 @@ function showStats(totals){
  $("summary").innerHTML=["Recebidos","Válidos","Já existentes","Novos"].map((label,i)=>
   '<div><b>'+[totals.received||0,totals.valid||0,totals.existing||0,totals.created||0][i]+'</b><span>'+label+'</span></div>').join("");
 }
-$("file").onchange=async()=>{previewed=false;records=[];$("import").disabled=true;$("preview").disabled=true;$("summary").innerHTML="";
+$("file").onchange=async()=>{
+ previewed=false;records=[];$("import").disabled=true;$("preview").disabled=true;$("summary").innerHTML="";
  try{
-  const f=$("file").files?.[0];if(!f)return;if(f.size>15*1024*1024)throw Error("Arquivo maior que 15 MB; exporte por páginas.");
-  const buffer=await f.arrayBuffer();let str;
-  try{str=new TextDecoder("utf-8",{fatal:true}).decode(buffer)}catch(_){str=new TextDecoder("windows-1252").decode(buffer)}
-  records=parseGendo(csvRows(str));$("preview").disabled=!records.length;
-  $("message").textContent=records.length+" linhas lidas. Confira os duplicados antes de importar.";
+  const files=Array.from($("file").files||[]);
+  if(!files.length)return;
+  if(files.reduce((sum,f)=>sum+f.size,0)>25*1024*1024)throw Error("Arquivos grandes demais. Exporte em lotes.");
+  for(const f of files){
+   const buffer=await f.arrayBuffer();let str;
+   try{str=new TextDecoder("utf-8",{fatal:true}).decode(buffer)}
+   catch(_){str=new TextDecoder("windows-1252").decode(buffer)}
+   records.push(...parseGendo(csvRows(str)));
+  }
+  const codes=new Set(),unique=[];let repeated=0;
+  for(const item of records){if(codes.has(item.gendoCode)){repeated++;continue}codes.add(item.gendoCode);unique.push(item)}
+  records=unique;
+  $("preview").disabled=!records.length;
+  $("message").textContent=records.length+" códigos Gendo únicos lidos em "+files.length+" arquivo(s)"+(repeated?" ("+repeated+" códigos repetidos removidos)": "")+". Confira e importe.";
  }catch(e){$("message").textContent=e.message}
 };
 async function batchRun(dryRun){
@@ -116,11 +126,23 @@ $("import").onclick=async()=>{if(!previewed)return;
  try{const t=await batchRun(false);$("message").textContent="Concluído: "+t.created+" novos cadastros; "+t.existing+" já existentes; "+t.conflicts+" falhas. Confira o CRM.";await load(true)}
  catch(e){$("message").textContent="Importação interrompida: "+e.message+" (os lotes anteriores foram preservados; a próxima execução ignora duplicados)."}
  finally{$("preview").disabled=false}};
+async function refreshTotals(){
+ try{const r=await req("/api/crm/counts");const total=r.customersTotal;
+  $("customerTotal").textContent=typeof total==="number"?total.toLocaleString("pt-BR"):"Restrito";
+  $("remainingTotal").textContent=typeof total==="number"?Math.max(0,expected-total).toLocaleString("pt-BR"):"—";
+ }catch(e){$("customerTotal").textContent="Indisponível";$("remainingTotal").textContent="—"}
+}
 async function load(reset){
- if(reset){customers=[];cursor=null}
- try{const r=await req("/api/crm/customers"+(cursor?"?cursor="+encodeURIComponent(cursor):""));
-  customers.push(...r.customers);cursor=r.nextCursor;$("more").classList.toggle("hidden",!cursor);render();
-  $("list-message").textContent=customers.length+" clientes carregados"+(cursor?" — há outras páginas":"")+".";
+ if(reset){currentPage=0;pageCursors=[null]}
+ try{
+  const params=new URLSearchParams({limit:$("perPage").value});
+  if(pageCursors[currentPage])params.set("cursor",pageCursors[currentPage]);
+  const r=await req("/api/crm/customers?"+params.toString());
+  customers=r.customers;cursor=r.nextCursor;
+  $("more").disabled=!cursor;$("prevPage").disabled=currentPage===0;
+  $("pageLabel").textContent="Página "+(currentPage+1)+" · "+customers.length+" registro(s)";
+  render();$("list-message").textContent=customers.length+" clientes nesta página. Use Próxima ou Anterior para navegar.";
+  if(reset)await refreshTotals();
  }catch(e){$("list-message").textContent=e.message}
 }
 function render(){
@@ -132,11 +154,14 @@ $("searchAll").onclick=async()=>{
  const query=$("q").value.trim().replace(/\D/g,"");
  if(!/^\d{1,15}$/.test(query)){$("list-message").textContent="Para buscar na base inteira, digite o código Gendo ou um telefone com DDD. Por nome, filtre os registros carregados.";return}
  $("searchAll").disabled=true;$("list-message").textContent="Buscando cliente na base completa...";
- try{const r=await req("/api/crm/customers?lookup="+encodeURIComponent(query));customers=r.customers;cursor=null;$("more").classList.add("hidden");$("q").value="";render();$("list-message").textContent=customers.length?customers.length+" cliente(s) encontrado(s) na base completa. Clique em Atualizar lista para voltar.":"Nenhum cliente com esse código ou telefone. Clique em Atualizar lista para voltar."}
+ try{const r=await req("/api/crm/customers?lookup="+encodeURIComponent(query));customers=r.customers;cursor=null;$("more").disabled=true;$("prevPage").disabled=true;$("pageLabel").textContent="Resultado da busca";$("q").value="";render();$("list-message").textContent=customers.length?customers.length+" cliente(s) encontrado(s) na base completa. Clique em Atualizar lista para voltar.":"Nenhum cliente com esse código ou telefone. Clique em Atualizar lista para voltar."}
  catch(e){$("list-message").textContent=e.message}
  finally{$("searchAll").disabled=false}
 };
-$("load").onclick=()=>{$("q").value="";load(true)};$("more").onclick=()=>load(false);
+$("load").onclick=()=>{$("q").value="";load(true)};
+$("perPage").onchange=()=>load(true);
+$("more").onclick=()=>{if(cursor){pageCursors[currentPage+1]=cursor;currentPage++;load(false)}};
+$("prevPage").onclick=()=>{if(currentPage>0){currentPage--;load(false)}};
 $("logout").onclick=()=>signOut(auth);
 $("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}catch(_){$("login-error").textContent="Não foi possível entrar."}};
 (async()=>{try{
