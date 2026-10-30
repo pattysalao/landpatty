@@ -88,15 +88,20 @@ export default async function handler(req, res) {
       return send(res, 201, {ok: true, reference});
     }
     if (req.method === "GET") {
-      let q = coll.orderBy("createdAt", "desc").limit(100);
-      if (req.query.cursor) {
-        const cursor = await coll.doc(String(req.query.cursor).slice(0, 40)).get();
-        if (!cursor.exists) return send(res, 400, { error: "Página inválida" });
-        q = q.startAfter(cursor);
+      const requested=Number(req.query?.limit||25);
+      const limit=[10,25,50,100].includes(requested)?requested:25;
+      let q=coll.orderBy("createdAt","desc").limit(limit+1);
+      if(req.query.cursor){
+        const cursor=await coll.doc(String(req.query.cursor).slice(0,40)).get();
+        if(!cursor.exists)return send(res,400,{error:"Página inválida"});
+        q=q.startAfter(cursor);
       }
-      const snap = await q.get();
-      return send(res, 200, { leads: snap.docs.map(encode),
-        nextCursor: snap.size === 100 ? snap.docs[snap.docs.length - 1].id : null });
+      const snap=await q.get();
+      const docs=snap.docs.slice(0,limit);
+      return send(res,200,{
+        leads:docs.map(encode),limit,
+        nextCursor:snap.size>limit?docs[docs.length-1].id:null
+      });
     }
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
     const id = getText(body.id, 40);
