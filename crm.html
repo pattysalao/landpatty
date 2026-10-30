@@ -71,7 +71,11 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <div data-legacy-navigation="true" class="row" style="display:flex;flex-wrap:wrap;gap:10px;margin:0 0 15px"><a class="primary" href="/crm-agenda.html" style="display:inline-block;text-decoration:none;background:#801a39;color:white;padding:10px 15px;border-radius:10px">📅 Agenda por profissional (piloto)</a><a href="/crm-clientes.html" style="display:inline-block;border:1px solid #801a39;padding:9px 15px;border-radius:10px;text-decoration:none">👥 Clientes / Importação Gendo</a></div>
 <nav data-legacy-navigation="true" aria-label="Módulos operacionais" style="display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px"><a href="/crm-modulos.html" style="background:#801a39;color:#fff;border-radius:10px;padding:10px 15px;text-decoration:none;font-weight:700">📋 Operação, financeiro e importações</a></nav>
 <div class="cards">
-<div class="metric"><span>Registros carregados</span><strong id="count">0</strong></div>
+<div class="metric"><span>Leads totais no CRM</span><strong id="leadsTotal">—</strong><small>Contagem real do banco</small></div>
+<div class="metric"><span>Clientes históricos Gendo</span><strong id="customersTotal">—</strong><small>Cadastros importados</small></div>
+</div>
+<div class="cards">
+<div class="metric"><span>Leads nesta página</span><strong id="count">0</strong></div>
 <div class="metric"><span>Novos</span><strong id="new">0</strong></div>
 <div class="metric"><span>Agendados</span><strong id="booked">0</strong></div>
 <div class="metric"><span>Atendidos</span><strong id="attended">0</strong></div>
@@ -92,11 +96,11 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <div id="insights-loss"></div>
 <p class="smallnote">Conversão = leads captados no período cujo estágio atual é Agendado ou Atendido. Receita realizada = valores informados em atendimentos marcados como concluídos no período, independentemente de quando o lead foi captado. Receita futura = soma dos valores previstos em agendamentos confirmados para os próximos 30 dias; não inclui agendamentos sem preço e não é garantia de recebimento. Registros marcados como teste não entram nos indicadores. Google Ads só é identificado quando a origem contém parâmetros de campanha compatíveis; cliques no GA4 não são leads.</p>
 </section>
-<div class="filters"><input id="query" placeholder="Buscar nome, telefone ou serviço" aria-label="Buscar contatos">
+<div class="filters"><label for="perPage">Por página</label><select id="perPage" aria-label="Leads por página"><option value="10">10</option><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select><input id="query" placeholder="Buscar nome, telefone ou serviço" aria-label="Buscar contatos">
 <select id="filter" aria-label="Filtrar por status"><option value="">Todos os status</option><option value="novo">Novos</option><option value="em_contato">Em contato</option><option value="agendado">Agendados</option><option value="atendido">Atendidos</option><option value="perdido">Perdidos</option><option value="followup_due">Retornos para hoje/atrasados</option></select></div>
 <p id="notice" class="muted" role="status"></p><div class="lead-list" id="leads"></div>
-<p style="margin:18px 0"><button id="more" class="secondary hidden">Carregar mais leads</button></p>
-<p class="footnote">Os indicadores acima resumem apenas os registros carregados. Dados pessoais não são enviados ao GA4.</p>
+<div class="row" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0"><button id="prevPage" class="secondary" disabled>Anterior</button><strong id="pageLabel" aria-live="polite">Página 1</strong><button id="more" class="secondary" disabled>Próxima</button><span class="muted">A busca e os filtros de status aplicam-se aos registros da página.</span></div>
+<p class="footnote">Os cartões de status resumem apenas a página exibida. Os totais gerais acima são contagens reais do banco, sem dados pessoais no GA4.</p>
 </section>
 </main>
 <div id="manual-drawer" class="drawer hidden" role="dialog" aria-modal="true" aria-labelledby="manual-title">
@@ -164,7 +168,7 @@ Registro de teste (não incluir nos relatórios)</label></div>
 import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $ = id => document.getElementById(id);
-let auth, data = [], nextCursor = null, selected = null, loading = false;
+let auth, data = [], nextCursor = null, selected = null, loading = false, currentPage=0,pageCursors=[null];
 const statuses = {novo:"Novo",em_contato:"Em conversa",agendado:"Agendado",atendido:"Atendido",perdido:"Perdido"};
 const escapeHtml = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money = v => v == null ? "" : (v/100).toFixed(2).replace(".",",");
@@ -180,21 +184,33 @@ async function request(url, options = {}) {
   if (!response.ok) throw new Error(result.error || "Não foi possível consultar o CRM");
   return result;
 }
+async function refreshTotals(){
+ try{
+  const counts=await request("/api/crm/counts");
+  const format=x=>typeof x==="number"?x.toLocaleString("pt-BR"):"Restrito";
+  $("leadsTotal").textContent=format(counts.leadsTotal);
+  $("customersTotal").textContent=format(counts.customersTotal);
+ }catch(e){$("leadsTotal").textContent="Indisponível";$("customersTotal").textContent="Indisponível";}
+}
 async function load(reset) {
-  if (loading) return; loading = true;
-  $("notice").textContent = "Carregando contatos...";
-  try {
-    if (reset) {data=[];nextCursor=null}
-    const url = "/api/crm/leads" + (nextCursor ? "?cursor=" + encodeURIComponent(nextCursor) : "");
-    const response = await request(url);
-    data.push(...response.leads);
-    nextCursor = response.nextCursor;
-    $("more").classList.toggle("hidden", !nextCursor);
-    $("notice").textContent = data.length ? "Contatos recebidos. Clique em Abrir para atualizar o atendimento." : "Nenhum contato cadastrado ainda.";
-    render();
-    if(reset) refreshInsights();
-  } catch(e) {$("notice").textContent = e.message;}
-  finally {loading=false}
+ if(loading)return;loading=true;
+ if(reset){currentPage=0;pageCursors=[null];}
+ $("notice").textContent="Carregando página...";
+ try{
+  const cursor=pageCursors[currentPage];
+  const params=new URLSearchParams({limit:$("perPage").value});
+  if(cursor)params.set("cursor",cursor);
+  const response=await request("/api/crm/leads?"+params.toString());
+  data=response.leads;
+  nextCursor=response.nextCursor;
+  $("more").disabled=!nextCursor;
+  $("prevPage").disabled=currentPage===0;
+  $("pageLabel").textContent="Página "+(currentPage+1)+" · "+data.length+" registro(s)";
+  $("notice").textContent=data.length?"Clique em Abrir para atualizar o atendimento.":"Nenhum lead nesta página.";
+  render();
+  if(reset){refreshInsights();refreshTotals();}
+ }catch(e){$("notice").textContent=e.message}
+ finally{loading=false}
 }
 // Relatórios agregados: a API retorna apenas totais, não dados pessoais.
 const currency = cents => Number.isSafeInteger(cents) ?
@@ -370,7 +386,10 @@ $("save").onclick=async()=>{
   finally{$("save").disabled=false}
 };
 $("query").oninput=render;$("filter").onchange=render;
-$("reload").onclick=()=>load(true);$("more").onclick=()=>load(false);
+$("reload").onclick=()=>load(true);
+$("perPage").onchange=()=>load(true);
+$("more").onclick=()=>{if(nextCursor&&!loading){pageCursors[currentPage+1]=nextCursor;currentPage++;load(false)}};
+$("prevPage").onclick=()=>{if(currentPage>0&&!loading){currentPage--;load(false)}};
 $("logout").onclick=()=>signOut(auth);
 $("verify-send").onclick=async()=>{
   $("verify-send").disabled=true;
