@@ -84,7 +84,7 @@ function parseGendo(rows){
  }));
 }
 function showStats(totals){
- $("summary").innerHTML=["Recebidos","Válidos","Já existentes","Novos"].map((label,i)=>
+ $("summary").innerHTML=["Recebidos","Válidos",totals.previewOnly?"A confirmar":"Já existentes",totals.previewOnly?"Candidatos":"Novos"].map((label,i)=>
   '<div><b>'+[totals.received||0,totals.valid||0,totals.existing||0,totals.created||0][i]+'</b><span>'+label+'</span></div>').join("");
 }
 $("file").onchange=async()=>{
