@@ -132,3 +132,13 @@ body.patty-admin{background:var(--patty-canvas)!important;color:var(--patty-ink)
 .patty-admin #loginForm input{flex:1 1 180px;min-width:0}
 .patty-admin .panel h3,.patty-admin .card h2{color:#482b3a}
 .patty-admin .patty-topbar-site:hover{background:#faeef3}
+
+
+/* Session and permissions: admin-only links are not shown to staff. */
+.patty-admin .patty-nav-link[hidden]{display:none!important}
+.patty-admin .patty-session-pill{max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#7d6972;background:#f9f2f5;border:1px solid #eee0e4;border-radius:9px;padding:8px 10px}
+.patty-admin #auth-loading{margin:7vh auto;max-width:420px;text-align:center}
+.patty-admin .patty-import-progress{width:100%;height:9px;accent-color:#801a39;margin:8px 0 2px;display:block}
+.patty-admin .patty-import-errors{padding:12px 16px;border:1px solid #eed6d6;border-radius:11px;background:#fff9f9;color:#7d3741}
+.patty-admin .patty-import-errors li{margin:5px 0}
+@media(max-width:680px){.patty-admin .patty-session-pill{max-width:110px;font-size:10px;padding:7px}.patty-admin .patty-topbar-site{display:none}}
