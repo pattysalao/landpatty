@@ -35,10 +35,10 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:9px;borde
 <p>Use o CSV exportado em <b>Clientes → Listagem → Salvar em Excel</b>. Se o Gendo mostrar no máximo 5.000 por página, exporte todas as páginas. Os códigos de origem são mantidos e os cadastros existentes não são sobrescritos.</p>
 <div class="row"><input id="file" type="file" accept=".csv,text/csv"><button id="preview" class="secondary" disabled>Conferir arquivo</button><button id="import" disabled>Importar clientes</button></div>
 <div id="summary" class="stat"></div>
-<p id="message" role="status"></p>
+<p id="message" role="status"></p><progress id="importProgress" class="patty-import-progress hidden" max="100" value="0" aria-label="Progresso da importação"></progress>
 <p class="muted"><small>Importação restrita à administração. A origem não comprova consentimento para marketing: todos entram sem opt-in. CPF não é importado. Valores históricos não integram o caixa atual.</small></p>
 </div>
-<div class="card"><h2>Clientes já importados</h2><div class="row"><button id="load" class="secondary">Atualizar lista</button><input id="q" placeholder="Filtrar página por nome/código"></div><p id="list-message" role="status"></p>
+<div class="card"><h2>Clientes já importados</h2><div class="row"><button id="load" class="secondary">Atualizar lista</button><input id="q" placeholder="Nome, código ou telefone" aria-label="Pesquisar cliente"><button id="searchAll" class="secondary" type="button">Buscar na base inteira</button></div><p id="list-message" role="status"></p>
 <div class="tablewrap"><table><thead><tr><th>Código Gendo</th><th>Nome</th><th>Contato</th><th>Visitas</th><th>Última visita</th><th>Faturado histórico</th></tr></thead><tbody id="rows"></tbody></table></div>
 <div class="row"><button id="more" class="secondary hidden">Próxima página</button><button id="logout" class="secondary">Sair</button></div></div>
 </section></main>
@@ -97,11 +97,12 @@ $("file").onchange=async()=>{previewed=false;records=[];$("import").disabled=tru
  }catch(e){$("message").textContent=e.message}
 };
 async function batchRun(dryRun){
+ const progress=$("importProgress");progress.value=0;progress.classList.remove("hidden");
  const total={received:0,valid:0,invalid:0,existing:0,created:0,duplicatesInFile:0,conflicts:0};
  for(let i=0;i<records.length;i+=50){
   const result=await req("/api/crm/customers",{method:"POST",body:JSON.stringify({dryRun,records:records.slice(i,i+50)})});
   for(const k of Object.keys(total))total[k]+=result[k]||0;
-  $("message").textContent=(dryRun?"Conferindo":"Importando")+" "+Math.min(i+50,records.length)+" / "+records.length;
+  $("message").textContent=(dryRun?"Conferindo":"Importando")+" "+Math.min(i+50,records.length)+" / "+records.length;progress.value=Math.round(100*Math.min(i+50,records.length)/records.length);
  }
  showStats(total);return total;
 }
@@ -126,7 +127,16 @@ function render(){
  const q=$("q").value.toLowerCase();const rows=customers.filter(x=>[x.name,x.phone,x.gendoCode].some(v=>String(v||"").toLowerCase().includes(q)));
  $("rows").innerHTML=rows.map(x=>'<tr><td>'+esc(x.gendoCode)+'</td><td>'+esc(x.name)+'</td><td>'+esc(x.phone)+'</td><td>'+esc(x.visits)+'</td><td>'+esc(x.lastVisit||"—")+'</td><td>'+esc(currency(x.historicalBilledCents))+'</td></tr>').join("");
 }
-$("q").oninput=render;$("load").onclick=()=>load(true);$("more").onclick=()=>load(false);
+$("q").oninput=render;
+$("searchAll").onclick=async()=>{
+ const query=$("q").value.trim().replace(/\D/g,"");
+ if(!/^\d{1,15}$/.test(query)){$("list-message").textContent="Para buscar na base inteira, digite o código Gendo ou um telefone com DDD. Por nome, filtre os registros carregados.";return}
+ $("searchAll").disabled=true;$("list-message").textContent="Buscando cliente na base completa...";
+ try{const r=await req("/api/crm/customers?lookup="+encodeURIComponent(query));customers=r.customers;cursor=null;$("more").classList.add("hidden");$("q").value="";render();$("list-message").textContent=customers.length?customers.length+" cliente(s) encontrado(s) na base completa. Clique em Atualizar lista para voltar.":"Nenhum cliente com esse código ou telefone. Clique em Atualizar lista para voltar."}
+ catch(e){$("list-message").textContent=e.message}
+ finally{$("searchAll").disabled=false}
+};
+$("load").onclick=()=>{$("q").value="";load(true)};$("more").onclick=()=>load(false);
 $("logout").onclick=()=>signOut(auth);
 $("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}catch(_){$("login-error").textContent="Não foi possível entrar."}};
 (async()=>{try{
