@@ -24,7 +24,8 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:9px;borde
 </head><body>
 <header><strong>Patty | Clientes e histórico</strong><a href="/crm.html">Leads</a><a href="/crm-agenda.html">Agenda piloto</a></header>
 <main>
-<section id="login" class="card"><h1>Acesso administrativo</h1><p>Esta área contém dados pessoais e históricos financeiros e requer autorização gerencial.</p>
+<section id="auth-loading" class="panel login" role="status"><strong>Restaurando sessão…</strong><p class="muted">Verificando acesso ao CRM da Patty.</p></section>
+<section id="login" class="card hidden"><h1>Acesso administrativo</h1><p>Esta área contém dados pessoais e históricos financeiros e requer autorização gerencial.</p>
 <form id="login-form" class="row"><input type="email" id="email" placeholder="E-mail autorizado" autocomplete="username" required>
 <input type="password" id="password" placeholder="Senha" autocomplete="current-password" required>
 <button>Entrar</button></form><p id="login-error" role="alert"></p></section>
@@ -42,8 +43,8 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:9px;borde
 <div class="row"><button id="more" class="secondary hidden">Próxima página</button><button id="logout" class="secondary">Sair</button></div></div>
 </section></main>
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
+import {signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $=x=>document.getElementById(x);let auth,customers=[],cursor=null,records=[],previewed=false;
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const currency=v=>Number.isSafeInteger(v)?(v/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"Não informado";
@@ -128,8 +129,16 @@ function render(){
 $("q").oninput=render;$("load").onclick=()=>load(true);$("more").onclick=()=>load(false);
 $("logout").onclick=()=>signOut(auth);
 $("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}catch(_){$("login-error").textContent="Não foi possível entrar."}};
-(async()=>{try{const r=await fetch("/api/config",{cache:"no-store"});if(!r.ok)throw Error("Configuração indisponível");
- const c=await r.json();auth=getAuth(initializeApp(c.firebase));
- onAuthStateChanged(auth,async user=>{$("login").classList.toggle("hidden",!!user&&user.emailVerified);$("app").classList.toggle("hidden",!user||!user.emailVerified);if(user?.emailVerified)await load(true)});
- }catch(e){$("login-error").textContent=e.message}})();
+(async()=>{try{
+ const session=await initPattyAuth();auth=session.auth;
+ onAuthStateChanged(auth,async user=>{
+  showPattyAuthState(user,session.persistence);
+  $("auth-loading").classList.add("hidden");
+  const ok=!!user?.emailVerified;
+  $("login").classList.toggle("hidden",ok);
+  $("app").classList.toggle("hidden",!ok);
+  if(ok){const access=await loadPattyPermissions(auth);if(access.manager)await load(true);else $("list-message").textContent="Importação e dados históricos exigem permissão da administração."}
+ });
+ }catch(e){$("auth-loading").classList.add("hidden");$("login").classList.remove("hidden");$("login-error").textContent=e.message}
+})();
 </script></body></html>
