@@ -60,7 +60,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <div class="fields">
 <label class="full" id="nameLabel">Nome da cliente *<input id="customerName" required maxlength="120" autocomplete="name"></label>
 <label id="phoneLabel">Telefone (opcional)<input id="customerPhone" type="tel" inputmode="tel" maxlength="30"></label>
-<label id="codeLabel">Código Gendo (opcional)<input id="customerCode" maxlength="32" inputmode="numeric"></label>
+<label id="codeLabel">Código Gendo (opcional)<input id="customerCode" maxlength="32" inputmode="numeric"><button id="findCustomer" class="secondary" type="button" style="margin-top:7px">Localizar cliente</button></label>
 <label class="full" id="serviceLabel">Serviço *<input id="service" list="serviceSuggestions" maxlength="120" required></label>
 <datalist id="serviceSuggestions"></datalist>
 <label>Profissional *<input id="professional" list="professionalSuggestions" maxlength="80" required></label>
@@ -156,6 +156,20 @@ function openForm(prof="",time="",block=false){
  $("bookingTime").value=time||"09:00";$("save").textContent=block?"Salvar bloqueio":"Salvar agendamento";
  $("formBackdrop").classList.remove("hidden");$("professional").focus();
 }
+$("findCustomer").onclick=async()=>{
+ const key=$("customerCode").value.trim()||$("customerPhone").value.trim();
+ if(!key){$("bookingError").textContent="Informe o código Gendo ou telefone para localizar.";return}
+ $("findCustomer").disabled=true;$("bookingError").textContent="";
+ try{
+   const found=await api("/api/crm/customers?lookup="+encodeURIComponent(key));
+   const customer=found.customers?.[0];
+   if(!customer)throw Error("Cliente não localizado. Você pode preencher o nome manualmente.");
+   $("customerName").value=customer.name||"";
+   $("customerPhone").value=customer.phone||"";
+   $("customerCode").value=customer.gendoCode||"";
+ }catch(err){$("bookingError").textContent=err.status===403?"Consulta à base histórica reservada à administração. Digite o cliente manualmente.":err.message}
+ finally{$("findCustomer").disabled=false}
+};
 const closeForm=()=>$("formBackdrop").classList.add("hidden");
 $("new").onclick=()=>openForm();$("block").onclick=()=>openForm("","",true);
 $("close").onclick=closeForm;$("cancel").onclick=closeForm;
