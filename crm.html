@@ -54,7 +54,8 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 <body>
 <header><div><strong>Patty | Gestão de Leads</strong><small>Painel interno de atendimentos</small></div><button id="logout" class="secondary hidden">Sair</button></header>
 <main>
-<section id="login-panel" class="panel login"><h1>Acesso da equipe</h1><p class="muted">Somente pessoas autorizadas pela administração do salão.</p>
+<section id="auth-loading" class="panel login" role="status"><strong>Restaurando sessão…</strong><p class="muted">Verificando acesso ao CRM da Patty.</p></section>
+<section id="login-panel" class="panel login hidden"><h1>Acesso da equipe</h1><p class="muted">Somente pessoas autorizadas pela administração do salão.</p>
 <form id="login-form"><label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required>
 <label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required>
 <p id="login-error" class="error" role="alert"></p><button class="primary" type="submit">Entrar no CRM</button></form></section>
@@ -160,8 +161,8 @@ Registro de teste (não incluir nos relatórios)</label></div>
 </section></div>
 <datalist id="patty-pros"><option value="Patty"><option value="Benedita"><option value="Deimy"><option value="Allegra"><option value="Héllen"><option value="Chele"><option value="Maira"><option value="Vaneza"><option value="Vanya"></datalist>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $ = id => document.getElementById(id);
 let auth, data = [], nextCursor = null, selected = null, loading = false;
 const statuses = {novo:"Novo",em_contato:"Em conversa",agendado:"Agendado",atendido:"Atendido",perdido:"Perdido"};
@@ -399,22 +400,29 @@ $("login-form").onsubmit=async e=>{
   catch(_) {$("login-error").textContent="Não foi possível entrar. Verifique o acesso com a administração."}
 };
 (async()=>{
-  try{
-    const response=await fetch("/api/config",{cache:"no-store"});
-    if(!response.ok)throw Error("Configuração não disponível");
-    const config=await response.json();
-    if(!config.firebase?.apiKey||!config.firebase?.projectId)throw Error("Aguardando configuração do Firebase");
-    auth=getAuth(initializeApp(config.firebase));
+  try {
+    const session = await initPattyAuth();
+    auth = session.auth;
     onAuthStateChanged(auth,async user=>{
+      showPattyAuthState(user, session.persistence);
+      $("auth-loading").classList.add("hidden");
       const needsVerification = !!user && !user.emailVerified;
       $("login-panel").classList.toggle("hidden",!!user);
       $("verify-panel").classList.toggle("hidden",!needsVerification);
       $("app").classList.toggle("hidden",!user || needsVerification);
       $("logout").classList.toggle("hidden",!user);
       if(needsVerification)$("verify-email").textContent=user.email||"";
-      if(user && !needsVerification)await load(true);
+      if(user && !needsVerification){
+        const access=await loadPattyPermissions(auth);
+        if(access.authorized)await load(true);
+        else $("notice").textContent=access.status===403?"Este e-mail não tem acesso à equipe da Patty. Solicite autorização.":"Não foi possível validar seu acesso. Atualize a página.";
+      }
     });
-  }catch(e){$("login-error").textContent=e.message}
+  }catch(e){
+    $("auth-loading").classList.add("hidden");
+    $("login-panel").classList.remove("hidden");
+    $("login-error").textContent=e.message;
+  }
 })();
 </script>
 </body>
