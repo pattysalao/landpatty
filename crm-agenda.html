@@ -91,7 +91,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const starterPros=["Patty","Benedita","Deimy","Allegra","Héllen","Chele","Maira","Vaneza","Vanya"];
 const starterServices=["Cabelos e Cachos","Corte","Coloração","Mechas","Nail Design","Manicure","Pedicure","Sobrancelhas","Depilação","Cílios","Massoterapia"];
-let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],editing=null,isBlock=false;
+let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],editing=null,isBlock=false,serviceDurations={};
 function today(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const v=k=>p.find(x=>x.type===k)?.value;return v("year")+"-"+v("month")+"-"+v("day")}
 async function api(url,opts={}){
  if(!auth?.currentUser?.emailVerified)throw Error("Entre com sua conta autorizada.");
@@ -108,7 +108,7 @@ async function catalogs(){
  const [p,s]=await Promise.allSettled([api("/api/crm/modulos?module=profissionais"),api("/api/crm/modulos?module=servicos")]);
  if(p.status==="fulfilled"&&p.value.items?.length){allPros=p.value.items.filter(x=>x.active!==false).map(x=>x.name).filter(Boolean);$("catalogNotice").textContent="Profissionais carregadas do cadastro do CRM. Complete o cadastro para exibir toda a equipe."}
  else $("catalogNotice").textContent="Equipe provisória: importe os dados em Operação → Profissionais para substituir a lista inicial.";
- if(s.status==="fulfilled"&&s.value.items?.length)allServices=s.value.items.filter(x=>x.active!==false).map(x=>x.name).filter(Boolean);
+ if(s.status==="fulfilled"&&s.value.items?.length){const active=s.value.items.filter(x=>x.active!==false);allServices=active.map(x=>x.name).filter(Boolean);serviceDurations=Object.fromEntries(active.filter(x=>x.name&&Number.isInteger(x.durationMin)).map(x=>[x.name,x.durationMin]))}
  fillCatalog();
  }catch(_){fillCatalog();}
 }
@@ -170,6 +170,12 @@ $("findCustomer").onclick=async()=>{
  }catch(err){$("bookingError").textContent=err.status===403?"Consulta à base histórica reservada à administração. Digite o cliente manualmente.":err.message}
  finally{$("findCustomer").disabled=false}
 };
+$("service").addEventListener("change",()=>{
+ const n=serviceDurations[$("service").value];if(!Number.isInteger(n)||n<15||n>300)return;
+ let option=Array.from($("duration").options).find(o=>o.value===String(n));
+ if(!option){option=document.createElement("option");option.value=String(n);option.textContent=n+" minutos (serviço)";$("duration").append(option)}
+ $("duration").value=String(n);
+});
 const closeForm=()=>$("formBackdrop").classList.add("hidden");
 $("new").onclick=()=>openForm();$("block").onclick=()=>openForm("","",true);
 $("close").onclick=closeForm;$("cancel").onclick=closeForm;
