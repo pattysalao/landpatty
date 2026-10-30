@@ -22,7 +22,8 @@ button,input{font:inherit;padding:9px;border-radius:8px}button{border:0;backgrou
 <script src="/patty-crm-ui.js?v=1" defer></script>
 </head><body>
 <header><strong>Patty | Agenda do CRM</strong><a href="/crm.html">Leads</a><a href="/crm-clientes.html">Clientes Gendo</a></header>
-<main><div id="login" class="card"><h1>Entrar</h1><form id="login-form" class="row">
+<main><section id="auth-loading" class="panel login" role="status"><strong>Restaurando sessão…</strong><p class="muted">Verificando acesso ao CRM da Patty.</p></section>
+<div id="login" class="card hidden"><h1>Entrar</h1><form id="login-form" class="row">
 <input id="email" autocomplete="username" type="email" placeholder="E-mail" required>
 <input id="password" autocomplete="current-password" type="password" placeholder="Senha" required><button>Entrar</button></form><p id="login-error" role="alert"></p></div>
 <section id="app" class="hidden">
@@ -35,8 +36,8 @@ button,input{font:inherit;padding:9px;border-radius:8px}button{border:0;backgrou
 <p class="muted">Cores: <span style="background:#d4e6ff;padding:3px 8px">Agendado</span> <span style="background:#c8f2da;padding:3px 8px">Atendido</span> <span style="background:#fff0c8;padding:3px 8px">Em conversa</span>. Horários e profissionais são informados no cadastro do lead.</p>
 </div></section></main>
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
+import {signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $=x=>document.getElementById(x);let auth;
 const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pros=["Patty","Benedita","Deimy","Allegra","Héllen","Chele","Maira","Vaneza","Vanya","Não atribuído"];
@@ -68,8 +69,17 @@ $("prev").onclick=()=>shift(-1);$("next").onclick=()=>shift(1);
 $("today").onclick=()=>{$("date").value=localToday();load()};
 $("refresh").onclick=load;$("date").onchange=load;$("logout").onclick=()=>signOut(auth);
 $("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}catch(_){$("login-error").textContent="Falha de autenticação."}};
-(async()=>{try{const r=await fetch("/api/config");if(!r.ok)throw Error("Configuração não encontrada");
- auth=getAuth(initializeApp((await r.json()).firebase));$("date").value=localToday();
- onAuthStateChanged(auth,async user=>{$("login").classList.toggle("hidden",!!user&&user.emailVerified);$("app").classList.toggle("hidden",!user||!user.emailVerified);if(user?.emailVerified)await load()});
- }catch(e){$("login-error").textContent=e.message}})();
+(async()=>{try{
+ const session=await initPattyAuth();auth=session.auth;
+ $("date").value=localToday();
+ onAuthStateChanged(auth,async user=>{
+   showPattyAuthState(user,session.persistence);
+   $("auth-loading").classList.add("hidden");
+   const ok=!!user?.emailVerified;
+   $("login").classList.toggle("hidden",ok);
+   $("app").classList.toggle("hidden",!ok);
+   if(ok){const access=await loadPattyPermissions(auth);if(access.authorized)await load();else $("status").textContent="Este e-mail não possui acesso autorizado ao CRM da Patty."}
+ });
+ }catch(e){$("auth-loading").classList.add("hidden");$("login").classList.remove("hidden");$("login-error").textContent=e.message}
+})();
 </script></body></html>
