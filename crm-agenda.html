@@ -106,7 +106,7 @@ function fillCatalog(){
 async function catalogs(){
  try{
  const [p,s]=await Promise.allSettled([api("/api/crm/modulos?module=profissionais"),api("/api/crm/modulos?module=servicos")]);
- if(p.status==="fulfilled"&&p.value.items?.length){allPros=p.value.items.filter(x=>x.active!==false).map(x=>x.name).filter(Boolean);$("catalogNotice").textContent="Profissionais carregadas do cadastro do CRM. Complete o cadastro para exibir toda a equipe."}
+ if(p.status==="fulfilled"&&p.value.items?.length){allPros=p.value.items.filter(x=>x.active!==false&&x.hasCalendar!==false).map(x=>x.name).filter(Boolean);$("catalogNotice").textContent="Profissionais carregadas do cadastro do CRM. Complete o cadastro para exibir toda a equipe."}
  else $("catalogNotice").textContent="Equipe provisória: importe os dados em Operação → Profissionais para substituir a lista inicial.";
  if(s.status==="fulfilled"&&s.value.items?.length){const active=s.value.items.filter(x=>x.active!==false);allServices=active.map(x=>x.name).filter(Boolean);serviceDurations=Object.fromEntries(active.filter(x=>x.name&&Number.isInteger(x.durationMin)).map(x=>[x.name,x.durationMin]))}
  fillCatalog();
