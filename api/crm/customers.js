@@ -94,27 +94,44 @@ export default async function handler(req,res) {
       seenCodes.add(item.id);validated.push(item);
     }
     const result={dryRun,received:records.length,valid:validated.length,invalid,duplicatesInFile,existing:0,created:0,conflicts:0};
-    // O código de origem identifica o cliente. Telefones compartilhados NÃO removem cadastros.
-    // Nunca sobrescrever cadastros já existentes.
-    const refs = validated.map(item => coll.doc(item.id));
-    const current = refs.length ? await db().getAll(...refs) : [];
-    const missing = validated.filter((item,i)=>!current[i].exists);
-    result.existing=validated.length-missing.length;
-    result.created=dryRun?missing.length:0;
-    if(!dryRun&&missing.length){
-      const batch=db().batch();
-      const stamp=firebaseAdmin().firestore.FieldValue.serverTimestamp();
-      for(const item of missing)batch.create(coll.doc(item.id),{
-        ...item, source:"gendo",marketingOptIn:false,consentRecordedAt:null,
-        importedAt:stamp,importedBy:staff.email,legacyTotalsNotCurrentRevenue:true
-      });
-      try{await batch.commit();result.created=missing.length}
-      catch(e){console.error("Falha em lote Gendo:",e.message);
-        return send(res,409,{error:"Conflito na importação. Atualize a prévia do lote."})}
+    // Importação idempotente por código Gendo SEM leitura de cada documento.
+    // O create falha somente para o ID existente; nunca substitui seus dados.
+    // Evita esgotar o limite diário de leituras com prévias de milhares de clientes.
+    if (dryRun) {
+      result.created=validated.length;
+      result.previewOnly=true;
+      result.existingUnknown=true;
+      return send(res,200,result);
     }
+    const writer=db().bulkWriter();
+    writer.onWriteError(()=>false); // Nunca repetir automaticamente ao atingir cota.
+    const writes=validated.map(item=>writer.create(coll.doc(item.id),{
+      ...item, source:"gendo", marketingOptIn:false,consentRecordedAt:null,
+      importedAt:firebaseAdmin().firestore.FieldValue.serverTimestamp(),
+      importedBy:staff.email, legacyTotalsNotCurrentRevenue:true
+    }).then(()=>({kind:"created"}),error=>{
+      if(error.code===6 || error.code==="already-exists" || error.code==="ALREADY_EXISTS")
+        return {kind:"existing"};
+      if(error.code===8 || error.code==="resource-exhausted" || error.code==="RESOURCE_EXHAUSTED")
+        return {kind:"quota"};
+      console.error("Erro importando código Gendo:",error.message);
+      return {kind:"failure"};
+    }));
+    await writer.close();
+    const outcomes=await Promise.all(writes);
+    for(const outcome of outcomes){
+      if(outcome.kind==="created")result.created++;
+      else if(outcome.kind==="existing")result.existing++;
+      else if(outcome.kind==="quota")result.quotaExceeded=true;
+      else result.conflicts++;
+    }
+    if(result.quotaExceeded)return send(res,429,{...result,
+      error:"Limite de utilização do Firestore atingido. Dados já gravados foram preservados. Confira a cota no Firebase e retome a importação após a liberação."});
     return send(res,200,result);
   } catch(e) {
     if(e.status)return send(res,e.status,{error:e.message});
+    if(e.code===8 || /RESOURCE_EXHAUSTED|Quota exceeded/i.test(e.message||""))
+      return send(res,429,{error:"Cota do Firestore esgotada. Consultas e importações ficam temporariamente indisponíveis. Verifique Firebase → Firestore → Uso."});
     console.error("Erro CRM clientes:",e.message);
     return send(res,500,{error:"Falha ao consultar ou importar clientes"});
   }
