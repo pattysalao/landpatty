@@ -1,85 +1,218 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive"><title>Agenda piloto | CRM Patty</title>
+<!doctype html><html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<title>Agenda do Salão | CRM Patty</title>
+<link rel="stylesheet" href="/patty-crm-ui.css?v=1"><script src="/patty-crm-ui.js?v=1" defer></script>
 <style>
 :root{--wine:#801a39;--gold:#c79a67;--bg:#f8f4f2;--line:#e8dadd}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.45 system-ui,-apple-system,sans-serif;color:#2b1922}
-header{background:var(--wine);color:white;padding:15px max(18px,calc((100vw - 1180px)/2));display:flex;gap:16px;flex-wrap:wrap;align-items:center}header a{color:white}
-main{max-width:1250px;margin:20px auto;padding:0 14px}.card{background:white;border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
-h1{font-size:23px;margin:0 0 8px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-button,input{font:inherit;padding:9px;border-radius:8px}button{border:0;background:var(--wine);color:white;cursor:pointer}input{border:1px solid var(--line)}
-.note{border-left:4px solid var(--gold);background:#fff8ee;padding:11px;border-radius:8px;color:#654431}
-.scroller{overflow:auto;border:1px solid var(--line);border-radius:10px}
-.calendar{display:grid;grid-template-columns:76px repeat(var(--cols),minmax(145px,1fr));min-width:calc(76px + var(--cols)*145px)}
-.corner,.col-title{background:#f4eaf0;padding:12px 8px;font-size:13px;font-weight:700;border-right:1px solid var(--line);position:sticky;top:0;z-index:2}
-.corner{left:0;z-index:3}.hour,.cell{padding:6px;border-top:1px solid var(--line);border-right:1px solid var(--line);min-height:68px}
-.hour{background:#fcf6f8;position:sticky;left:0;z-index:1;font-weight:650;color:#69444f}
-.appt{border-radius:7px;padding:5px 7px;margin:2px 0;font-size:12px;box-shadow:0 1px 2px #0001}
-.agendado{background:#d4e6ff;color:#193f72}.atendido{background:#c8f2da;color:#14513c}
-.em_contato,.novo{background:#fff0c8;color:#6e4718}.perdido{background:#f2d0d3;color:#702b3b}
-.hidden{display:none!important}.muted{color:#765e67}
-@media(max-width:650px){main{padding:0 8px}.card{padding:12px}.calendar{grid-template-columns:56px repeat(var(--cols),minmax(125px,1fr))}.hour{font-size:12px}}
-</style><link rel="stylesheet" href="/patty-crm-ui.css?v=1">
-<script src="/patty-crm-ui.js?v=1" defer></script>
-</head><body>
-<header><strong>Patty | Agenda do CRM</strong><a href="/crm.html">Leads</a><a href="/crm-clientes.html">Clientes Gendo</a></header>
-<main><section id="auth-loading" class="panel login" role="status"><strong>Restaurando sessão…</strong><p class="muted">Verificando acesso ao CRM da Patty.</p></section>
-<div id="login" class="card hidden"><h1>Entrar</h1><form id="login-form" class="row">
-<input id="email" autocomplete="username" type="email" placeholder="E-mail" required>
-<input id="password" autocomplete="current-password" type="password" placeholder="Senha" required><button>Entrar</button></form><p id="login-error" role="alert"></p></div>
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px/1.5 system-ui,-apple-system,sans-serif;color:#291f25}
+header{background:var(--wine);color:white;padding:15px 20px}header a{color:white}
+main{max-width:1350px;margin:16px auto;padding:0 16px}.card{background:white;border:1px solid var(--line);border-radius:15px;padding:20px;margin:14px 0}
+h1{font-size:23px;margin:0 0 8px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.muted{color:#786973}
+button,input,select,textarea{font:inherit}button{cursor:pointer;background:var(--wine);color:white;padding:10px 14px;border:0;border-radius:9px;font-weight:660}button.secondary{background:white;border:1px solid #dac8cd;color:var(--wine)}button:disabled{opacity:.5;cursor:wait}
+input,select,textarea{border:1px solid var(--line);border-radius:9px;padding:10px;width:100%;background:#fff;color:#291f25}
+input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
+.note{border:1px solid #eddab9;border-left:4px solid var(--gold);background:#fff9f1;padding:10px 12px;border-radius:9px;font-size:13px;color:#77553f}
+.scroller{overflow:auto;border:1px solid var(--line);border-radius:12px;scrollbar-width:thin}
+.calendar{display:grid;grid-template-columns:70px repeat(var(--cols),minmax(148px,1fr));min-width:calc(70px + var(--cols)*148px)}
+.corner,.col-title{padding:12px 9px;background:#f8edf1;font-weight:750;border-right:1px solid var(--line);position:sticky;top:0;z-index:2}
+.corner{left:0;z-index:3}.hour,.cell{padding:5px;border-top:1px solid #f0e9eb;border-right:1px solid #f0e9eb;min-height:82px}
+.hour{background:#fcf8f9;position:sticky;left:0;z-index:1;font-weight:650;color:#6b4051}
+.cell{background:#fff;position:relative}.slot{display:block;width:100%;min-height:28px;text-align:left;color:#aa7d8c;background:#faf7f8!important;border:1px dashed #eed9e0;border-radius:7px;font-size:11px;font-weight:520;margin-bottom:5px}.slot:hover{border-color:var(--wine);color:var(--wine)}
+.appt{display:block;width:100%;text-align:left;border-radius:9px;padding:8px;margin:3px 0;font-size:12px;border:1px solid transparent;box-shadow:none;font-weight:500}
+.appt strong{font-weight:780}.agendado{background:#e2eeff!important;color:#214f83!important}.confirmado{background:#d9e1ff!important;color:#293c88!important}
+.chegou,.em_atendimento{background:#ffe5cb!important;color:#864617!important}.finalizado,.atendido{background:#d5f1db!important;color:#18583d!important}
+.faltou{background:#e5e7ea!important;color:#575a66!important}.bloqueio{background:#e5e2e5!important;color:#5c5361!important}
+.novo,.em_contato{background:#ffefc4!important;color:#795618!important}
+.legend{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.legend span{border-radius:7px;font-size:11px;padding:6px 8px}
+.modal-backdrop{position:fixed;z-index:120;inset:0;background:#25141cb3;display:flex;justify-content:center;align-items:center;padding:12px}
+.modal{background:#fff;border-radius:16px;max-width:570px;width:100%;max-height:92dvh;overflow:auto;padding:22px;box-shadow:0 18px 45px #25141c35}
+.modal h2{margin:0;font-size:20px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fields label{display:block;font-weight:680;font-size:12px}.fields label input,.fields label select,.fields label textarea{margin-top:5px}
+.full{grid-column:1/-1}.form-actions{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.error{color:#b42342;font-size:12px;min-height:20px}.small{font-size:12px}
+@media(max-width:650px){main{padding:0 9px}.card{padding:13px}.calendar{grid-template-columns:55px repeat(var(--cols),minmax(130px,1fr))}.fields{grid-template-columns:1fr}.modal{padding:16px}.row button{min-height:40px}.hour{font-size:12px}}
+</style></head><body>
+<header><strong>Patty | Agenda do CRM</strong> <a href="/crm.html">Leads</a></header>
+<main>
+<section id="auth-loading" class="card" role="status">Restaurando sessão…</section>
+<div id="login" class="card hidden"><h1>Acesso da equipe</h1><form id="login-form" class="row">
+<input id="email" type="email" autocomplete="username" placeholder="E-mail" required><input id="password" type="password" autocomplete="current-password" placeholder="Senha" required>
+<button>Entrar</button></form><p class="error" id="login-error" role="alert"></p></div>
 <section id="app" class="hidden">
-<div class="card"><h1>Agenda visual por profissional</h1>
-<p class="note"><strong>Modo piloto:</strong> somente os agendamentos criados no CRM aparecem aqui. Esta agenda não está sincronizada com o Gendo e não deve substituir o calendário operacional do salão nesta fase.</p>
-<div class="row"><button id="prev" title="Dia anterior">‹ Anterior</button><input id="date" type="date" aria-label="Dia da agenda">
-<button id="next">Próximo ›</button><button id="today">Hoje</button><button id="refresh">Atualizar</button><button id="logout">Sair</button></div>
-<p id="status" class="muted" role="status"></p>
-<div class="scroller"><div id="calendar"></div></div>
-<p class="muted">Cores: <span style="background:#d4e6ff;padding:3px 8px">Agendado</span> <span style="background:#c8f2da;padding:3px 8px">Atendido</span> <span style="background:#fff0c8;padding:3px 8px">Em conversa</span>. Horários e profissionais são informados no cadastro do lead.</p>
-</div></section></main>
+<div class="card">
+<div class="row" style="justify-content:space-between;align-items:center">
+<div><h1>Agenda da equipe</h1><p class="muted" style="margin:0">Agendamentos por profissional, dia e situação</p></div>
+<div class="row"><button type="button" id="new" class="primary">+ Novo agendamento</button><button type="button" id="block" class="secondary">Bloquear horário</button></div>
+</div>
+<p class="note"><strong>Uso paralelo:</strong> a agenda do CRM não está sincronizada com o Gendo. Não substitua a agenda oficial até validar profissionais, serviços e todos os horários. Não há disparo automático de WhatsApp.</p>
+<div class="row"><button id="prev" class="secondary">‹ Anterior</button><input id="date" type="date" aria-label="Dia da agenda"><button id="next" class="secondary">Próximo ›</button><button id="today" class="secondary">Hoje</button><button id="refresh" class="secondary">Atualizar</button><button id="logout" class="secondary">Sair</button></div>
+<p id="status" class="muted" role="status"></p><div class="scroller"><div id="calendar"></div></div>
+<div class="legend"><span class="agendado">Agendado</span><span class="confirmado">Confirmado</span><span class="chegou">Cliente chegou</span><span class="finalizado">Finalizado</span><span class="faltou">Faltou</span><span class="bloqueio">Bloqueio</span></div>
+<p id="catalogNotice" class="muted small"></p>
+</div>
+</section>
+</main>
+<div id="formBackdrop" class="modal-backdrop hidden" role="presentation">
+<section class="modal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+<div class="row" style="justify-content:space-between"><h2 id="formTitle">Novo agendamento</h2><button class="secondary" id="close" type="button">Fechar</button></div>
+<form id="bookingForm">
+<div class="fields">
+<label class="full" id="nameLabel">Nome da cliente *<input id="customerName" required maxlength="120" autocomplete="name"></label>
+<label id="phoneLabel">Telefone (opcional)<input id="customerPhone" type="tel" inputmode="tel" maxlength="30"></label>
+<label id="codeLabel">Código Gendo (opcional)<input id="customerCode" maxlength="32" inputmode="numeric"></label>
+<label class="full" id="serviceLabel">Serviço *<input id="service" list="serviceSuggestions" maxlength="120" required></label>
+<datalist id="serviceSuggestions"></datalist>
+<label>Profissional *<input id="professional" list="professionalSuggestions" maxlength="80" required></label>
+<datalist id="professionalSuggestions"></datalist>
+<label>Data *<input id="bookingDate" type="date" required></label>
+<label>Hora *<input id="bookingTime" type="time" min="09:00" max="18:45" step="900" required></label>
+<label>Duração *<select id="duration"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60" selected>1 hora</option><option value="90">1h30</option><option value="120">2 horas</option><option value="180">3 horas</option></select></label>
+<label class="full">Observação<input id="notes" maxlength="500" placeholder="Detalhe do agendamento ou motivo do bloqueio"></label>
+</div>
+<p class="muted small">Horário de referência: 9h às 19h. A confirmação depende da disponibilidade no CRM e não consulta o Gendo.</p>
+<p id="bookingError" class="error" role="alert"></p>
+<div class="form-actions"><button id="save" type="submit">Salvar agendamento</button><button id="cancel" type="button" class="secondary">Cancelar</button></div>
+</form></section></div>
+<div id="statusBackdrop" class="modal-backdrop hidden" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
+<div class="row" style="justify-content:space-between"><h2 id="statusTitle">Situação do agendamento</h2><button id="closeStatus" type="button" class="secondary">Fechar</button></div>
+<p id="bookingInfo" class="muted"></p><label for="bookingStatus">Situação</label><select id="bookingStatus">
+<option value="agendado">Agendado</option><option value="confirmado">Confirmado</option>
+<option value="chegou">Cliente chegou</option><option value="em_atendimento">Em atendimento</option>
+<option value="finalizado">Finalizado</option><option value="faltou">Faltou</option>
+<option value="cancelado">Cancelado</option>
+</select><p id="statusError" class="error" role="alert"></p>
+<div class="form-actions"><button id="saveStatus">Atualizar situação</button><button id="dismissStatus" class="secondary">Voltar</button></div>
+</section></div>
 <script type="module">
-import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
+import {initPattyAuth,showPattyAuthState,loadPattyPermissions} from "/patty-auth.js";
 import {signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-const $=x=>document.getElementById(x);let auth;
-const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const pros=["Patty","Benedita","Deimy","Allegra","Héllen","Chele","Maira","Vaneza","Vanya","Não atribuído"];
-function localToday(){const a=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const p=n=>a.find(x=>x.type===n)?.value;return p("year")+"-"+p("month")+"-"+p("day")}
-async function load(){
- if(!auth?.currentUser)return;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const starterPros=["Patty","Benedita","Deimy","Allegra","Héllen","Chele","Maira","Vaneza","Vanya"];
+const starterServices=["Cabelos e Cachos","Corte","Coloração","Mechas","Nail Design","Manicure","Pedicure","Sobrancelhas","Depilação","Cílios","Massoterapia"];
+let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],editing=null,isBlock=false;
+function today(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const v=k=>p.find(x=>x.type===k)?.value;return v("year")+"-"+v("month")+"-"+v("day")}
+async function api(url,opts={}){
+ if(!auth?.currentUser?.emailVerified)throw Error("Entre com sua conta autorizada.");
+ const r=await fetch(url,{...opts,headers:{Authorization:"Bearer "+await auth.currentUser.getIdToken(),...(opts.body?{"Content-Type":"application/json"}:{})}});
+ const j=await r.json().catch(()=>({}));if(!r.ok){const e=Error(j.error||"Falha ao consultar.");e.status=r.status;throw e}return j;
+}
+function safeStatus(a){return ["agendado","confirmado","chegou","em_atendimento","finalizado","atendido","faltou","bloqueio","novo","em_contato"].includes(a)?a:"agendado"}
+function fillCatalog(){
+ $("professionalSuggestions").innerHTML=allPros.map(p=>'<option value="'+esc(p)+'"></option>').join("");
+ $("serviceSuggestions").innerHTML=allServices.map(p=>'<option value="'+esc(p)+'"></option>').join("");
+}
+async function catalogs(){
  try{
- $("status").textContent="Buscando agenda...";
- const response=await fetch("/api/crm/agenda?date="+encodeURIComponent($("date").value),{headers:{Authorization:"Bearer "+await auth.currentUser.getIdToken()}});
- const d=await response.json();if(!response.ok)throw Error(d.error||"Falha ao consultar");
- const groups=[...new Set([...pros,...d.appointments.map(x=>x.professional||"Não atribuído")])];
- const hours=Array.from({length:13},(_,i)=>String(i+8).padStart(2,"0"));
- let html='<div class="calendar" style="--cols:'+groups.length+'"><div class="corner">Hora</div>';
- html+=groups.map(p=>'<div class="col-title">'+esc(p)+'</div>').join("");
- for(const h of hours) {
-  html+='<div class="hour">'+h+':00</div>';
-  for(const p of groups) {
-   const appts=d.appointments.filter(a=>(a.professional||"Não atribuído")===p && (a.appointmentTime||"").slice(0,2)===h);
-   const unscheduled=h==="08"?d.appointments.filter(a=>(a.professional||"Não atribuído")===p&&!a.appointmentTime):[];
-   html+='<div class="cell">'+(appts.concat(unscheduled)).map(a=>'<div class="appt '+esc(a.status)+'"><strong>'+esc(a.appointmentTime||"Sem horário")+'</strong> '+esc(a.name)+'<div>'+esc(a.service)+'</div></div>').join("")+'</div>';
+ const [p,s]=await Promise.allSettled([api("/api/crm/modulos?module=profissionais"),api("/api/crm/modulos?module=servicos")]);
+ if(p.status==="fulfilled"&&p.value.items?.length){allPros=p.value.items.filter(x=>x.active!==false).map(x=>x.name).filter(Boolean);$("catalogNotice").textContent="Profissionais carregadas do cadastro do CRM. Complete o cadastro para exibir toda a equipe."}
+ else $("catalogNotice").textContent="Equipe provisória: importe os dados em Operação → Profissionais para substituir a lista inicial.";
+ if(s.status==="fulfilled"&&s.value.items?.length)allServices=s.value.items.filter(x=>x.active!==false).map(x=>x.name).filter(Boolean);
+ fillCatalog();
+ }catch(_){fillCatalog();}
+}
+function hourSlot(p,h){return rows.filter(a=>(a.professional||"Não atribuído")===p&&(a.appointmentTime||"").slice(0,2)===h)}
+function show(){
+ const date=$("date").value;
+ const professionals=[...new Set([...allPros,...rows.map(x=>x.professional||"Não atribuído")])].filter(Boolean);
+ if(!professionals.length)professionals.push("Não atribuído");
+ const hours=Array.from({length:10},(_,i)=>String(9+i).padStart(2,"0"));
+ let h='<div class="calendar" style="--cols:'+professionals.length+'"><div class="corner">Hora</div>';
+ h+=professionals.map(p=>'<div class="col-title">'+esc(p)+'</div>').join("");
+ for(const hr of hours){
+  h+='<div class="hour">'+hr+':00</div>';
+  for(const p of professionals){
+   const selected=hourSlot(p,hr);
+   h+='<div class="cell"><button class="slot" type="button" data-new-prof="'+esc(p)+'" data-new-time="'+hr+':00" aria-label="Agendar '+esc(p)+' às '+hr+' horas">+ Agendar</button>';
+   h+=selected.map(x=>{
+    const cls=safeStatus(x.status);
+    return '<button class="appt '+cls+'" type="button" data-appointment-id="'+esc(x.id)+'"><strong>'+esc(x.appointmentTime||"Sem horário")+' · '+esc(x.name)+'</strong><div>'+esc(x.service)+' · '+esc(x.durationMin||60)+' min</div><small>'+esc(x.status==="chegou"?"Cliente chegou":x.status.replace("_"," "))+'</small></button>';
+   }).join("");
+   h+='</div>';
   }
  }
- html+='</div>';$("calendar").innerHTML=html;
- $("status").textContent=d.appointments.length+" agendamentos no CRM para "+$("date").value+(d.partial?" (lista parcial)":"")+".";
+ h+='</div>';
+ $("calendar").innerHTML=h;
+ $("status").textContent=rows.length+" registro(s) no CRM para "+date+". Os dados do Gendo ainda não aparecem aqui.";
+}
+async function load(){
+ if(!canUse)return;
+ $("status").textContent="Atualizando agenda…";
+ try{
+ const d=await api("/api/crm/agenda?date="+encodeURIComponent($("date").value));
+ rows=d.appointments||[];
+ show();
+ if(d.partial)$("status").textContent+=" Listagem parcial: consulte a administração.";
  }catch(e){$("status").textContent=e.message}
 }
-function shift(days){const d=new Date($("date").value+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+days);$("date").value=d.toISOString().slice(0,10);load()}
+function openForm(prof="",time="",block=false){
+ isBlock=block;$("bookingForm").reset();$("bookingError").textContent="";
+ $("formTitle").textContent=block?"Bloquear horário":"Novo agendamento";
+ $("nameLabel").classList.toggle("hidden",block);$("serviceLabel").classList.toggle("hidden",block);
+ $("phoneLabel").classList.toggle("hidden",block);$("codeLabel").classList.toggle("hidden",block);
+ $("customerName").required=!block;$("service").required=!block;
+ $("professional").value=prof;$("bookingDate").value=$("date").value||today();
+ $("bookingTime").value=time||"09:00";$("save").textContent=block?"Salvar bloqueio":"Salvar agendamento";
+ $("formBackdrop").classList.remove("hidden");$("professional").focus();
+}
+const closeForm=()=>$("formBackdrop").classList.add("hidden");
+$("new").onclick=()=>openForm();$("block").onclick=()=>openForm("","",true);
+$("close").onclick=closeForm;$("cancel").onclick=closeForm;
+$("calendar").addEventListener("click",e=>{
+ const slot=e.target.closest("[data-new-prof]");
+ if(slot){openForm(slot.dataset.newProf,slot.dataset.newTime);return}
+ const card=e.target.closest("[data-appointment-id]");
+ if(card){
+  const x=rows.find(a=>a.id===card.dataset.appointmentId);
+  if(!x)return;
+  if(x.source==="leads"){$("status").textContent="Agendamento do funil de leads. Abra e atualize o contato no Painel de leads.";return}
+  editing=x;
+  $("statusTitle").textContent=x.recordType==="block"?"Bloqueio de horário":"Situação do atendimento";
+  $("bookingInfo").textContent=x.professional+" · "+x.appointmentTime+" · "+x.name+" · "+x.service;
+  $("bookingStatus").innerHTML=x.recordType==="block"?'<option value="liberado">Liberar este horário</option>':
+   '<option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="chegou">Cliente chegou</option><option value="em_atendimento">Em atendimento</option><option value="finalizado">Finalizado</option><option value="faltou">Faltou</option><option value="cancelado">Cancelado</option>';
+  if(x.recordType!=="block")$("bookingStatus").value=x.status;
+  $("statusError").textContent="";$("statusBackdrop").classList.remove("hidden");
+ }
+});
+$("bookingForm").onsubmit=async e=>{
+ e.preventDefault();if(!$("bookingForm").reportValidity())return;
+ const date=$("bookingDate").value,appointmentTime=$("bookingTime").value,durationMin=Number($("duration").value);
+ const body={recordType:isBlock?"block":"appointment",name:$("customerName").value,phone:$("customerPhone").value,
+ customerCode:$("customerCode").value,service:$("service").value,professional:$("professional").value,
+ date,appointmentTime,durationMin,notes:$("notes").value};
+ $("save").disabled=true;$("bookingError").textContent="";
+ try{
+  await api("/api/crm/appointments",{method:"POST",body:JSON.stringify(body)});
+  closeForm();$("date").value=date;await load();
+ }catch(error){$("bookingError").textContent=error.message}
+ finally{$("save").disabled=false}
+};
+const closeStatus=()=>$("statusBackdrop").classList.add("hidden");
+$("closeStatus").onclick=closeStatus;$("dismissStatus").onclick=closeStatus;
+$("saveStatus").onclick=async()=>{
+ if(!editing)return;$("saveStatus").disabled=true;
+ try{await api("/api/crm/appointments",{method:"PATCH",body:JSON.stringify({id:editing.id,status:$("bookingStatus").value})});closeStatus();await load();}
+ catch(e){$("statusError").textContent=e.message}
+ finally{$("saveStatus").disabled=false}
+};
+function shift(n){const d=new Date($("date").value+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+n);$("date").value=d.toISOString().slice(0,10);load()}
 $("prev").onclick=()=>shift(-1);$("next").onclick=()=>shift(1);
-$("today").onclick=()=>{$("date").value=localToday();load()};
-$("refresh").onclick=load;$("date").onchange=load;$("logout").onclick=()=>signOut(auth);
-$("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}catch(_){$("login-error").textContent="Falha de autenticação."}};
-(async()=>{try{
- const session=await initPattyAuth();auth=session.auth;
- $("date").value=localToday();
- onAuthStateChanged(auth,async user=>{
+$("today").onclick=()=>{$("date").value=today();load()};$("refresh").onclick=load;$("date").onchange=load;
+$("logout").onclick=()=>signOut(auth);
+$("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value)}catch(_){$("login-error").textContent="Credenciais inválidas ou acesso indisponível."}};
+(async()=>{
+ try{
+  $("date").value=today();const session=await initPattyAuth();auth=session.auth;
+  onAuthStateChanged(auth,async user=>{
    showPattyAuthState(user,session.persistence);
    $("auth-loading").classList.add("hidden");
    const ok=!!user?.emailVerified;
-   $("login").classList.toggle("hidden",ok);
-   $("app").classList.toggle("hidden",!ok);
-   if(ok){const access=await loadPattyPermissions(auth);if(access.authorized)await load();else $("status").textContent="Este e-mail não possui acesso autorizado ao CRM da Patty."}
- });
+   $("login").classList.toggle("hidden",ok);$("app").classList.toggle("hidden",!ok);
+   if(ok){const access=await loadPattyPermissions(auth);canUse=access.authorized;
+    if(canUse){await catalogs();await load()}else $("status").textContent="Este e-mail não tem acesso à agenda do CRM."}
+  });
  }catch(e){$("auth-loading").classList.add("hidden");$("login").classList.remove("hidden");$("login-error").textContent=e.message}
 })();
 </script></body></html>
