@@ -51,7 +51,7 @@ const currency=v=>Number.isSafeInteger(v)?(v/100).toLocaleString("pt-BR",{style:
 async function req(url,opts={}){
  const user=auth?.currentUser;if(!user||!user.emailVerified)throw Error("Entre com um e-mail verificado.");
  const response=await fetch(url,{...opts,headers:{"Authorization":"Bearer "+await user.getIdToken(),...(opts.body?{"Content-Type":"application/json"}:{})}});
- const json=await response.json().catch(()=>({}));if(!response.ok)throw Error(json.error||"Falha na solicitação");return json;
+ const json=await response.json().catch(()=>({}));if(!response.ok){const error=new Error(json.error||"Falha na solicitação");error.status=response.status;throw error}return json;
 }
 function csvRows(text){
  let rows=[],row=[],cell="",quoted=false;
@@ -117,14 +117,14 @@ async function batchRun(dryRun){
  showStats(total);return total;
 }
 $("preview").onclick=async()=>{ $("preview").disabled=true;$("import").disabled=true;try{
- const t=await batchRun(true);previewed=true;$("import").disabled=!t.created;
- $("message").textContent="Prévia pronta: "+t.created+" registros novos possíveis; "+t.existing+" existentes; "+(t.invalid+t.duplicatesInFile)+" inválidos/duplicados no arquivo.";
+ const t=await batchRun(true);previewed=true;$("import").disabled=!t.valid;
+ $("message").textContent="Validação pronta: "+t.valid+" códigos elegíveis, "+(t.invalid+t.duplicatesInFile)+" inválidos/repetidos. Clientes já existentes serão identificados durante a gravação, economizando leituras do Firestore.";
  }catch(e){$("message").textContent=e.message}finally{$("preview").disabled=false}};
 $("import").onclick=async()=>{if(!previewed)return;
  if(!confirm("Importar apenas os cadastros novos do Gendo? Esta operação não substitui dados existentes, não gera leads nem envia mensagens."))return;
  $("import").disabled=true;$("preview").disabled=true;
  try{const t=await batchRun(false);$("message").textContent="Concluído: "+t.created+" novos cadastros; "+t.existing+" já existentes; "+t.conflicts+" falhas. Confira o CRM.";await load(true)}
- catch(e){$("message").textContent="Importação interrompida: "+e.message+" (os lotes anteriores foram preservados; a próxima execução ignora duplicados)."}
+ catch(e){$("message").textContent="Importação interrompida: "+e.message+" Os lotes anteriores continuam preservados. Em caso de cota, não repita a importação antes de verificar o Firebase."}
  finally{$("preview").disabled=false}};
 async function refreshTotals(){
  try{const r=await req("/api/crm/counts");const total=r.customersTotal;
@@ -143,7 +143,7 @@ async function load(reset){
   $("pageLabel").textContent="Página "+(currentPage+1)+" · "+customers.length+" registro(s)";
   render();$("list-message").textContent=customers.length+" clientes nesta página. Use Próxima ou Anterior para navegar.";
   if(reset)await refreshTotals();
- }catch(e){$("list-message").textContent=e.message}
+ }catch(e){$("list-message").textContent=e.message;if(/quota|cota|limite/i.test(e.message))$("message").textContent="Cota do Firestore esgotada. Os cadastros já gravados permanecem preservados. Acesse Firebase → Firestore → Uso."}
 }
 function render(){
  const q=$("q").value.toLowerCase();const rows=customers.filter(x=>[x.name,x.phone,x.gendoCode].some(v=>String(v||"").toLowerCase().includes(q)));
