@@ -35,6 +35,27 @@ export default async function handler(req,res) {
     const staff = await manager(req);
     const coll = db().collection("patty_customers");
     if (req.method === "GET") {
+      // Direct lookup across the entire historic base, not only the current page.
+      if (req.query?.lookup !== undefined) {
+        const digits = String(req.query.lookup).replace(/\D/g,"");
+        if (!/^\d{1,15}$/.test(digits))
+          return send(res,400,{error:"Informe o código Gendo ou telefone válido"});
+        let docs;
+        if (digits.length <= 8) {
+          const doc = await coll.doc("gendo-"+digits).get();
+          docs = doc.exists ? [doc] : [];
+        } else {
+          const phone=digits.length===10||digits.length===11?"55"+digits:digits;
+          if (phone.length!==12 && phone.length!==13) return send(res,400,{error:"Telefone com DDD inválido"});
+          const snap = await coll.where("phone","==",phone).limit(25).get();
+          docs = snap.docs;
+        }
+        return send(res,200,{customers:docs.map(d=>{
+          const x=d.data();return {id:d.id,gendoCode:x.gendoCode,name:x.name,phone:x.phone,visits:x.visits,
+            lastVisit:x.lastVisit,historicalBilledCents:x.historicalBilledCents,
+            historicalBalanceCents:x.historicalBalanceCents,birthDate:x.birthDate,marketingOptIn:x.marketingOptIn===true};
+        }),nextCursor:null,exactLookup:true});
+      }
       const term = str(req.query?.q,80).toLowerCase();
       const limit = 100;
       let query = coll.orderBy("gendoCode").limit(limit);
