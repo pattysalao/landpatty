@@ -9,7 +9,9 @@ const S = {
     description:['Descrição','text']},manager:false},
   profissionais: {label:'Profissionais',fields:{
     code:['Código Gendo','text'],name:['Profissional','text',true],specialty:['Especialidade','text'],
-    active:['Ativo','bool'],schedule:['Expediente / observações','text'],
+    email:['E-mail de acesso','text'],phone:['Telefone','text'],
+    active:['Ativo','bool'],hasCalendar:['Possui agenda','bool'],
+    accessProfile:['Perfil de acesso (Gendo)','text'],schedule:['Expediente / observações','text'],
     commissionPercent:['Comissão %','decimal']},manager:false},
   atendimentos: {label:'Atendimentos realizados',fields:{
     sourceId:['Código do atendimento','text'],date:['Data','date',true],
@@ -139,7 +141,9 @@ export default async function handler(req,res){
       }
       const snap=await q.get();
       return send(res,200,{items:snap.docs.map(toItem).map(x=>{
-        if(module==='profissionais'&&!isManager)delete x.commissionPercent;
+        if(module==='profissionais'&&!isManager){
+          delete x.commissionPercent;delete x.email;delete x.phone;delete x.accessProfile;
+        }
         return x;
       }),nextCursor:snap.size===limit?snap.docs[snap.docs.length-1].id:null});
     }
