@@ -17,10 +17,12 @@ function normalize(item) {
   const code = str(item.gendoCode,32);
   const name = str(item.name,120);
   const raw = str(item.phone,30).replace(/\D/g,"");
-  const phone = raw.length === 10 || raw.length === 11 ? "55"+raw : raw;
-  if (!/^\d{1,15}$/.test(code) || name.length < 2 || phone.length < 12 || phone.length > 13) return null;
+  const digits = raw.length === 10 || raw.length === 11 ? "55"+raw : raw;
+  const phone = digits.length === 12 || digits.length === 13 ? digits : null;
+  if (!/^\d{1,15}$/.test(code) || name.length < 2) return null;
   return {
     id: "gendo-"+code, gendoCode: code, name, phone,
+    originalPhone: phone ? null : str(item.phone,30), phoneNeedsReview: !phone,
     email: str(item.email,150).toLowerCase(),
     birthDate: validDate(item.birthDate) ? item.birthDate : null,
     lastVisit: validDate(item.lastVisit) ? item.lastVisit : null,
@@ -57,21 +59,25 @@ export default async function handler(req,res) {
         }),nextCursor:null,exactLookup:true});
       }
       const term = str(req.query?.q,80).toLowerCase();
-      const limit = 100;
-      let query = coll.orderBy("gendoCode").limit(limit);
+      const requested = Number(req.query?.limit || 25);
+      const limit = [10,25,50,100].includes(requested) ? requested : 25;
+      let query = coll.orderBy("gendoCode").limit(limit+1);
       if (req.query?.cursor) {
         const cursor = await coll.doc(str(req.query.cursor,65)).get();
         if (!cursor.exists) return send(res,400,{error:"Página inválida"});
         query = query.startAfter(cursor);
       }
       const snap = await query.get();
-      const rows = snap.docs.map(d => {
+      const pageDocs = snap.docs.slice(0,limit);
+      const rows = pageDocs.map(d => {
         const x = d.data();
         return { id:d.id, gendoCode:x.gendoCode, name:x.name,phone:x.phone,visits:x.visits,lastVisit:x.lastVisit,
           historicalBilledCents:x.historicalBilledCents,historicalBalanceCents:x.historicalBalanceCents,
           birthDate:x.birthDate, marketingOptIn:x.marketingOptIn===true };
       }).filter(x => !term || [x.name,x.phone,x.gendoCode].some(v => String(v||"").toLowerCase().includes(term)));
-      return send(res,200,{customers:rows,nextCursor:snap.size===limit?snap.docs[snap.docs.length-1].id:null, note:"Busca apenas na página carregada"});
+      return send(res,200,{customers:rows,limit,
+        nextCursor:snap.size>limit?pageDocs[pageDocs.length-1].id:null,
+        note:"Filtro textual nesta página; código e telefone podem ser pesquisados na base inteira"});
     }
     if (Number(req.headers["content-length"]||0) > 85000) return send(res,413,{error:"Lote muito grande"});
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body||{};
@@ -79,33 +85,32 @@ export default async function handler(req,res) {
     const dryRun = body.dryRun !== false;
     if (!Array.isArray(records) || !records.length || records.length > 50)
       return send(res,400,{error:"Envie de 1 a 50 registros por lote"});
-    const seenCodes=new Set(),seenPhones=new Set();
+    const seenCodes=new Set();
     const validated=[];let invalid=0,duplicatesInFile=0;
     for(const raw of records) {
       const item=normalize(raw||{});
       if (!item) {invalid++;continue;}
-      if(seenCodes.has(item.id)||seenPhones.has(item.phone)) {duplicatesInFile++;continue;}
-      seenCodes.add(item.id);seenPhones.add(item.phone);validated.push(item);
+      if(seenCodes.has(item.id)) {duplicatesInFile++;continue;}
+      seenCodes.add(item.id);validated.push(item);
     }
     const result={dryRun,received:records.length,valid:validated.length,invalid,duplicatesInFile,existing:0,created:0,conflicts:0};
-    // Idempotente: nunca sobrescrever clientes cadastrados. Conferir ID de origem e telefone.
-    for(const item of validated) {
-      const [old, phoneMatch] = await Promise.all([
-        coll.doc(item.id).get(),coll.where("phone","==",item.phone).limit(1).get()
-      ]);
-      if(old.exists || !phoneMatch.empty) {result.existing++;continue;}
-      if(dryRun){result.created++;continue;}
-      try {
-        await coll.doc(item.id).create({
-          ...item, source:"gendo", marketingOptIn:false, consentRecordedAt:null,
-          importedAt:firebaseAdmin().firestore.FieldValue.serverTimestamp(),
-          importedBy:staff.email, legacyTotalsNotCurrentRevenue:true
-        });
-        result.created++;
-      } catch(e) {
-        if(e.code===6||e.code==="already-exists") result.existing++;
-        else { console.error("Erro importando cadastro Gendo:",e.message); result.conflicts++; }
-      }
+    // O código de origem identifica o cliente. Telefones compartilhados NÃO removem cadastros.
+    // Nunca sobrescrever cadastros já existentes.
+    const refs = validated.map(item => coll.doc(item.id));
+    const current = refs.length ? await db().getAll(...refs) : [];
+    const missing = validated.filter((item,i)=>!current[i].exists);
+    result.existing=validated.length-missing.length;
+    result.created=dryRun?missing.length:0;
+    if(!dryRun&&missing.length){
+      const batch=db().batch();
+      const stamp=firebaseAdmin().firestore.FieldValue.serverTimestamp();
+      for(const item of missing)batch.create(coll.doc(item.id),{
+        ...item, source:"gendo",marketingOptIn:false,consentRecordedAt:null,
+        importedAt:stamp,importedBy:staff.email,legacyTotalsNotCurrentRevenue:true
+      });
+      try{await batch.commit();result.created=missing.length}
+      catch(e){console.error("Falha em lote Gendo:",e.message);
+        return send(res,409,{error:"Conflito na importação. Atualize a prévia do lote."})}
     }
     return send(res,200,result);
   } catch(e) {
