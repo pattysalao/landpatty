@@ -2,7 +2,7 @@ import {db,requireStaff,firebaseAdmin,send} from "../../lib/firebase.js";
 import {createHash} from "node:crypto";
 
 const safe=(v,max=150)=>typeof v==="string"?v.trim().slice(0,max):"";
-const dateOK=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T12:00:00Z"));
+const dateOK=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T12:00:00Z"))&&new Date(v+"T12:00:00Z").toISOString().startsWith(v);
 const timeOK=v=>typeof v==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(v);
 const isManager=email=>(process.env.CRM_MANAGER_EMAILS||"").split(",").map(s=>s.trim().toLowerCase()).includes((email||"").toLowerCase());
 const stamp=()=>firebaseAdmin().firestore.FieldValue.serverTimestamp();
@@ -60,8 +60,8 @@ export default async function handler(req,res){
     converted.forEach(x=>{const key=x.customerCode||x.phone||x.customerName||x.id;if(!unique.has(key))unique.set(key,x);});
     const rows=[...unique.values()];
     return send(res,200,{days,contactsPrepared:contacts.filter(x=>x.status==="prepared"||x.status==="recovered").length,
-      clientsRecovered:rows.length,realizedRevenueCents:rows.reduce((s,x)=>s+(Number.isSafeInteger(x.realizedCents)?x.realizedCents:0),0),
-      withoutValue:rows.filter(x=>!Number.isSafeInteger(x.realizedCents)).length,partial:contacted.size>500||success.size>500,
+      clientsRecovered:rows.length,realizedRevenueCents:converted.reduce((s,x)=>s+(Number.isSafeInteger(x.realizedCents)?x.realizedCents:0),0),
+      withoutValue:converted.filter(x=>!Number.isSafeInteger(x.realizedCents)).length,partial:contacted.size>500||success.size>500,
       note:"Recuperação confirmada manualmente após atendimento/pagamento; links WhatsApp preparados não comprovam entrega."});
    }
    return send(res,400,{error:"Consulta não reconhecida"});
@@ -115,10 +115,15 @@ export default async function handler(req,res){
     if(doc.data().phone!==phone)return send(res,409,{error:"Telefone difere do cadastro atual"});
     if(kind!=="lembrete"&&doc.data().marketingOptIn!==true)return send(res,403,{error:"Cliente sem consentimento de marketing cadastrado"});
    }else if(kind!=="lembrete")return send(res,403,{error:"Marketing requer cliente identificado e consentimento registrado"});
-   const token=digest(customerCode||phone,kind,new Date().toISOString().slice(0,10));
+   const token=digest(customerCode||phone,kind,localToday());
    const ref=recovery.doc(token);
-   await ref.set({customerCode,phone,customerName,kind,status:"prepared",createdAt:stamp(),createdBy:staff.email,
-     messageDeliveryConfirmed:false,source:"crm_prep_manual",marketingOptIn:consent},{merge:true});
+   // Preparing the same daily contact must not reset an already confirmed outcome.
+   await dbi.runTransaction(async tx=>{
+    const previous=await tx.get(ref);
+    if(previous.exists)return;
+    tx.create(ref,{customerCode,phone,customerName,kind,status:"prepared",createdAt:stamp(),createdBy:staff.email,
+      messageDeliveryConfirmed:false,source:"crm_prep_manual",marketingOptIn:consent});
+   });
    return send(res,200,{ok:true,id:token,note:"Mensagem preparada, não enviada. Abra o WhatsApp e confirme o envio manualmente."});
   }
   if(action==="mark_recovered"){
@@ -126,10 +131,13 @@ export default async function handler(req,res){
    const id=safe(b.id,100),amount=b.realizedCents;
    if(!/^[a-f0-9]{32}$/.test(id)||amount!==null&&(!Number.isSafeInteger(amount)||amount<0||amount>100000000))
     return send(res,400,{error:"Registro ou valor inválido"});
-   const ref=recovery.doc(id),old=await ref.get();
-   if(!old.exists)return send(res,404,{error:"Contato de recuperação não encontrado"});
-   if(old.data().status==="recovered")return send(res,409,{error:"Recuperação já contabilizada"});
-   await ref.update({status:"recovered",realizedCents:amount,recoveredAt:stamp(),recoveredBy:staff.email,updatedAt:stamp()});
+   const ref=recovery.doc(id);
+   await dbi.runTransaction(async tx=>{
+    const old=await tx.get(ref);
+    if(!old.exists)throw Object.assign(new Error("Contato de recuperação não encontrado"),{status:404});
+    if(old.data().status==="recovered")throw Object.assign(new Error("Recuperação já contabilizada"),{status:409});
+    tx.update(ref,{status:"recovered",realizedCents:amount,recoveredAt:stamp(),recoveredBy:staff.email,updatedAt:stamp()});
+   });
    return send(res,200,{ok:true});
   }
   return send(res,400,{error:"Ação não reconhecida"});
@@ -140,3 +148,4 @@ export default async function handler(req,res){
    return send(res,500,{error:"Falha na operação do CRM"});
  }
 }
+
