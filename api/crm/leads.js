@@ -22,6 +22,8 @@ const encode = doc => {
     status: d.status, revenueCents: d.revenueCents,
     estimatedRevenueCents: d.estimatedRevenueCents ?? null,
     lostReason: d.lostReason || null, isTest: d.isTest === true,
+    requestedDate:d.requestedDate||null,requestedTime:d.requestedTime||null,
+    bookingRequestStatus:d.bookingRequestStatus||null,
     appointmentDate: d.appointmentDate || null,
     appointmentTime: d.appointmentTime || null, professional: d.professional || null,
     followUpDate: d.followUpDate || null, notes: d.notes || "",
@@ -170,6 +172,10 @@ export default async function handler(req, res) {
         const field = {em_contato: "firstContactAt", agendado: "bookedAt",
           atendido: "completedAt", perdido: "lostAt"}[update.status];
         if (field) update[field] = firebaseAdmin().firestore.FieldValue.serverTimestamp();
+        if(old.data().requestedDate){
+          const bookingState={agendado:"confirmado",atendido:"realizado",perdido:"cancelado"}[update.status];
+          if(bookingState)update.bookingRequestStatus=bookingState;
+        }
         update.history = firebaseAdmin().firestore.FieldValue.arrayUnion({
           status: update.status, at: new Date(), by: staff.email
         });
