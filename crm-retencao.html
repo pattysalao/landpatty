@@ -73,10 +73,11 @@ $("registerConsent").onclick=async()=>{if(!$("consentConfirmed").checked){$("ina
 };
 $("searchInactive").onclick=()=>searchInactive(true);$("nextInactive").onclick=()=>searchInactive(false);
 $("inactiveRows").onclick=async e=>{const b=e.target.closest("[data-contact]");if(!b)return;const row=inactiveRows[Number(b.dataset.contact)];if(!row)return;
+ const contactWindow=window.open("about:blank","_blank");
  try{const r=await post({action:"marketing_prepare",customerCode:row.gendoCode,phone:row.phone,customerName:row.name,kind:"sumidos",marketingOptIn:row.marketingOptIn});
-  const text=templates.sumidos(row.name);window.open("https://wa.me/"+row.phone+"?text="+encodeURIComponent(text),"_blank","noopener");
+  const text=templates.sumidos(row.name);if(contactWindow)contactWindow.location.href="https://wa.me/"+row.phone+"?text="+encodeURIComponent(text);else $("inactiveStatus").textContent="Janela bloqueada pelo navegador; habilite pop-ups para abrir WhatsApp.";
   $("inactiveStatus").textContent="Link preparado · ID da campanha: "+r.id+" · sem confirmação de envio. Use esse ID em Insights após o retorno efetivo.";
- }catch(err){$("inactiveStatus").textContent=err.message;}
+ }catch(err){if(contactWindow)contactWindow.close();$("inactiveStatus").textContent=err.message;}
 };
 async function loadResults(){try{const r=await api("/api/crm/operations?mode=recovery&days="+$("resultDays").value);$("resultCards").innerHTML=[
  ["Contatos preparados",r.contactsPrepared],["Clientes recuperadas",r.clientsRecovered],["Receita recuperada",money(r.realizedRevenueCents)]
