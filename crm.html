@@ -170,7 +170,7 @@ Registro de teste (não incluir nos relatórios)</label></div>
 </section></div>
 <datalist id="patty-pros"><option value="Patty"><option value="Benedita"><option value="Deimy"><option value="Allegra"><option value="Héllen"><option value="Chele"><option value="Maira"><option value="Vaneza"><option value="Vanya"></datalist>
 <script type="module">
-import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
+import { initPattyAuth, showPattyAuthState, loadPattyPermissions, pattyCRMRequest } from "/patty-auth.js";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $ = id => document.getElementById(id);
 let auth, data = [], nextCursor = null, selected = null, loading = false, currentPage=0,pageCursors=[null];
@@ -178,16 +178,7 @@ const statuses = {novo:"Novo",em_contato:"Em conversa",agendado:"Agendado",atend
 const escapeHtml = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money = v => v == null ? "" : (v/100).toFixed(2).replace(".",",");
 async function request(url, options = {}) {
-  const user = auth?.currentUser;
-  if (!user) throw new Error("Sessão expirada");
-  const token = await user.getIdToken();
-  const response = await fetch(url, { ...options, headers: {
-    "Authorization":"Bearer " + token,
-    ...(options.body ? {"Content-Type":"application/json"} : {})
-  }});
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(result.error || "Não foi possível consultar o CRM");
-  return result;
+  return pattyCRMRequest(auth, url, options);
 }
 async function refreshTotals(){
  try{
