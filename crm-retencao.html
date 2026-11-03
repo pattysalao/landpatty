@@ -40,7 +40,8 @@ avaliacao:name=>"Olá, "+name+"! Sua experiência é muito importante para a Pat
 lembrete:name=>"Olá, "+name+"! Passando para lembrar sobre seu horário na Patty Centro de Beleza. Caso precise ajustar, por favor nos avise com antecedência.",
 vaga_disponivel:name=>"Olá, "+name+"! ✨ Surgiu um horário na Patty que pode combinar com sua preferência. Você ainda tem interesse? Respondendo aqui, verificamos a disponibilidade."
 };
-async function api(url,opts={}){ return pattyCRMRequest(auth,url,opts); }\nasync function post(data){return api("/api/crm/operations",{method:"POST",body:JSON.stringify(data)});}
+async function api(url,opts={}){ return pattyCRMRequest(auth,url,opts); }
+async function post(data){return api("/api/crm/operations",{method:"POST",body:JSON.stringify(data)});}
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));["wait","inactive","results","settings"].forEach(k=>$("panel-"+k).classList.toggle("hidden",b.dataset.tab!==k));if(b.dataset.tab==="inactive")searchInactive(true);if(b.dataset.tab==="results")loadResults();if(b.dataset.tab==="settings")loadSettings();});
 async function loadWait(){try{const r=await api("/api/crm/operations?mode=waitlist");waitItems=r.items||[];
  $("waitRows").innerHTML=waitItems.map(x=>'<tr><td>'+esc(x.clientName)+'<small style="display:block">'+esc(x.phone)+'</small></td><td>'+esc(x.service)+'</td><td>'+esc(x.date||"Flexível")+' '+esc(x.requestedTime||"")+'</td><td>'+esc(x.professional||"Qualquer")+'</td><td><button class="secondary" data-offer="'+esc(x.id)+'">Ofertar</button> <button class="secondary" data-scheduled="'+esc(x.id)+'">Agendado</button> <button class="secondary" data-cancel="'+esc(x.id)+'">Remover</button></td></tr>').join("")||'<tr><td colspan="5">Nenhum pedido na fila.</td></tr>';
