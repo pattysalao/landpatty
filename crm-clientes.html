@@ -141,18 +141,22 @@ async function refreshTotals(){
   $("remainingTotal").textContent=typeof total==="number"?Math.max(0,expected-total).toLocaleString("pt-BR"):"—";
  }catch(e){$("customerTotal").textContent="Indisponível";$("remainingTotal").textContent="—"}
 }
+let customerListRequest=0;
 async function load(reset){
+ const requestId=++customerListRequest;
+ $("more").disabled=true;$("prevPage").disabled=true;
  if(reset){currentPage=0;pageCursors=[null]}
  try{
   const params=new URLSearchParams({limit:$("perPage").value});
   if(pageCursors[currentPage])params.set("cursor",pageCursors[currentPage]);
   const r=await req("/api/crm/customers?"+params.toString());
+  if(requestId!==customerListRequest)return;
   customers=r.customers;cursor=r.nextCursor;
   $("more").disabled=!cursor;$("prevPage").disabled=currentPage===0;
   $("pageLabel").textContent="Página "+(currentPage+1)+" · "+customers.length+" registro(s)";
   render();$("list-message").textContent=customers.length+" clientes nesta página. Use Próxima ou Anterior para navegar.";
   if(reset)await refreshTotals();
- }catch(e){$("list-message").textContent=e.message;if(/quota|cota|limite/i.test(e.message))$("message").textContent="Cota do Firestore esgotada. Os cadastros já gravados permanecem preservados. Acesse Firebase → Firestore → Uso."}
+ }catch(e){if(requestId!==customerListRequest)return;$("list-message").textContent=e.message;if(/quota|cota|limite/i.test(e.message))$("message").textContent="Cota do Firestore esgotada. Os cadastros já gravados permanecem preservados. Acesse Firebase → Firestore → Uso."}
 }
 function render(){
  const q=$("q").value.toLowerCase();const rows=customers.filter(x=>[x.name,x.phone,x.gendoCode].some(v=>String(v||"").toLowerCase().includes(q)));
@@ -162,9 +166,10 @@ $("q").oninput=render;
 $("searchAll").onclick=async()=>{
  const query=$("q").value.trim().replace(/\D/g,"");
  if(!/^\d{1,15}$/.test(query)){$("list-message").textContent="Para buscar na base inteira, digite o código Gendo ou um telefone com DDD. Por nome, filtre os registros carregados.";return}
+ const requestId=++customerListRequest;
  $("searchAll").disabled=true;$("list-message").textContent="Buscando cliente na base completa...";
- try{const r=await req("/api/crm/customers?lookup="+encodeURIComponent(query));customers=r.customers;cursor=null;$("more").disabled=true;$("prevPage").disabled=true;$("pageLabel").textContent="Resultado da busca";$("q").value="";render();$("list-message").textContent=customers.length?customers.length+" cliente(s) encontrado(s) na base completa. Clique em Atualizar lista para voltar.":"Nenhum cliente com esse código ou telefone. Clique em Atualizar lista para voltar."}
- catch(e){$("list-message").textContent=e.message}
+ try{const r=await req("/api/crm/customers?lookup="+encodeURIComponent(query));if(requestId!==customerListRequest)return;customers=r.customers;cursor=null;$("more").disabled=true;$("prevPage").disabled=true;$("pageLabel").textContent="Resultado da busca";$("q").value="";render();$("list-message").textContent=customers.length?customers.length+" cliente(s) encontrado(s) na base completa. Clique em Atualizar lista para voltar.":"Nenhum cliente com esse código ou telefone. Clique em Atualizar lista para voltar."}
+ catch(e){if(requestId===customerListRequest)$("list-message").textContent=e.message}
  finally{$("searchAll").disabled=false}
 };
 $("load").onclick=()=>{$("q").value="";load(true)};
