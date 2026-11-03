@@ -24,7 +24,7 @@ export default async function handler(req,res){
       return {id:d.id,name:v.name||"",service:v.service||"A definir",
         professional:v.professional||"Não atribuído",appointmentTime:v.appointmentTime||"",
         durationMin:v.durationMin||60,status:v.status||"agendado",
-        recordType:v.recordType||"appointment",source:"crm",notes:v.notes||""};
+        recordType:v.recordType||"appointment",source:"crm",notes:v.notes||"",phone:v.phone||"",customerCode:v.customerCode||"",priceCents:Number.isSafeInteger(v.priceCents)?v.priceCents:null,allDay:v.allDay===true};
     }).filter(v=>v.status!=="cancelado");
     const pendingRequests=requests.docs.slice(0,250).filter(d=>{
       const v=d.data();
