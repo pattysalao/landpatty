@@ -27,6 +27,7 @@ button,input,select,textarea{font:inherit}button{background:var(--wine);color:#f
 <div class="panel"><div class="row" style="justify-content:space-between"><div><h1>Operação do salão</h1><p class="muted" style="margin:0">Serviços, profissionais, atendimentos e relatórios — importação gradual do Gendo.</p></div><button id="logout" class="secondary">Sair</button></div><div class="tabs" id="tabs" aria-label="Módulos"></div><h2 id="moduleTitle"></h2>
 <p class="note" id="moduleNote"></p><p id="status" role="status" class="muted"></p><progress id="importProgress" class="patty-import-progress hidden" value="0" max="100" aria-label="Progresso da importação"></progress><div id="importErrors" class="patty-import-errors hidden" role="status"></div>
 <div id="managerTools">
+<details><summary>Colar CSV sem selecionar arquivo</summary><label for="csvText">Conteúdo CSV</label><textarea id="csvText" rows="6" style="width:100%;box-sizing:border-box" placeholder="Cole o cabeçalho e as linhas do CSV"></textarea><button id="readCsv" class="secondary">Ler CSV colado</button></details>
 <div class="row"><button id="new" class="secondary">+ Adicionar registro</button><input id="file" type="file" accept=".csv,.tsv,text/csv"><button id="preview" class="secondary" disabled>Validar arquivo</button><button id="import" disabled>Importar registros</button></div>
 <div id="mapSection" class="hidden"><h3>Vincular colunas do CSV aos campos do CRM</h3><p class="small muted">Selecione os campos correspondentes. Colunas ausentes ficam em branco; campos obrigatórios devem estar mapeados. Valores e datas são normalizados antes do envio.</p><div class="mapping" id="mapping"></div>
 <div class="stats" id="previewStats"></div><div class="tablebox"><table><thead id="sampleHead"></thead><tbody id="sampleBody"></tbody></table></div></div>
@@ -54,7 +55,7 @@ async function request(url,opts={}){
 function cellDisplay(value,type){return value==null||value===''?'—':type==='money'?money(value):typeof value==='boolean'?(value?'Sim':'Não'):String(value)}
 function fieldDef(key){return schemas[module].fields[key]}
 function setModule(name){if(!schemas[name])return;module=name;if(location.hash.slice(1)!==name){history.replaceState(null,'','#'+name);window.dispatchEvent(new Event('hashchange'));}rows=[];cursor=null;fileRecords=[];headers=[];mapping={};readyPreview=false;
- $('file').value='';$('mapSection').classList.add('hidden');$('preview').disabled=true;$('import').disabled=true;$('importProgress').classList.add('hidden');$('importErrors').classList.add('hidden');
+ $('file').value='';$('csvText').value='';$('mapSection').classList.add('hidden');$('preview').disabled=true;$('import').disabled=true;$('importProgress').classList.add('hidden');$('importErrors').classList.add('hidden');
  $('moduleTitle').textContent=schemas[module].label;$('moduleNote').textContent=moduleNotes[module]||'';
  $('tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b.dataset.module===name));
  const hidden=schemas[module].manager&&!manager;$('managerTools').classList.toggle('hidden',!manager||hidden);
@@ -125,13 +126,20 @@ function buildMapping(){const fields=schemas[module].fields;const options='<opti
  sel.onchange=()=>{mapping[key]=sel.value;readyPreview=false;$('import').disabled=true;showSample()}});
  showSample();$('mapSection').classList.remove('hidden');$('preview').disabled=false;
 }
-$('file').onchange=async()=>{fileRecords=[];headers=[];mapping={};readyPreview=false;$('preview').disabled=true;$('import').disabled=true;$('mapSection').classList.add('hidden');
+function resetImport(){fileRecords=[];headers=[];mapping={};readyPreview=false;$('preview').disabled=true;$('import').disabled=true;$('mapSection').classList.add('hidden');}
+function readCsvText(text){resetImport();
+ if(new TextEncoder().encode(text).length>20*1024*1024)throw Error('CSV maior que 20 MB. Divida em páginas.');
+ const table=csvParse(text.replace(/^\uFEFF/,''),detectDelimiter(text));if(table.length<2)throw Error('CSV não contém linhas de dados');
+ headers=table[0].map((v,i)=>v.trim()||'Coluna '+(i+1));fileRecords=table.slice(1).filter(r=>r.some(x=>x.trim()));
+ $('status').textContent='CSV lido: '+fileRecords.length+' linhas. Confira o mapeamento e depois valide o arquivo.';buildMapping();
+}
+$('csvText').oninput=()=>resetImport();
+$('readCsv').onclick=()=>{try{readCsvText($('csvText').value)}catch(e){$('status').textContent='CSV inválido: '+e.message}};
+$('file').onchange=async()=>{resetImport();
  try{const f=$('file').files?.[0];if(!f)return;if(f.size>20*1024*1024)throw Error('Arquivo maior que 20 MB. Exporte em páginas.');
  const buf=await f.arrayBuffer();let text;
  try{text=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(_){text=new TextDecoder('windows-1252').decode(buf)}
- const table=csvParse(text.replace(/^\uFEFF/,''),detectDelimiter(text));if(table.length<2)throw Error('CSV não contém linhas de dados');
- headers=table[0].map((v,i)=>v.trim()||'Coluna '+(i+1));fileRecords=table.slice(1).filter(r=>r.some(x=>x.trim()));
- $('status').textContent='CSV lido: '+fileRecords.length+' linhas. Confira o mapeamento e depois use “Conferir CSV”.';buildMapping();
+ readCsvText(text);
  }catch(e){$('status').textContent='Arquivo inválido: '+e.message}
 };
 function showImportErrors(errors){const box=$('importErrors');box.classList.toggle('hidden',!errors?.length);box.textContent='';if(errors?.length){const title=document.createElement('strong');title.textContent='Registros que precisam de revisão';box.append(title);const list=document.createElement('ul');errors.forEach(x=>{const li=document.createElement('li');li.textContent='Linha '+x.row+': '+x.reason;list.append(li)});box.append(list)}}
