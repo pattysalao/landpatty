@@ -71,7 +71,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <label class="full">Observação<input id="notes" maxlength="500" placeholder="Detalhe do agendamento ou motivo do bloqueio"></label>
 </div>
 <p class="muted small">Horários configuráveis das 00h às 24h. O CRM ainda não consulta a disponibilidade do Gendo.</p>
-<p id="bookingError" class="error" role="alert"></p>
+<div id="waitSuggestions" class="hidden" style="background:#fff8ee;border:1px solid #eddfcd;border-radius:10px;padding:9px;margin-top:9px"><strong>Fila de espera para este horário</strong><div id="waitCandidates" class="row"></div></div><p id="bookingError" class="error" role="alert"></p>
 <div class="form-actions"><button id="save" type="submit">Salvar agendamento</button><button id="cancel" type="button" class="secondary">Cancelar</button></div>
 </form></section></div>
 <div id="serviceBackdrop" class="modal-backdrop hidden"><section class="modal" role="dialog" aria-modal="true" aria-label="Novo serviço"><div class="row" style="justify-content:space-between"><h2>+ Criar serviço</h2><button id="closeService" class="secondary" type="button">Fechar</button></div><form id="serviceForm"><div class="fields"><label class="full">Nome *<input id="newServiceName" maxlength="120" required></label><label>Preço padrão (R$)<input id="newServicePrice" inputmode="decimal" placeholder="120,00"></label><label>Duração (minutos)<input id="newServiceDuration" type="number" min="15" max="720" value="60" required></label><label>Categoria<input id="newServiceCategory" maxlength="80"></label><label class="full">Descrição<input id="newServiceDescription" maxlength="250"></label></div><p class="muted small">Necessário acesso administrativo para criar serviços.</p><p id="serviceError" class="error" role="alert"></p><div class="form-actions"><button type="submit">Salvar serviço</button></div></form></section></div><div id="statusBackdrop" class="modal-backdrop hidden" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
@@ -91,7 +91,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const starterPros=["Patty","Benedita","Deimy","Allegra","Héllen","Chele","Maira","Vaneza","Vanya"];
 const starterServices=["Cabelos e Cachos","Corte","Coloração","Mechas","Nail Design","Manicure","Pedicure","Sobrancelhas","Depilação","Cílios","Massoterapia"];
-let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],editing=null,isBlock=false,serviceDurations={},servicePrices={},companySettings={openHour:9,closeHour:19},customerTimer=null,customerRequest=0;
+let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],editing=null,isBlock=false,serviceDurations={},servicePrices={},companySettings={openHour:9,closeHour:19},customerTimer=null,customerRequest=0,waitCandidates=[],selectedWaitId=null;
  const money=c=>Number.isSafeInteger(c)?(c/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"Preço sob consulta";
  const cents=t=>{const v=String(t||"").trim().replace(/[^\d,.]/g,"");if(!v)return null;const n=Number(v.includes(",")?v.replace(/\./g,"").replace(",","."):v);return Number.isFinite(n)&&n>=0&&n<=1000000?Math.round(n*100):null};
 function today(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const v=k=>p.find(x=>x.type===k)?.value;return v("year")+"-"+v("month")+"-"+v("day")}
@@ -158,15 +158,27 @@ async function load(){
  if(d.partial)$("status").textContent+=" Listagem parcial: consulte a administração.";
  }catch(e){$("status").textContent=e.message}
 }
+async function suggestWait(prof,time,date){
+ try{
+  const r=await api("/api/crm/operations?mode=waitlist");
+  waitCandidates=(r.items||[]).filter(x=>(x.flexible||!x.date||x.date===date)&&(!x.professional||x.professional.toLowerCase()===prof.toLowerCase())&&(!x.requestedTime||x.flexible||x.requestedTime===time)).slice(0,12);
+  $("waitCandidates").innerHTML=waitCandidates.map((x,i)=>'<button type="button" class="secondary" data-wait-candidate="'+i+'" style="padding:7px;font-size:12px">'+esc(x.clientName)+' · '+esc(x.service)+'</button>').join("");
+  $("waitSuggestions").classList.toggle("hidden",!waitCandidates.length);
+ }catch(_){$("waitSuggestions").classList.add("hidden");}
+}
+$("waitCandidates").addEventListener("click",e=>{const b=e.target.closest("[data-wait-candidate]");if(!b)return;const x=waitCandidates[Number(b.dataset.waitCandidate)];if(!x)return;
+ selectedWaitId=x.id;$("customerName").value=x.clientName;$("customerPhone").value=x.phone||"";$("customerCode").value=x.customerCode||"";$("service").value=x.service;$("service").dispatchEvent(new Event("change"));"";
+ $("waitSuggestions").classList.add("hidden");$("customerSearchStatus").textContent="Cliente vinculada à fila de espera";
+});
 function openForm(prof="",time="",block=false){
- isBlock=block;$("bookingForm").reset();$("bookingTime").disabled=false;$("duration").disabled=false;$("bookingError").textContent="";$("clientResults").classList.add("hidden");$("customerSearchStatus").textContent="";
+ isBlock=block;selectedWaitId=null;$("waitSuggestions").classList.add("hidden");$("bookingForm").reset();$("bookingTime").disabled=false;$("duration").disabled=false;$("bookingError").textContent="";$("clientResults").classList.add("hidden");$("customerSearchStatus").textContent="";
  $("formTitle").textContent=block?"Bloquear horário":"Novo agendamento";
  $("nameLabel").classList.toggle("hidden",block);$("serviceLabel").classList.toggle("hidden",block);$("priceLabel").classList.toggle("hidden",block);$("allDayLabel").classList.toggle("hidden",!block);
  $("phoneLabel").classList.toggle("hidden",block);$("codeLabel").classList.toggle("hidden",block);
  $("customerName").required=!block;$("service").required=!block;
  $("professional").value=prof;$("bookingDate").value=$("date").value||today();
  $("bookingTime").value=time||String(companySettings.openHour||9).padStart(2,"0")+":00";$("save").textContent=block?"Salvar bloqueio":"Salvar agendamento";
- $("formBackdrop").classList.remove("hidden");$("professional").focus();
+ $("formBackdrop").classList.remove("hidden");$("professional").focus();if(!block&&prof)suggestWait(prof,time||"09:00",$("bookingDate").value);
 }
 let customerSelection=null;
 function selectCustomer(row){customerSelection=row;$("customerName").value=row.name||"";$("customerPhone").value=row.phone||"";$("customerCode").value=row.gendoCode||"";$("clientResults").classList.add("hidden");$("customerSearchStatus").textContent="Cliente selecionada · "+(row.visits||0)+" visitas";}
@@ -251,6 +263,7 @@ $("bookingForm").onsubmit=async e=>{
  $("save").disabled=true;$("bookingError").textContent="";
  try{
   await api("/api/crm/appointments",{method:"POST",body:JSON.stringify(body)});
+  if(selectedWaitId){try{await api("/api/crm/operations",{method:"POST",body:JSON.stringify({action:"waitlist_status",id:selectedWaitId,status:"scheduled"})});}catch(e){$("status").textContent="Agendamento salvo. Atualize a fila de espera manualmente: "+e.message;}}
   closeForm();$("date").value=date;await load();
  }catch(error){$("bookingError").textContent=error.message}
  finally{$("save").disabled=false}
