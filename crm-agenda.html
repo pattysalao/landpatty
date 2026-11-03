@@ -85,7 +85,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <label for="bookingMessageType">Mensagem pelo WhatsApp</label><select id="bookingMessageType"><option value="confirmar">Confirmar horário</option><option value="lembrete">Lembrete de agendamento</option><option value="chegada">Boas-vindas</option><option value="agradecer">Agradecer atendimento</option><option value="avaliar">Solicitar avaliação</option></select><p class="small muted">O WhatsApp abre uma mensagem pré-preenchida, sem envio automático. Mensagens promocionais exigem autorização.</p><div class="form-actions"><button id="saveStatus">Atualizar situação</button><a id="bookingWhatsApp" class="secondary hidden" rel="noopener noreferrer" target="_blank" style="border:1px solid #dbc7cd;border-radius:9px;padding:10px;color:#801a39;text-decoration:none">WhatsApp · Confirmar</a><button id="dismissStatus" class="secondary">Voltar</button></div>
 </section></div>
 <script type="module">
-import {initPattyAuth,showPattyAuthState,loadPattyPermissions} from "/patty-auth.js";
+import {initPattyAuth,showPattyAuthState,loadPattyPermissions,pattyTimeout} from "/patty-auth.js";
 import {signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -97,8 +97,15 @@ let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],ed
 function today(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const v=k=>p.find(x=>x.type===k)?.value;return v("year")+"-"+v("month")+"-"+v("day")}
 async function api(url,opts={}){
  if(!auth?.currentUser?.emailVerified)throw Error("Entre com sua conta autorizada.");
- const r=await fetch(url,{...opts,headers:{Authorization:"Bearer "+await auth.currentUser.getIdToken(),...(opts.body?{"Content-Type":"application/json"}:{})}});
- const j=await r.json().catch(()=>({}));if(!r.ok){const e=Error(j.error||"Falha ao consultar.");e.status=r.status;throw e}return j;
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+ try{
+  const token=await pattyTimeout(auth.currentUser.getIdToken(),7000,"Sessão lenta. Tente novamente.");
+  const r=await fetch(url,{...opts,signal:controller.signal,headers:{Authorization:"Bearer "+token,...(opts.body?{"Content-Type":"application/json"}:{})}});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const e=Error(j.error||"Falha ao consultar.");e.status=r.status;throw e}
+  return j;
+ }catch(e){if(e?.name==="AbortError")throw Error("A consulta demorou demais. Toque em Atualizar para tentar novamente.");throw e}
+ finally{clearTimeout(timer)}
 }
 function safeStatus(a){return ["solicitado","agendado","confirmado","chegou","em_atendimento","finalizado","atendido","faltou","bloqueio","novo","em_contato"].includes(a)?a:"agendado"}
 function fillCatalog(){
@@ -304,7 +311,7 @@ $("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailA
    const ok=!!user?.emailVerified;
    $("login").classList.toggle("hidden",ok);$("app").classList.toggle("hidden",!ok);
    if(ok){const access=await loadPattyPermissions(auth);canUse=access.authorized;
-    if(canUse){await catalogs();await load()}else $("status").textContent="Este e-mail não tem acesso à agenda do CRM."}
+    if(canUse){await Promise.allSettled([load(),catalogs().then(()=>{if(rows.length)show()})]);}else $("status").textContent=access.status===0?"Sem conexão com o servidor. Toque em Atualizar.":"Este e-mail não tem acesso à agenda do CRM."}
   });
  }catch(e){$("auth-loading").classList.add("hidden");$("login").classList.remove("hidden");$("login-error").textContent=e.message}
 })();
