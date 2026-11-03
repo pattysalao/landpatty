@@ -103,14 +103,22 @@ async function api(url,opts={}){
 function safeStatus(a){return ["solicitado","agendado","confirmado","chegou","em_atendimento","finalizado","atendido","faltou","bloqueio","novo","em_contato"].includes(a)?a:"agendado"}
 function fillCatalog(){
  $("professionalSuggestions").innerHTML=allPros.map(p=>'<option value="'+esc(p)+'"></option>').join("");
- $("serviceSuggestions").innerHTML=allServices.map(p=>'<option value="'+esc(p)+'"></option>').join("");
+ $("service").innerHTML='<option value="">Selecione um serviço</option>'+allServices.map(p=>'<option value="'+esc(p)+'">'+esc(p)+' · '+esc(money(servicePrices[p]))+'</option>').join("");
 }
 async function catalogs(){
  try{
  const [p,s]=await Promise.allSettled([api("/api/crm/modulos?module=profissionais"),api("/api/crm/modulos?module=servicos")]);
  if(p.status==="fulfilled"&&p.value.items?.length){allPros=p.value.items.filter(x=>x.active!==false&&x.hasCalendar!==false).map(x=>x.name).filter(Boolean);$("catalogNotice").textContent="Profissionais carregadas do cadastro do CRM. Complete o cadastro para exibir toda a equipe."}
  else $("catalogNotice").textContent="Equipe provisória: importe os dados em Operação → Profissionais para substituir a lista inicial.";
- if(s.status==="fulfilled"&&s.value.items?.length){const active=s.value.items.filter(x=>x.active!==false);allServices=active.map(x=>x.name).filter(Boolean);serviceDurations=Object.fromEntries(active.filter(x=>x.name&&Number.isInteger(x.durationMin)).map(x=>[x.name,x.durationMin]))}
+ if(s.status==="fulfilled"&&s.value.items?.length){
+   let items=[...s.value.items],cursor=s.value.nextCursor,page=0;
+   while(cursor&&page++<20){const next=await api("/api/crm/modulos?module=servicos&cursor="+encodeURIComponent(cursor));items.push(...(next.items||[]));cursor=next.nextCursor;}
+   const active=items.filter(x=>x.active!==false);
+   allServices=[...new Set(active.map(x=>x.name).filter(Boolean))];
+   serviceDurations=Object.fromEntries(active.filter(x=>x.name&&Number.isInteger(x.durationMin)).map(x=>[x.name,x.durationMin]));
+   servicePrices=Object.fromEntries(active.filter(x=>x.name&&Number.isSafeInteger(x.priceCents)).map(x=>[x.name,x.priceCents]));
+  }
+  try{companySettings=(await api("/api/crm/operations?mode=settings")).settings||companySettings;}catch(_){}
  fillCatalog();
  }catch(_){fillCatalog();}
 }
@@ -119,14 +127,16 @@ function show(){
  const date=$("date").value;
  const professionals=[...new Set([...allPros,...rows.map(x=>x.professional||"Não atribuído")])].filter(Boolean);
  if(!professionals.length)professionals.push("Não atribuído");
- const hours=Array.from({length:10},(_,i)=>String(9+i).padStart(2,"0"));
+ const first=Math.max(0,Math.min(23,Number(companySettings.openHour??9))),last=Math.max(first+1,Math.min(24,Number(companySettings.closeHour??19)));
+  const hours=Array.from({length:last-first},(_,i)=>String(first+i).padStart(2,"0"));
  let h='<div class="calendar" style="--cols:'+professionals.length+'"><div class="corner">Hora</div>';
- h+=professionals.map(p=>'<div class="col-title">'+esc(p)+'</div>').join("");
+ h+=professionals.map(p=>'<div class="col-title"><span style="display:inline-flex;align-items:center;justify-content:center;border-radius:50%;width:28px;height:28px;background:#e6ced8;color:#801a39;margin-right:6px;font-size:11px">'+esc(p.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase())+'</span>'+esc(p)+'</div>').join("");
  for(const hr of hours){
   h+='<div class="hour">'+hr+':00</div>';
   for(const p of professionals){
-   const selected=hourSlot(p,hr);
-   h+='<div class="cell">'+(p==="Pedidos de horário"?'':'<button class="slot" type="button" data-new-prof="'+esc(p)+'" data-new-time="'+hr+':00" aria-label="Agendar '+esc(p)+' às '+hr+' horas">+ Agendar</button>');
+   const allBlocked=rows.some(x=>x.recordType==="block"&&x.professional===p&&x.appointmentTime==="00:00"&&x.durationMin===1440);
+    const selected=hourSlot(p,hr);
+   h+='<div class="cell"'+(allBlocked?' style="background:repeating-linear-gradient(45deg,#f3e9ec,#f3e9ec 8px,#faf6f7 8px,#faf6f7 16px)"':'')+'>'+(allBlocked?'<small>⛔ Bloqueado</small>':p==="Pedidos de horário"?'':'<button class="slot" type="button" data-new-prof="'+esc(p)+'" data-new-time="'+hr+':00" aria-label="Agendar '+esc(p)+' às '+hr+' horas">+ Agendar</button>');
    h+=selected.map(x=>{
     const cls=safeStatus(x.status);
     return '<button class="appt '+cls+'" type="button" data-appointment-id="'+esc(x.id)+'"><strong>'+esc(x.appointmentTime||"Sem horário")+' · '+esc(x.name)+'</strong><div>'+esc(x.service)+' · '+esc(x.durationMin||60)+' min</div><small>'+esc(x.status==="chegou"?"Cliente chegou":x.status.replace("_"," "))+'</small></button>';
@@ -149,13 +159,13 @@ async function load(){
  }catch(e){$("status").textContent=e.message}
 }
 function openForm(prof="",time="",block=false){
- isBlock=block;$("bookingForm").reset();$("bookingError").textContent="";
+ isBlock=block;$("bookingForm").reset();$("bookingTime").disabled=false;$("duration").disabled=false;$("bookingError").textContent="";$("clientResults").classList.add("hidden");$("customerSearchStatus").textContent="";
  $("formTitle").textContent=block?"Bloquear horário":"Novo agendamento";
- $("nameLabel").classList.toggle("hidden",block);$("serviceLabel").classList.toggle("hidden",block);
+ $("nameLabel").classList.toggle("hidden",block);$("serviceLabel").classList.toggle("hidden",block);$("priceLabel").classList.toggle("hidden",block);$("allDayLabel").classList.toggle("hidden",!block);
  $("phoneLabel").classList.toggle("hidden",block);$("codeLabel").classList.toggle("hidden",block);
  $("customerName").required=!block;$("service").required=!block;
  $("professional").value=prof;$("bookingDate").value=$("date").value||today();
- $("bookingTime").value=time||"09:00";$("save").textContent=block?"Salvar bloqueio":"Salvar agendamento";
+ $("bookingTime").value=time||String(companySettings.openHour||9).padStart(2,"0")+":00";$("save").textContent=block?"Salvar bloqueio":"Salvar agendamento";
  $("formBackdrop").classList.remove("hidden");$("professional").focus();
 }
 $("findCustomer").onclick=async()=>{
@@ -173,7 +183,9 @@ $("findCustomer").onclick=async()=>{
  finally{$("findCustomer").disabled=false}
 };
 $("service").addEventListener("change",()=>{
- const n=serviceDurations[$("service").value];if(!Number.isInteger(n)||n<15||n>300)return;
+ const value=$("service").value;
+  $("servicePrice").value=Number.isSafeInteger(servicePrices[value])?(servicePrices[value]/100).toFixed(2).replace(".",","):"";
+  const n=serviceDurations[value];if(!Number.isInteger(n)||n<15||n>720)return;
  let option=Array.from($("duration").options).find(o=>o.value===String(n));
  if(!option){option=document.createElement("option");option.value=String(n);option.textContent=n+" minutos (serviço)";$("duration").append(option)}
  $("duration").value=String(n);
@@ -193,7 +205,9 @@ $("calendar").addEventListener("click",e=>{
   "Agendamento do funil de leads. Abra o contato no Painel de leads para atualizar.";return}
   editing=x;
   $("statusTitle").textContent=x.recordType==="block"?"Bloqueio de horário":"Situação do atendimento";
-  $("bookingInfo").textContent=x.professional+" · "+x.appointmentTime+" · "+x.name+" · "+x.service;
+  $("bookingInfo").textContent=x.professional+" · "+x.appointmentTime+" · "+x.name+" · "+x.service+(x.priceCents!==null?" · "+money(x.priceCents):"");
+   $("bookingWhatsApp").classList.toggle("hidden",!x.phone);
+   if(x.phone){const phone=x.phone.replace(/\D/g,"");const msg="Olá, "+x.name+"! ✨ Aqui é da Patty Centro de Beleza. Gostaríamos de confirmar seu atendimento de "+x.service+" no dia "+x.date+" às "+x.appointmentTime+". Podemos confirmar?";$("bookingWhatsApp").href="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);}
   $("bookingStatus").innerHTML=x.recordType==="block"?'<option value="liberado">Liberar este horário</option>':
    '<option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="chegou">Cliente chegou</option><option value="em_atendimento">Em atendimento</option><option value="finalizado">Finalizado</option><option value="faltou">Faltou</option><option value="cancelado">Cancelado</option>';
   if(x.recordType!=="block")$("bookingStatus").value=x.status;
@@ -202,10 +216,10 @@ $("calendar").addEventListener("click",e=>{
 });
 $("bookingForm").onsubmit=async e=>{
  e.preventDefault();if(!$("bookingForm").reportValidity())return;
- const date=$("bookingDate").value,appointmentTime=$("bookingTime").value,durationMin=Number($("duration").value);
+ const date=$("bookingDate").value,allDay=isBlock&&$("allDay").checked,appointmentTime=allDay?"00:00":$("bookingTime").value,durationMin=allDay?1440:Number($("duration").value);
  const body={recordType:isBlock?"block":"appointment",name:$("customerName").value,phone:$("customerPhone").value,
  customerCode:$("customerCode").value,service:$("service").value,professional:$("professional").value,
- date,appointmentTime,durationMin,notes:$("notes").value};
+ date,appointmentTime,durationMin,priceCents:isBlock?null:cents($("servicePrice").value),allDay,notes:$("notes").value};
  $("save").disabled=true;$("bookingError").textContent="";
  try{
   await api("/api/crm/appointments",{method:"POST",body:JSON.stringify(body)});
