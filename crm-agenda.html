@@ -67,7 +67,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <datalist id="professionalSuggestions"></datalist>
 <label>Data *<input id="bookingDate" type="date" required></label>
 <label>Hora *<input id="bookingTime" type="time" min="00:00" max="23:59" step="300" required></label><label class="full hidden" id="allDayLabel"><input id="allDay" type="checkbox" style="width:auto"> Bloquear o dia inteiro</label>
-<label>Duração *<select id="duration"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60" selected>1 hora</option><option value="90">1h30</option><option value="120">2 horas</option><option value="180">3 horas</option></select></label>
+<label>Duração *<select id="duration"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60" selected>1 hora</option><option value="90">1h30</option><option value="120">2 horas</option><option value="180">3 horas</option><option value="240">4 horas</option><option value="300">5 horas</option><option value="360">6 horas</option><option value="480">8 horas</option><option value="720">12 horas</option></select></label>
 <label class="full">Observação<input id="notes" maxlength="500" placeholder="Detalhe do agendamento ou motivo do bloqueio"></label>
 </div>
 <p class="muted small">Horários configuráveis das 00h às 24h. O CRM ainda não consulta a disponibilidade do Gendo.</p>
@@ -168,6 +168,34 @@ function openForm(prof="",time="",block=false){
  $("bookingTime").value=time||String(companySettings.openHour||9).padStart(2,"0")+":00";$("save").textContent=block?"Salvar bloqueio":"Salvar agendamento";
  $("formBackdrop").classList.remove("hidden");$("professional").focus();
 }
+let customerSelection=null;
+function selectCustomer(row){customerSelection=row;$("customerName").value=row.name||"";$("customerPhone").value=row.phone||"";$("customerCode").value=row.gendoCode||"";$("clientResults").classList.add("hidden");$("customerSearchStatus").textContent="Cliente selecionada · "+(row.visits||0)+" visitas";}
+$("customerName").addEventListener("input",()=>{
+ customerSelection=null;$("customerCode").value="";clearTimeout(customerTimer);
+ const q=$("customerName").value.trim(),token=++customerRequest;
+ if(q.length<2){$("clientResults").classList.add("hidden");$("customerSearchStatus").textContent="Digite duas letras";return;}
+ $("customerSearchStatus").textContent="Pesquisando...";
+ customerTimer=setTimeout(async()=>{try{
+  const answer=await api("/api/crm/customer-search?q="+encodeURIComponent(q));if(token!==customerRequest)return;
+  const clients=answer.customers||[];$("clientResults")._clients=clients;
+  $("clientResults").innerHTML=clients.map((r,i)=>'<button type="button" data-client="'+i+'" style="display:block;width:100%;text-align:left;border-bottom:1px solid #eee;background:#fff;color:#31232a;border-radius:0">'+esc(r.name)+'<small style="display:block;color:#75676c">'+esc(r.phone||"Sem telefone")+' · Código '+esc(r.gendoCode||"—")+'</small></button>').join("");
+  $("clientResults").classList.toggle("hidden",!clients.length);
+  $("customerSearchStatus").textContent=clients.length?clients.length+" resultado(s)":answer.note||"Nenhuma correspondência";
+ }catch(err){if(token===customerRequest)$("customerSearchStatus").textContent=err.message;}},250);
+});
+$("clientResults").addEventListener("click",e=>{const target=e.target.closest("[data-client]");if(target)selectCustomer($("clientResults")._clients[Number(target.dataset.client)]);});
+$("allDay").onchange=()=>{$("bookingTime").disabled=$("allDay").checked;$("duration").disabled=$("allDay").checked;};
+$("createService").onclick=()=>$("serviceBackdrop").classList.remove("hidden");
+$("closeService").onclick=()=>$("serviceBackdrop").classList.add("hidden");
+$("serviceForm").onsubmit=async e=>{e.preventDefault();$("serviceError").textContent="";
+ const name=$("newServiceName").value.trim();
+ try{await api("/api/crm/modulos?module=servicos",{method:"POST",body:JSON.stringify({action:"create",item:{
+  name,priceCents:cents($("newServicePrice").value),durationMin:Number($("newServiceDuration").value),
+  category:$("newServiceCategory").value,description:$("newServiceDescription").value,active:true}})});
+  await catalogs();$("service").value=name;$("service").dispatchEvent(new Event("change"));
+  $("serviceBackdrop").classList.add("hidden");$("serviceForm").reset();
+ }catch(err){$("serviceError").textContent=err.message;}
+};
 $("findCustomer").onclick=async()=>{
  const key=$("customerCode").value.trim()||$("customerPhone").value.trim();
  if(!key){$("bookingError").textContent="Informe o código Gendo ou telefone para localizar.";return}
@@ -176,7 +204,7 @@ $("findCustomer").onclick=async()=>{
    const found=await api("/api/crm/customers?lookup="+encodeURIComponent(key));
    const customer=found.customers?.[0];
    if(!customer)throw Error("Cliente não localizado. Você pode preencher o nome manualmente.");
-   $("customerName").value=customer.name||"";
+   selectCustomer(customer);
    $("customerPhone").value=customer.phone||"";
    $("customerCode").value=customer.gendoCode||"";
  }catch(err){$("bookingError").textContent=err.status===403?"Consulta à base histórica reservada à administração. Digite o cliente manualmente.":err.message}
