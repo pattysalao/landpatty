@@ -987,6 +987,18 @@
         <p id="patty-capture-intro">Preencha dois dados para o salão acompanhar seu pedido e agilizar o contato.</p>
         <form id="patty-capture-form">
           <p><strong>Serviço:</strong> <span id="patty-capture-service">Atendimento</span></p>
+          <label id="patty-capture-service-label" for="patty-capture-service-pick" hidden>Qual serviço deseja?</label>
+          <select id="patty-capture-service-pick" hidden aria-label="Serviço procurado">
+            <option value="">Escolha o serviço...</option>
+            <option value="Cabelos e Cachos">Cabelos e Cachos</option>
+            <option value="Nail Design">Nail Design e Manicure</option>
+            <option value="Sobrancelhas e Micropigmentação">Sobrancelhas e Micropigmentação</option>
+            <option value="Estética">Estética Facial/Corporal</option>
+            <option value="Cílios">Cílios</option>
+            <option value="Maquiagem">Maquiagem</option>
+            <option value="Depilação">Depilação</option>
+            <option value="Massoterapia e Terapias">Massoterapia e Terapias</option>
+          </select>
           <label for="patty-capture-name">Seu nome</label>
           <input id="patty-capture-name" type="text" name="nome" autocomplete="name" required minlength="2" maxlength="120" placeholder="Como podemos chamar você?">
           <label for="patty-capture-phone">Seu WhatsApp</label>
@@ -1107,7 +1119,7 @@
             [/massoterapia|terapias/i, 'Massoterapia e Terapias']
         ];
         function normalizarServicoPatty(nome) {
-            return serviceMap.find(([matcher]) => matcher.test(nome))?.[1] || 'Cabelos e Cachos';
+            return serviceMap.find(([matcher]) => matcher.test(nome))?.[1] || 'A definir';
         }
         function fecharCapturaServico() {
             capturaModal.hidden = true;
@@ -1118,16 +1130,22 @@
             capturaForm.reset();
             document.getElementById('patty-capture-status').textContent = '';
             document.getElementById('patty-capture-request-date').min=pattyHojeBrasil();
-            document.getElementById('patty-capture-service').textContent = dados.serviceName;
+            const pick=document.getElementById('patty-capture-service-pick');
+            const generic=normalizarServicoPatty(dados.serviceName)==='A definir';
+            document.getElementById('patty-capture-service').textContent=generic?'Atendimento pelo WhatsApp':dados.serviceName;
+            pick.hidden=!generic;pick.required=generic;
+            document.getElementById('patty-capture-service-label').hidden=!generic;
             capturaModal.hidden = false;
             document.getElementById('patty-capture-name').focus();
         }
-        function abrirWhatsAppCaptura({url, ref, serviceName, area, botao}, janela, nome, telefone,preferencia={}) {
+        function abrirWhatsAppCaptura({url, ref, serviceName, area, botao}, janela, nome, telefone,preferencia={},servicoSelecionado="") {
             const destino = new URL(url);
             if (nome) {
                 const original = destino.searchParams.get('text') || '';
                 destino.searchParams.set('text', original + '\nMeu nome: ' + nome +
-                    '\nWhatsApp para retorno: ' + telefone + pattyTextoPreferencia(preferencia));
+                    '\nWhatsApp para retorno: ' + telefone +
+                    (servicoSelecionado?'\nServiço escolhido: '+servicoSelecionado:'') +
+                    pattyTextoPreferencia(preferencia));
             }
             registrarCliqueWhatsApp(area, serviceName, botao, ref);
             if (janela && !janela.closed) janela.location.href = destino.toString();
@@ -1154,6 +1172,9 @@
             const dados = pattyServicoPendente;
             const nome = document.getElementById('patty-capture-name').value.trim();
             const telefone = document.getElementById('patty-capture-phone').value.trim();
+            const servicoSelecionado=normalizarServicoPatty(dados.serviceName)==='A definir'
+                ?document.getElementById('patty-capture-service-pick').value
+                :normalizarServicoPatty(dados.serviceName);
             const status = document.getElementById('patty-capture-status');
             const submit = document.getElementById('patty-capture-submit');
             let preferencia;try{preferencia=pattyPreferencia('patty-capture-request-date','patty-capture-request-time')}
@@ -1168,9 +1189,9 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         name: nome, phone: telefone,...preferencia,
-                        service: normalizarServicoPatty(dados.serviceName),
+                        service: servicoSelecionado,
                         reference: dados.ref, campaign: pattyCampanha(),
-                        source: 'botao_servico',
+                        source: dados.area==='servicos'?'botao_servico':'botao_geral',
                         privacyAcknowledged: document.getElementById('patty-capture-privacy').checked,
                         website: document.getElementById('patty-capture-website').value
                     })
@@ -1179,8 +1200,8 @@
                 if (!resposta.ok || !resultado.ok) throw new Error(resultado.error || 'Falha ao salvar');
                 if(resultado.created)pattyEvento('crm_lead_saved', {
                     lead_reference: dados.ref,
-                    form_service: normalizarServicoPatty(dados.serviceName),
-                    lead_source: 'botao_servico'
+                    form_service: servicoSelecionado,
+                    lead_source: dados.area==='servicos'?'botao_servico':'botao_geral'
                 });
                 status.textContent = 'Solicitação registrada! Confirme sua mensagem no WhatsApp.';
                 fecharCapturaServico();
@@ -1189,7 +1210,7 @@
                 pattyEvento('crm_capture_failed', {lead_reference: dados.ref, lead_source: 'botao_servico'});
                 status.textContent = 'Não foi possível confirmar o cadastro. Continue o atendimento pelo WhatsApp.';
             } finally {
-                abrirWhatsAppCaptura(dados, janela, nome, telefone,preferencia);
+                abrirWhatsAppCaptura(dados, janela, nome, telefone,preferencia,servicoSelecionado);
                 submit.disabled = false;
             }
         });
@@ -1220,7 +1241,7 @@
                 link.href = url.toString();
                 // Em botões dos serviços, captar contato só se a pessoa optar por informar dados.
                 // O evento whatsapp_click ocorre quando ela prossegue, não ao abrir o formulário.
-                if (cardServico && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey && evt.button === 0) {
+                if (!evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey && evt.button === 0) {
                     evt.preventDefault();
                     pattyEvento('whatsapp_cta_open', {
                         whatsapp_area: area, whatsapp_servico: servico,
