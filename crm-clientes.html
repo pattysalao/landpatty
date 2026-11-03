@@ -33,7 +33,8 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:9px;borde
 <div class="card"><h1>Importação do Gendo</h1>
 <p class="notice"><strong>Migração paralela:</strong> o Gendo continua como sistema operacional. Os clientes históricos entram em uma coleção separada e não são contabilizados como leads de campanhas nem como receita atual. Nenhuma mensagem é enviada.</p>
 <p>Use o CSV exportado em <b>Clientes → Listagem → Salvar em Excel</b>. Se o Gendo mostrar no máximo 5.000 por página, exporte todas as páginas. Os códigos de origem são mantidos e os cadastros existentes não são sobrescritos.</p>
-<div class="row"><input id="file" type="file" accept=".csv,text/csv" multiple aria-label="Selecionar todos os CSVs exportados do Gendo"><button id="preview" class="secondary" disabled>Conferir arquivo</button><button id="import" disabled>Importar clientes</button></div>
+<details><summary>Colar CSV de clientes</summary><label for="csvText">CSV de clientes Gendo</label><textarea id="csvText" rows="6" style="width:100%;box-sizing:border-box"></textarea><button id="readCsv" class="secondary">Ler CSV colado</button></details>
+<div class="row"><input id="file" type="file" accept=".csv,text/csv" multiple aria-label="Selecionar todos os CSVs exportados do Gendo"><button id="preview" class="secondary" disabled>Conferir arquivo</button><button id="import" disabled>Importar clientes</button><label><input id="confirmImport" type="checkbox"> Confirmo importar apenas clientes novos, sem substituir dados existentes, gerar leads ou enviar mensagens.</label></div>
 <div id="summary" class="stat"></div>
 <p id="message" role="status"></p><progress id="importProgress" class="patty-import-progress hidden" max="100" value="0" aria-label="Progresso da importação"></progress>
 <p class="muted"><small>Importação restrita à administração. A origem não comprova consentimento para marketing: todos entram sem opt-in. CPF não é importado. Valores históricos não integram o caixa atual.</small></p>
@@ -87,8 +88,18 @@ function showStats(totals){
  $("summary").innerHTML=["Recebidos","Válidos",totals.previewOnly?"A confirmar":"Já existentes",totals.previewOnly?"Candidatos":"Novos"].map((label,i)=>
   '<div><b>'+[totals.received||0,totals.valid||0,totals.existing||0,totals.created||0][i]+'</b><span>'+label+'</span></div>').join("");
 }
+function resetCsvImport(){previewed=false;records=[];$("import").disabled=true;$("preview").disabled=true;$("confirmImport").checked=false;$("summary").innerHTML="";}
+$("csvText").oninput=()=>resetCsvImport();
+$("readCsv").onclick=()=>{resetCsvImport();try{
+ const text=$("csvText").value;
+ if(new TextEncoder().encode(text).length>25*1024*1024)throw Error("CSV maior que 25 MB. Divida em lotes.");
+ const parsed=parseGendo(csvRows(text)),codes=new Set();
+ records=parsed.filter(item=>{if(codes.has(item.gendoCode))return false;codes.add(item.gendoCode);return true});
+ $("preview").disabled=!records.length;
+ $("message").textContent=records.length+" códigos Gendo únicos lidos. Confira antes de importar.";
+ }catch(e){$("message").textContent=e.message}};
 $("file").onchange=async()=>{
- previewed=false;records=[];$("import").disabled=true;$("preview").disabled=true;$("summary").innerHTML="";
+ resetCsvImport();
  try{
   const files=Array.from($("file").files||[]);
   if(!files.length)return;
@@ -121,7 +132,7 @@ $("preview").onclick=async()=>{ $("preview").disabled=true;$("import").disabled=
  $("message").textContent="Validação pronta: "+t.valid+" códigos elegíveis, "+(t.invalid+t.duplicatesInFile)+" inválidos/repetidos. Clientes já existentes serão identificados durante a gravação, economizando leituras do Firestore.";
  }catch(e){$("message").textContent=e.message}finally{$("preview").disabled=false}};
 $("import").onclick=async()=>{if(!previewed)return;
- if(!confirm("Importar apenas os cadastros novos do Gendo? Esta operação não substitui dados existentes, não gera leads nem envia mensagens."))return;
+ if(!$("confirmImport").checked){$("message").textContent="Marque a confirmação antes de importar os clientes.";return;}
  $("import").disabled=true;$("preview").disabled=true;
  try{const t=await batchRun(false);$("message").textContent="Concluído: "+t.created+" novos cadastros; "+t.existing+" já existentes; "+t.conflicts+" falhas. Confira o CRM.";await load(true)}
  catch(e){$("message").textContent="Importação interrompida: "+e.message+" Os lotes anteriores continuam preservados. Em caso de cota, não repita a importação antes de verificar o Firebase."}
