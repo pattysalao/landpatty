@@ -41,16 +41,14 @@ button,input,select,textarea{font:inherit}button{background:var(--wine);color:#f
 <div class="overlay hidden" id="editOverlay"><section class="drawer" role="dialog" aria-modal="true" aria-labelledby="editTitle"><div class="row" style="justify-content:space-between"><h2 id="editTitle">Cadastro</h2><button id="closeEditor" class="secondary">Fechar</button></div>
 <p class="small muted">Cadastro manual realizado somente pela administração. Não substitui, edita ou sincroniza diretamente o Gendo.</p><form id="editForm"><div class="fields" id="editFields"></div><p id="editStatus" class="error" role="alert"></p><button id="save" type="submit">Salvar registro</button></form></section></div>
 <script type="module">
-import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
+import { initPattyAuth, showPattyAuthState, loadPattyPermissions, pattyCRMRequest } from "/patty-auth.js";
 import {onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
 const $=id=>document.getElementById(id);const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let auth,schemas={},module='',manager=false,rows=[],cursor=null,fileRecords=[],headers=[],mapping={},editing=null,readyPreview=false,lastReport=null;
 const money=v=>Number.isSafeInteger(v)?(v/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—';
 const moduleNotes={historico_agenda:'Agenda histórica do Gendo, separada da agenda de trabalho. Situações preservadas; finalização não comprova pagamento. Consulte comandas e financeiro para valores.',servicos:'Catálogo e preços. Use Código Gendo para identificar o serviço. Não há sincronização automática com a agenda atual.',profissionais:'Equipe e expediente. A liberação de login individual continua sendo feita pelo administrador do Firebase e pela allowlist do CRM.',atendimentos:'Histórico de atendimentos. A receita importada é histórica; não é uma conversão de mídia. Não substitui os agendamentos do Gendo.',financeiro_clientes:'Lançamentos e saldos por cliente. Podem conter débitos e créditos: não equivalem a receita realizada.',faturamento:'Faturamento/caixa histórico. Valores deste relatório podem corresponder a atendimentos; não some os dois módulos.',ticket_clientes:'Relatório histórico de ticket médio; os dados não são novos atendimentos nem conversões de anúncios.',comissoes:'Comissões e valores por profissional. São registros históricos, não liquidações ou pagamentos automáticos.',produtos:'Cadastro de produtos e saldo informado. Não há baixa automática de estoque quando um serviço é concluído.',estoque:'Movimentações históricas. Não alteram automaticamente o saldo no cadastro de produtos; conciliação deverá ser validada.'};
 async function request(url,opts={}){
- const user=auth?.currentUser;if(!user?.emailVerified)throw Error('É necessário entrar com e-mail confirmado.');
- const response=await fetch(url,{...opts,headers:{Authorization:'Bearer '+await user.getIdToken(),...(opts.body?{'Content-Type':'application/json'}:{})}});
- const data=await response.json().catch(()=>({}));if(!response.ok)throw Error(data.error||'Erro na consulta');return data;
+ return pattyCRMRequest(auth,url,opts);
 }
 function cellDisplay(value,type){return value==null||value===''?'—':type==='money'?money(value):typeof value==='boolean'?(value?'Sim':'Não'):String(value)}
 function fieldDef(key){return schemas[module].fields[key]}
