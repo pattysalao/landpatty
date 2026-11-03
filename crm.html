@@ -143,7 +143,12 @@ Cadastro de teste (não incluir nos relatórios)</label></div>
 </section></div>
 <div id="drawer" class="drawer hidden"><section class="panel">
 <div class="drawer-top"><div><h2 id="detail-name">Contato</h2><small id="detail-reference"></small></div><button class="secondary" id="close">Fechar</button></div>
-<p id="detail-service"></p><p id="detail-origin" class="muted"></p><div class="fields">
+<p id="detail-service"></p><p id="detail-origin" class="muted"></p>
+<div id="detail-request-block" class="hidden" style="padding:11px 13px;border-radius:10px;background:#fff4e6;border:1px solid #edceb5;margin:10px 0">
+<strong id="detail-request" style="display:block;margin-bottom:8px"></strong>
+<button type="button" class="secondary" id="detail-use-request">Preencher dia e horário solicitados</button>
+<p style="font-size:12px;margin:8px 0 0">Confirme a disponibilidade da profissional no Gendo antes de mudar para Agendado.</p>
+</div><div class="fields">
 <div class="full"><label for="detail-status">Situação</label><select id="detail-status"><option value="novo">Novo lead</option><option value="em_contato">Em conversa</option><option value="agendado">Agendado</option><option value="atendido">Atendido</option><option value="perdido">Perdido</option></select></div>
 <div><label for="detail-date">Data agendada</label><input type="date" id="detail-date"></div>
 <div><label for="detail-followup">Próximo retorno</label><input type="date" id="detail-followup"></div>
@@ -285,9 +290,11 @@ function render() {
     const follow=needsFollowUp(d,today) ? '<p style="color:#a02445;font-weight:700">Retorno pendente: '+escapeHtml(d.followUpDate)+'</p>' :
       d.followUpDate ? '<p>Retorno: '+escapeHtml(d.followUpDate)+'</p>' : '';
     const test=d.isTest ? ' · TESTE (fora dos relatórios)' : '';
+    const request=(d.requestedDate&&d.bookingRequestStatus==='pendente')
+      ?'<p style="color:#8a4b2e;font-weight:700">Horário solicitado: '+escapeHtml(d.requestedDate.split('-').reverse().join('/'))+' às '+escapeHtml(d.requestedTime||'a combinar')+' · A confirmar</p>':'';
     return '<article class="lead"><div><h3>'+escapeHtml(d.name)+'</h3><p>'+escapeHtml(d.service)+' · '+
       escapeHtml(d.phone)+'</p><p>'+escapeHtml(d.createdAt?.slice(0,10)||"")+' · '+
-      escapeHtml(d.campaign?.utm_source || d.source)+escapeHtml(test)+'</p>'+follow+
+      escapeHtml(d.campaign?.utm_source || d.source)+escapeHtml(test)+'</p>'+request+follow+
       '</div><div style="text-align:right"><div class="tag">'+escapeHtml(statuses[d.status]||d.status)+
       '</div><button type="button" data-id="'+escapeHtml(d.id)+
       '" style="margin-top:9px">Abrir</button></div></article>';
@@ -301,6 +308,9 @@ function openLead(id) {
   $("detail-service").textContent=selected.service+" | "+selected.phone;
   $("detail-origin").textContent="Origem: "+(selected.campaign?.utm_source || selected.source || "Não informada");
   $("detail-status").value=selected.status;
+  const pending=!!selected.requestedDate&&selected.bookingRequestStatus==='pendente';
+  $("detail-request-block").classList.toggle("hidden",!pending);
+  $("detail-request").textContent=pending?"Preferência solicitada pelo site: "+selected.requestedDate.split('-').reverse().join('/')+" às "+selected.requestedTime+" — ainda não confirmada":"";
   $("detail-date").value=selected.appointmentDate || "";
   $("detail-time").value=selected.appointmentTime || "";
   $("detail-professional").value=selected.professional || "";
@@ -363,6 +373,12 @@ $("manual-form").onsubmit=async event=>{
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"&&!$("manual-drawer").classList.contains("hidden"))$("manual-close").click();
 });
+$("detail-use-request").onclick=()=>{
+ if(!selected?.requestedDate||!selected?.requestedTime)return;
+ $("detail-date").value=selected.requestedDate;
+ $("detail-time").value=selected.requestedTime;
+ $("detail-error").textContent="Data e horário preenchidos. Confirme a profissional e a disponibilidade antes de salvar como Agendado.";
+};
 $("close").onclick=()=>{$("drawer").classList.add("hidden");selected=null};
 $("drawer").addEventListener("click",e=>{if(e.target===$("drawer"))$("close").click()});
 $("save").onclick=async()=>{
