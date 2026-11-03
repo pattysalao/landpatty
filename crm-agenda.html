@@ -257,7 +257,7 @@ $("calendar").addEventListener("click",e=>{
  agradecer:"Oi, "+name+"! 💕 Foi um prazer receber você na Patty. Obrigada pela confiança! Como está se sentindo depois do atendimento?",
  avaliar:"Olá, "+name+"! ✨ Sua opinião é muito importante para a Patty. Se desejar, podemos compartilhar nosso link de avaliações. Obrigada por confiar no nosso trabalho!"
  };
- const phone=x.phone.replace(/\\D/g,""),msg=messages[$("bookingMessageType").value]||messages.confirmar;
+ const phone=x.phone.replace(/\D/g,""),msg=messages[$("bookingMessageType").value]||messages.confirmar;
  $("bookingWhatsApp").href="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);
 }
 $("bookingMessageType").onchange=bookingMessage;
