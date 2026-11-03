@@ -94,6 +94,16 @@ export default async function handler(req,res){
    await doc.ref.update({status,updatedAt:stamp(),updatedBy:staff.email});
    return send(res,200,{ok:true});
   }
+  if(action==="consent"){
+   if(!manager)return send(res,403,{error:"Registro de consentimento reservado à administração"});
+   const customerCode=safe(b.customerCode,32),source=safe(b.source,100),consent=b.consent===true;
+   if(!/^\d{1,15}$/.test(customerCode)||!source||!["formulario","whatsapp","presencial","outro"].includes(source))
+     return send(res,400,{error:"Informe código válido e origem comprovável do consentimento"});
+   const ref=dbi.collection("patty_customers").doc("gendo-"+customerCode),old=await ref.get();
+   if(!old.exists)return send(res,404,{error:"Cliente não localizada"});
+   await ref.update({marketingOptIn:consent,consentSource:source,consentRecordedAt:stamp(),consentRecordedBy:staff.email});
+   return send(res,200,{ok:true,consent});
+  }
   if(action==="marketing_prepare"){
    const customerCode=safe(b.customerCode,40),phone=safe(b.phone,25).replace(/\D/g,""),customerName=safe(b.customerName,120),kind=safe(b.kind,30);
    const consent=b.marketingOptIn===true;
