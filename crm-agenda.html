@@ -98,7 +98,7 @@ async function api(url,opts={}){
  const r=await fetch(url,{...opts,headers:{Authorization:"Bearer "+await auth.currentUser.getIdToken(),...(opts.body?{"Content-Type":"application/json"}:{})}});
  const j=await r.json().catch(()=>({}));if(!r.ok){const e=Error(j.error||"Falha ao consultar.");e.status=r.status;throw e}return j;
 }
-function safeStatus(a){return ["agendado","confirmado","chegou","em_atendimento","finalizado","atendido","faltou","bloqueio","novo","em_contato"].includes(a)?a:"agendado"}
+function safeStatus(a){return ["solicitado","agendado","confirmado","chegou","em_atendimento","finalizado","atendido","faltou","bloqueio","novo","em_contato"].includes(a)?a:"agendado"}
 function fillCatalog(){
  $("professionalSuggestions").innerHTML=allPros.map(p=>'<option value="'+esc(p)+'"></option>').join("");
  $("serviceSuggestions").innerHTML=allServices.map(p=>'<option value="'+esc(p)+'"></option>').join("");
