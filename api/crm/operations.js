@@ -28,7 +28,7 @@ export default async function handler(req,res){
    }
    if(mode==="waitlist"){
     const date=safe(req.query?.date,10);
-    let q=wait.where("status","==","waiting").limit(101);
+    let q=wait.where("status","in",["waiting","offered"]).limit(101);
     const snap=await q.get();
     let items=snap.docs.slice(0,100).map(serial);
     if(dateOK(date))items=items.filter(x=>!x.date||x.date===date||x.flexible);
