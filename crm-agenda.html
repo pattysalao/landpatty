@@ -82,7 +82,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <option value="finalizado">Finalizado</option><option value="faltou">Faltou</option>
 <option value="cancelado">Cancelado</option>
 </select><p id="statusError" class="error" role="alert"></p>
-<div class="form-actions"><button id="saveStatus">Atualizar situação</button><a id="bookingWhatsApp" class="secondary hidden" rel="noopener noreferrer" target="_blank" style="border:1px solid #dbc7cd;border-radius:9px;padding:10px;color:#801a39;text-decoration:none">WhatsApp · Confirmar</a><button id="dismissStatus" class="secondary">Voltar</button></div>
+<label for="bookingMessageType">Mensagem pelo WhatsApp</label><select id="bookingMessageType"><option value="confirmar">Confirmar horário</option><option value="lembrete">Lembrete de agendamento</option><option value="chegada">Boas-vindas</option><option value="agradecer">Agradecer atendimento</option><option value="avaliar">Solicitar avaliação</option></select><p class="small muted">O WhatsApp abre uma mensagem pré-preenchida, sem envio automático. Mensagens promocionais exigem autorização.</p><div class="form-actions"><button id="saveStatus">Atualizar situação</button><a id="bookingWhatsApp" class="secondary hidden" rel="noopener noreferrer" target="_blank" style="border:1px solid #dbc7cd;border-radius:9px;padding:10px;color:#801a39;text-decoration:none">WhatsApp · Confirmar</a><button id="dismissStatus" class="secondary">Voltar</button></div>
 </section></div>
 <script type="module">
 import {initPattyAuth,showPattyAuthState,loadPattyPermissions} from "/patty-auth.js";
@@ -167,7 +167,7 @@ async function suggestWait(prof,time,date){
  }catch(_){$("waitSuggestions").classList.add("hidden");}
 }
 $("waitCandidates").addEventListener("click",e=>{const b=e.target.closest("[data-wait-candidate]");if(!b)return;const x=waitCandidates[Number(b.dataset.waitCandidate)];if(!x)return;
- selectedWaitId=x.id;$("customerName").value=x.clientName;$("customerPhone").value=x.phone||"";$("customerCode").value=x.customerCode||"";$("service").value=x.service;$("service").dispatchEvent(new Event("change"));"";
+ selectedWaitId=x.id;$("customerName").value=x.clientName;$("customerPhone").value=x.phone||"";$("customerCode").value=x.customerCode||"";$("service").value=x.service;$("service").dispatchEvent(new Event("change"));
  $("waitSuggestions").classList.add("hidden");$("customerSearchStatus").textContent="Cliente vinculada à fila de espera";
 });
 function openForm(prof="",time="",block=false){
@@ -247,7 +247,21 @@ $("calendar").addEventListener("click",e=>{
   $("statusTitle").textContent=x.recordType==="block"?"Bloqueio de horário":"Situação do atendimento";
   $("bookingInfo").textContent=x.professional+" · "+x.appointmentTime+" · "+x.name+" · "+x.service+(Number.isSafeInteger(x.priceCents)?" · "+money(x.priceCents):"");
    $("bookingWhatsApp").classList.toggle("hidden",!x.phone);
-   if(x.phone){const phone=x.phone.replace(/\D/g,"");const msg="Olá, "+x.name+"! ✨ Aqui é da Patty Centro de Beleza. Gostaríamos de confirmar seu atendimento de "+x.service+" no dia "+x.date+" às "+x.appointmentTime+". Podemos confirmar?";$("bookingWhatsApp").href="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);}
+   function bookingMessage(){
+ if(!editing?.phone)return;
+ const x=editing,name=x.name||"cliente",service=x.service||"serviço",date=x.date||$("date").value,time=x.appointmentTime||"horário combinado";
+ const messages={
+ confirmar:"Olá, "+name+"! ✨ Aqui é da Patty Centro de Beleza. Gostaríamos de confirmar seu atendimento de "+service+" no dia "+date+" às "+time+". Podemos confirmar?",
+ lembrete:"Olá, "+name+"! 💕 Passando para lembrar seu horário na Patty Centro de Beleza: "+date+" às "+time+". Esperamos você!",
+ chegada:"Oi, "+name+"! ✨ Seja muito bem-vinda à Patty! Nossa equipe está pronta para cuidar de você com carinho.",
+ agradecer:"Oi, "+name+"! 💕 Foi um prazer receber você na Patty. Obrigada pela confiança! Como está se sentindo depois do atendimento?",
+ avaliar:"Olá, "+name+"! ✨ Sua opinião é muito importante para a Patty. Se desejar, podemos compartilhar nosso link de avaliações. Obrigada por confiar no nosso trabalho!"
+ };
+ const phone=x.phone.replace(/\\D/g,""),msg=messages[$("bookingMessageType").value]||messages.confirmar;
+ $("bookingWhatsApp").href="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);
+}
+$("bookingMessageType").onchange=bookingMessage;
+bookingMessage();
   $("bookingStatus").innerHTML=x.recordType==="block"?'<option value="liberado">Liberar este horário</option>':
    '<option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="chegou">Cliente chegou</option><option value="em_atendimento">Em atendimento</option><option value="finalizado">Finalizado</option><option value="faltou">Faltou</option><option value="cancelado">Cancelado</option>';
   if(x.recordType!=="block")$("bookingStatus").value=x.status;
