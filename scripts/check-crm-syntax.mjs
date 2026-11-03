@@ -1,14 +1,14 @@
-import { readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { readdirSync, readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 
-for (const file of ["lib/firebase.js", "api/config.js", "api/leads.js", "api/crm/leads.js", "api/crm/insights.js"]) {
+for (const file of [...readdirSync("lib").filter(f=>f.endsWith(".js")).map(f=>"lib/"+f), "api/config.js", "api/leads.js", ...readdirSync("api/crm").filter(f=>f.endsWith(".js")).map(f=>"api/crm/"+f), "patty-auth.js", "patty-crm-ui.js"]) {
   execFileSync(process.execPath, ["--check", file], { stdio: "inherit" });
 }
 const tmp = mkdtempSync(join(tmpdir(), "patty-crm-"));
 try {
-  for (const file of ["index.html", "crm.html"]) {
+  for (const file of ["index.html", ...readdirSync(".").filter(f=>/^crm(?:-.*)?\.html$/.test(f))]) {
     const html = readFileSync(file, "utf8");
     const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
       .filter(m => !/type\s*=\s*["']application\/ld\+json/i.test(m[1]) && m[2].trim());
@@ -30,3 +30,4 @@ try {
   }
   console.log("Validação de sintaxe do MVP concluída");
 } finally { rmSync(tmp, { recursive: true, force: true }); }
+

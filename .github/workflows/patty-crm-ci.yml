@@ -10,9 +10,10 @@ on:
     paths:
       - "api/**"
       - "lib/**"
-      - "crm.html"
+      - "crm*.html"
+      - "patty-*.js"
       - "index.html"
-      - "scripts/check-crm-syntax.mjs"
+      - "scripts/*.mjs"
       - "package.json"
   workflow_dispatch:
 jobs:
@@ -26,3 +27,6 @@ jobs:
         with:
           node-version: "22"
       - run: node scripts/check-crm-syntax.mjs
+      - run: node scripts/test-crm-loading.mjs
+      - run: node scripts/test-gendo-archive.mjs
+

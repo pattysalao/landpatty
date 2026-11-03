@@ -67,11 +67,21 @@ function buildTabs(){let html='';for(const [key,def] of Object.entries(schemas))
  const first=$('tabs').querySelector('button');if(first){const key=location.hash.slice(1);setModule(schemas[key]&&(!schemas[key].manager||manager)?key:first.dataset.module);}
 }
 window.addEventListener('hashchange',()=>{const key=location.hash.slice(1);if(schemas[key]&&(!schemas[key].manager||manager)&&key!==module)setModule(key)});
-async function load(reset){if(reset){rows=[];cursor=null}
- $('listStatus').textContent='Carregando registros...';try{const r=await request('/api/crm/modulos?module='+encodeURIComponent(module)+(cursor?'&cursor='+encodeURIComponent(cursor):''));
- rows.push(...r.items);cursor=r.nextCursor;$('more').classList.toggle('hidden',!cursor);
- renderTable();$('listStatus').textContent=rows.length+' registros carregados'+(cursor?' — existem mais páginas':'')+'.';}
- catch(e){$('listStatus').textContent=e.message}}
+let moduleRequest=0;
+async function load(reset){
+ const requestId=++moduleRequest,requestedModule=module;
+ if(reset){rows=[];cursor=null;renderTable()}
+ $('more').disabled=true;
+ $('listStatus').textContent='Carregando registros...';
+ try{
+  const r=await request('/api/crm/modulos?module='+encodeURIComponent(requestedModule)+(cursor?'&cursor='+encodeURIComponent(cursor):''));
+  if(requestId!==moduleRequest||requestedModule!==module)return;
+  rows.push(...r.items);cursor=r.nextCursor;$('more').classList.toggle('hidden',!cursor);
+  renderTable();$('listStatus').textContent=rows.length+' registros carregados'+(cursor?' — existem mais páginas':'')+'.';
+ }catch(e){if(requestId===moduleRequest)$('listStatus').textContent=e.message}
+ finally{if(requestId===moduleRequest)$('more').disabled=false}
+}
+
 function renderTable(){const fields=schemas[module].fields;const columns=Object.keys(fields).slice(0,8);
  $('listHead').innerHTML='<tr>'+columns.map(k=>'<th>'+escape(fields[k][0])+'</th>').join('')+'<th>Ação</th></tr>';
  const q=$('filter').value.toLowerCase();const shown=rows.filter(x=>!q||columns.some(k=>String(x[k]??'').toLowerCase().includes(q)));
