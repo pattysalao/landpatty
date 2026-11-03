@@ -10,7 +10,7 @@ const minute=t=>Number(t.slice(0,2))*60+Number(t.slice(3,5));
 const shape=d=>{const x=d.data();return {id:d.id,recordType:x.recordType||"appointment",
   customerCode:x.customerCode||"",name:x.name||"",phone:x.phone||"",service:x.service||"",
   professional:x.professional||"",date:x.date||"",appointmentTime:x.appointmentTime||"",
-  durationMin:x.durationMin||60,status:x.status||"agendado",notes:x.notes||"",
+  durationMin:x.durationMin||60,priceCents:Number.isSafeInteger(x.priceCents)?x.priceCents:null,status:x.status||"agendado",notes:x.notes||"",
   source:x.source||"crm",createdAt:x.createdAt?.toDate?.()?.toISOString()||null};};
 const sendError=(res,e)=>{
  if(e?.status)return send(res,e.status,{error:e.message});
@@ -38,10 +38,13 @@ export default async function handler(req,res){
    const professional=str(b.professional,80),durationMin=Number(b.durationMin);
    const name=str(b.name,120),service=str(b.service,120),phone=str(b.phone,30).replace(/\D/g,"");
    const customerCode=str(b.customerCode,32),notes=str(b.notes,500);
+    const priceCents=b.priceCents===null||b.priceCents===undefined?null:Number(b.priceCents);
+    if(priceCents!==null&&(!Number.isSafeInteger(priceCents)||priceCents<0||priceCents>100000000))return send(res,400,{error:"Valor de serviço inválido"});
+    const allDay=recordType==="block"&&b.allDay===true;
    if(!dateValid(date)||!timeValid(appointmentTime)||professional.length<2||
-      !Number.isInteger(durationMin)||durationMin<15||durationMin>300||
-      minute(appointmentTime)<9*60||minute(appointmentTime)+durationMin>19*60)
-     return send(res,400,{error:"Confira profissional, data, horário entre 9h e 19h e duração (15–300 min)."});
+      !Number.isInteger(durationMin)||durationMin<15||durationMin>(allDay?1440:720)||
+      (allDay?(appointmentTime!=="00:00"||durationMin!==1440):minute(appointmentTime)+durationMin>1440))
+     return send(res,400,{error:"Confira profissional, data, horário (00h–24h) e duração válida."});
    if(recordType==="appointment"&&(name.length<2||service.length<2))
      return send(res,400,{error:"Informe o nome da cliente e o serviço."});
    if(phone&&(phone.length<10||phone.length>13))
@@ -66,7 +69,7 @@ export default async function handler(req,res){
     await coll.doc(key).create({recordType,name:recordType==="block"?"Horário bloqueado":name,
       service:recordType==="block"?"Bloqueio":service,professional,date,appointmentTime,durationMin,
       status:recordType==="block"?"bloqueio":"agendado",phone:recordType==="block"?"":phone,
-      customerCode:recordType==="block"?"":customerCode,notes,source:"crm",
+      customerCode:recordType==="block"?"":customerCode,notes,priceCents:recordType==="block"?null:priceCents,allDay,source:"crm",
       marketingOptIn:false,createdAt:now,updatedAt:now,createdBy:staff.email,
       history:[{at:new Date(),by:staff.email,status:recordType==="block"?"bloqueio":"agendado"}]});
    }catch(e){
