@@ -46,7 +46,7 @@ import {onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www
 const $=id=>document.getElementById(id);const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let auth,schemas={},module='',manager=false,rows=[],cursor=null,fileRecords=[],headers=[],mapping={},editing=null,readyPreview=false,lastReport=null;
 const money=v=>Number.isSafeInteger(v)?(v/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—';
-const moduleNotes={servicos:'Catálogo e preços. Use Código Gendo para identificar o serviço. Não há sincronização automática com a agenda atual.',profissionais:'Equipe e expediente. A liberação de login individual continua sendo feita pelo administrador do Firebase e pela allowlist do CRM.',atendimentos:'Histórico de atendimentos. A receita importada é histórica; não é uma conversão de mídia. Não substitui os agendamentos do Gendo.',financeiro_clientes:'Lançamentos e saldos por cliente. Podem conter débitos e créditos: não equivalem a receita realizada.',faturamento:'Faturamento/caixa histórico. Valores deste relatório podem corresponder a atendimentos; não some os dois módulos.',ticket_clientes:'Relatório histórico de ticket médio; os dados não são novos atendimentos nem conversões de anúncios.',comissoes:'Comissões e valores por profissional. São registros históricos, não liquidações ou pagamentos automáticos.',produtos:'Cadastro de produtos e saldo informado. Não há baixa automática de estoque quando um serviço é concluído.',estoque:'Movimentações históricas. Não alteram automaticamente o saldo no cadastro de produtos; conciliação deverá ser validada.'};
+const moduleNotes={historico_agenda:'Agenda histórica do Gendo, separada da agenda de trabalho. Situações preservadas; finalização não comprova pagamento. Consulte comandas e financeiro para valores.',servicos:'Catálogo e preços. Use Código Gendo para identificar o serviço. Não há sincronização automática com a agenda atual.',profissionais:'Equipe e expediente. A liberação de login individual continua sendo feita pelo administrador do Firebase e pela allowlist do CRM.',atendimentos:'Histórico de atendimentos. A receita importada é histórica; não é uma conversão de mídia. Não substitui os agendamentos do Gendo.',financeiro_clientes:'Lançamentos e saldos por cliente. Podem conter débitos e créditos: não equivalem a receita realizada.',faturamento:'Faturamento/caixa histórico. Valores deste relatório podem corresponder a atendimentos; não some os dois módulos.',ticket_clientes:'Relatório histórico de ticket médio; os dados não são novos atendimentos nem conversões de anúncios.',comissoes:'Comissões e valores por profissional. São registros históricos, não liquidações ou pagamentos automáticos.',produtos:'Cadastro de produtos e saldo informado. Não há baixa automática de estoque quando um serviço é concluído.',estoque:'Movimentações históricas. Não alteram automaticamente o saldo no cadastro de produtos; conciliação deverá ser validada.'};
 async function request(url,opts={}){
  const user=auth?.currentUser;if(!user?.emailVerified)throw Error('É necessário entrar com e-mail confirmado.');
  const response=await fetch(url,{...opts,headers:{Authorization:'Bearer '+await user.getIdToken(),...(opts.body?{'Content-Type':'application/json'}:{})}});
@@ -56,7 +56,7 @@ function cellDisplay(value,type){return value==null||value===''?'—':type==='mo
 function fieldDef(key){return schemas[module].fields[key]}
 function setModule(name){if(!schemas[name])return;module=name;if(location.hash.slice(1)!==name){history.replaceState(null,'','#'+name);window.dispatchEvent(new Event('hashchange'));}rows=[];cursor=null;fileRecords=[];headers=[];mapping={};readyPreview=false;
  $('file').value='';$('csvText').value='';$('confirmImport').checked=false;$('mapSection').classList.add('hidden');$('preview').disabled=true;$('import').disabled=true;$('importProgress').classList.add('hidden');$('importErrors').classList.add('hidden');
- $('moduleTitle').textContent=schemas[module].label;$('moduleNote').textContent=moduleNotes[module]||'';
+ $('new').classList.toggle('hidden',module==='historico_agenda');$('moduleTitle').textContent=schemas[module].label;$('moduleNote').textContent=moduleNotes[module]||'';
  $('tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('selected',b.dataset.module===name));
  const hidden=schemas[module].manager&&!manager;$('managerTools').classList.toggle('hidden',!manager||hidden);
  $('reports').classList.toggle('hidden',!manager);$('status').textContent=hidden?'Acesso gerencial necessário.':'Dados carregados com autenticação.';
@@ -78,7 +78,7 @@ function renderTable(){const fields=schemas[module].fields;const columns=Object.
  $('listHead').innerHTML='<tr>'+columns.map(k=>'<th>'+escape(fields[k][0])+'</th>').join('')+'<th>Ação</th></tr>';
  const q=$('filter').value.toLowerCase();const shown=rows.filter(x=>!q||columns.some(k=>String(x[k]??'').toLowerCase().includes(q)));
  $('listBody').innerHTML=shown.map(x=>'<tr>'+columns.map(k=>'<td>'+escape(cellDisplay(x[k],fields[k][1]))+'</td>').join('')+
- '<td>'+(manager?'<button class="secondary" data-edit="'+escape(x.id)+'">Editar</button>':'—')+'</td></tr>').join('');
+ '<td>'+(manager&&module!=='historico_agenda'?'<button class="secondary" data-edit="'+escape(x.id)+'">Editar</button>':'—')+'</td></tr>').join('');
  $('listBody').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>edit(rows.find(x=>x.id===b.dataset.edit)));
 }
 // CSV parser compatível com ponto e vírgula, vírgula, TAB, aspas escapadas e quebras de linha dentro de células.
@@ -145,10 +145,10 @@ $('file').onchange=async()=>{resetImport();
 function showImportErrors(errors){const box=$('importErrors');box.classList.toggle('hidden',!errors?.length);box.textContent='';if(errors?.length){const title=document.createElement('strong');title.textContent='Registros que precisam de revisão';box.append(title);const list=document.createElement('ul');errors.forEach(x=>{const li=document.createElement('li');li.textContent='Linha '+x.row+': '+x.reason;list.append(li)});box.append(list)}}
 function summaryBox(t){$('previewStats').innerHTML=[['Registros',t.received],['Válidos',t.valid],['Existentes',t.existing],['Novos',t.created]].map(([label,n])=>'<div class="stat"><b>'+escape(n||0)+'</b><span>'+label+'</span></div>').join('')}
 async function runImport(action){const records=csvToRecords(),total={received:0,valid:0,invalid:0,duplicatesFile:0,existing:0,created:0,errors:[]};const progress=$('importProgress');progress.value=0;progress.classList.remove('hidden');showImportErrors([]);
- for(let i=0;i<records.length;i+=50){const r=await request('/api/crm/modulos?module='+encodeURIComponent(module),{method:'POST',body:JSON.stringify({action,records:records.slice(i,i+50)})});
+ const batchSize=module==='historico_agenda'?500:50;for(let i=0;i<records.length;i+=batchSize){const r=await request('/api/crm/modulos?module='+encodeURIComponent(module),{method:'POST',body:JSON.stringify({action,records:records.slice(i,i+batchSize)})});
   for(const k of ['received','valid','invalid','duplicatesFile','existing','created'])total[k]+=r[k]||0;
   if(r.errors?.length&&total.errors.length<10)total.errors.push(...r.errors.slice(0,10-total.errors.length));
-  $('status').textContent=(action==='preview'?'Conferindo':'Importando')+' '+Math.min(i+50,records.length)+'/'+records.length;progress.value=Math.round(100*Math.min(i+50,records.length)/records.length);
+  $('status').textContent=(action==='preview'?'Conferindo':'Importando')+' '+Math.min(i+batchSize,records.length)+'/'+records.length;progress.value=Math.round(100*Math.min(i+batchSize,records.length)/records.length);
  }summaryBox(total);showImportErrors(total.errors);return total}
 $('preview').onclick=async()=>{$('preview').disabled=true;$('import').disabled=true;
  try{const t=await runImport('preview');readyPreview=true;$('import').disabled=!t.created;
@@ -180,7 +180,7 @@ async function report(){if(!manager||!module)return;
  $('reportStatus').textContent='Calculando relatório...';try{const d=await request('/api/crm/modulos?module='+encodeURIComponent(module)+'&mode=report&period='+$('period').value);lastReport=d;
  $('reportStats').innerHTML=[['Registros',d.records],['Total do módulo',money(d.totalCents)],['Com valor',d.withAmount],['Média dos valores',money(d.averageCents)]].map(([label,val])=>'<div class="stat"><b>'+escape(val)+'</b><span>'+label+'</span></div>').join('');
  $('reportRows').innerHTML=d.groups.map(x=>'<tr><td>'+escape(x.label)+'</td><td>'+escape(x.count)+'</td><td>'+escape(money(x.totalCents))+'</td></tr>').join('');
- $('reportStatus').textContent=(d.partial?'Relatório parcial: mais de 1.000 registros no período. ':'')+d.warning;
+ $('reportStatus').textContent=(d.archiveTotal!==undefined?'Total histórico importado: '+d.archiveTotal+'. ':'')+(d.partial?'Relatório parcial: mais de 1.000 registros no período. ':'')+d.warning;
  }catch(e){$('reportStatus').textContent=e.message}}
 $('loadReport').onclick=report;$('period').onchange=report;$('refresh').onclick=()=>load(true);$('more').onclick=()=>load(false);$('filter').oninput=renderTable;
 $('export').onclick=()=>{const cols=Object.keys(schemas[module].fields);const header=cols.map(k=>schemas[module].fields[k][0]);const csv=[header,...rows.map(x=>cols.map(k=>String(x[k]??'')))].map(r=>r.map(v=>'"'+(/^\s*[=+@]/.test(v)?'\''+v:v).replace(/"/g,'""')+'"').join(';')).join('\r\n');

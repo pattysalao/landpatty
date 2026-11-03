@@ -1,8 +1,10 @@
+import {handleAgendaArchive} from '../../lib/gendo-agenda-archive.js';
 import { createHash } from 'node:crypto';
 import { db, firebaseAdmin, requireStaff, send } from '../../lib/firebase.js';
 
 // Histórico Gendo é separado dos leads e do faturamento novo da Patty.
 const S = {
+  historico_agenda:{label:'Histórico da agenda Gendo',manager:true,fields:{sourceId:['Código do agendamento','text',true],date:['Data','date',true],customerCode:['Código cliente','text'],customerName:['Cliente','text'],professional:['Profissional','text'],service:['Serviço','text',true],appointmentTime:['Horário','text'],status:['Situação Gendo','text',true],notes:['Observações','text']}},
   servicos: { label:'Serviços e preços',fields:{
     code:['Código Gendo','text'],name:['Serviço','text',true],category:['Categoria','text'],
     priceCents:['Preço (R$)','money'],durationMin:['Duração (min)','int'],active:['Ativo','bool'],
@@ -95,6 +97,7 @@ export default async function handler(req,res){
     const {staff,isManager}=await authenticated(req,module);
     if(req.method==='GET'&&!module)return send(res,200,{modules:publicSchema(),isManager});
     if(!module)return send(res,400,{error:'Escolha um módulo'});
+    if(module==='historico_agenda')return await handleAgendaArchive(req,res,{db,admin:firebaseAdmin,send,staff,clean,schema:S[module]});
     const coll=collection(module);
     if(req.method==='GET'){
       const mode=get(req.query?.mode,20)||'list';

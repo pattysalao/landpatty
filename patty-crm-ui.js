@@ -21,7 +21,7 @@ const icons={
 };
 const svg=(name)=>'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+(icons[name]||icons.dashboard)+'</svg>';
 const groups=[
- {title:"Visão geral",items:[["Painel de leads","/crm.html","dashboard"],["Agenda","/crm-agenda.html","calendar"],["Clientes e histórico","/crm-clientes.html","users"]]},
+ {title:"Visão geral",items:[["Painel de leads","/crm.html","dashboard"],["Agenda","/crm-agenda.html","calendar"],["Histórico Gendo","/crm-modulos.html#historico_agenda","calendar"],["Clientes e histórico","/crm-clientes.html","users"]]},
  {title:"Operação",items:[["Serviços e preços","/crm-modulos.html#servicos","scissors"],["Profissionais","/crm-modulos.html#profissionais","badge"],["Atendimentos","/crm-modulos.html#atendimentos","check"],["Produtos","/crm-modulos.html#produtos","box"],["Estoque","/crm-modulos.html#estoque","layers"]]},
  {title:"Financeiro",items:[["Por cliente","/crm-modulos.html#financeiro_clientes","wallet"],["Faturamento","/crm-modulos.html#faturamento","chart"],["Ticket médio","/crm-modulos.html#ticket_clientes","coins"],["Comissões","/crm-modulos.html#comissoes","percent"]]}
 ];

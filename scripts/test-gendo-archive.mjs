@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {handleAgendaArchive,prepareAgendaRows,archiveBucket} from '../lib/gendo-agenda-archive.js';
+const clean=x=>({item:{...x}}),schema={},staff={email:'admin@example.test'};
+const memory=new Map();let writes=0;
+const doc=id=>({id});
+const snapshot=ref=>({exists:memory.has(ref.id),data:()=>structuredClone(memory.get(ref.id))});
+const database={collection:()=>({doc}),getAll:async(...refs)=>refs.map(snapshot),
+ runTransaction:async fn=>{const staged=[];const result=await fn({getAll:async(...refs)=>refs.map(snapshot),set:(ref,data)=>staged.push([ref.id,structuredClone(data)])});for(const [id,data]of staged){memory.set(id,data);writes++}return result}};
+const admin=()=>({firestore:{FieldValue:{serverTimestamp:()=>12345}}});
+const send=(_res,status,body)=>({status,body});
+const run=(action,records)=>handleAgendaArchive({method:'POST',headers:{},query:{},body:{action,records}},null,{db:()=>database,admin,send,staff,clean,schema});
+const rows=Array.from({length:500},(_,i)=>({sourceId:String(i+1000),date:'2026-10-01',service:'Corte',status:'Finalizados'}));
+let r=await run('preview',rows);assert.equal(r.body.created,500);assert.equal(writes,0);
+r=await run('import',rows);assert.equal(r.body.created,500);assert.equal(writes,1);assert.equal(memory.get('b-2').count,500);
+r=await run('import',rows.map(x=>({...x,service:'Alterado'})));assert.equal(r.body.existing,500);assert.equal(writes,1);assert.equal(memory.get('b-2').entries['1000'].service,'Corte');
+r=await run('import',[rows[0],{sourceId:'1500',date:'2026-10-01',service:'Corte',status:'Finalizados'}]);assert.equal(r.body.created,1);assert.equal(r.body.existing,1);assert.equal(writes,2);assert.equal(memory.get('b-3').count,1);
+const p=prepareAgendaRows([{sourceId:'0007'}, {sourceId:'7'}, {sourceId:'bad'}],clean,schema);assert.equal(p.invalid,1);assert.equal(p.duplicatesFile,1);assert.equal(archiveBucket('1500'),3);
+r=await run('import',Array(501).fill(rows[0]));assert.equal(r.status,400);
+r=await handleAgendaArchive({method:'PATCH',headers:{},query:{}},null,{db:()=>database,admin,send,staff,clean,schema});assert.equal(r.status,405);
+console.log('Archive validation passed: 501 records stored in 2 documents; reimport preserves values and performs no writes.');
