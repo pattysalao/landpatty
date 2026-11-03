@@ -23,7 +23,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 .appt strong{font-weight:780}.agendado{background:#e2eeff!important;color:#214f83!important}.confirmado{background:#d9e1ff!important;color:#293c88!important}
 .chegou,.em_atendimento{background:#ffe5cb!important;color:#864617!important}.finalizado,.atendido{background:#d5f1db!important;color:#18583d!important}
 .faltou{background:#e5e7ea!important;color:#575a66!important}.bloqueio{background:#e5e2e5!important;color:#5c5361!important}
-.novo,.em_contato{background:#ffefc4!important;color:#795618!important}
+.novo,.em_contato,.solicitado{background:#ffefc4!important;color:#795618!important}
 .legend{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.legend span{border-radius:7px;font-size:11px;padding:6px 8px}
 .modal-backdrop{position:fixed;z-index:120;inset:0;background:#25141cb3;display:flex;justify-content:center;align-items:center;padding:12px}
 .modal{background:#fff;border-radius:16px;max-width:570px;width:100%;max-height:92dvh;overflow:auto;padding:22px;box-shadow:0 18px 45px #25141c35}
@@ -48,7 +48,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <p class="note"><strong>Uso paralelo:</strong> a agenda do CRM não está sincronizada com o Gendo. Não substitua a agenda oficial até validar profissionais, serviços e todos os horários. Não há disparo automático de WhatsApp.</p>
 <div class="row"><button id="prev" class="secondary">‹ Anterior</button><input id="date" type="date" aria-label="Dia da agenda"><button id="next" class="secondary">Próximo ›</button><button id="today" class="secondary">Hoje</button><button id="refresh" class="secondary">Atualizar</button><button id="logout" class="secondary">Sair</button></div>
 <p id="status" class="muted" role="status"></p><div class="scroller"><div id="calendar"></div></div>
-<div class="legend"><span class="agendado">Agendado</span><span class="confirmado">Confirmado</span><span class="chegou">Cliente chegou</span><span class="finalizado">Finalizado</span><span class="faltou">Faltou</span><span class="bloqueio">Bloqueio</span></div>
+<div class="legend"><span class="solicitado">Solicitado (não confirmado)</span><span class="agendado">Agendado</span><span class="confirmado">Confirmado</span><span class="chegou">Cliente chegou</span><span class="finalizado">Finalizado</span><span class="faltou">Faltou</span><span class="bloqueio">Bloqueio</span></div>
 <p id="catalogNotice" class="muted small"></p>
 </div>
 </section>
@@ -124,7 +124,7 @@ function show(){
   h+='<div class="hour">'+hr+':00</div>';
   for(const p of professionals){
    const selected=hourSlot(p,hr);
-   h+='<div class="cell"><button class="slot" type="button" data-new-prof="'+esc(p)+'" data-new-time="'+hr+':00" aria-label="Agendar '+esc(p)+' às '+hr+' horas">+ Agendar</button>';
+   h+='<div class="cell">'+(p==="Pedidos de horário"?'':'<button class="slot" type="button" data-new-prof="'+esc(p)+'" data-new-time="'+hr+':00" aria-label="Agendar '+esc(p)+' às '+hr+' horas">+ Agendar</button>');
    h+=selected.map(x=>{
     const cls=safeStatus(x.status);
     return '<button class="appt '+cls+'" type="button" data-appointment-id="'+esc(x.id)+'"><strong>'+esc(x.appointmentTime||"Sem horário")+' · '+esc(x.name)+'</strong><div>'+esc(x.service)+' · '+esc(x.durationMin||60)+' min</div><small>'+esc(x.status==="chegou"?"Cliente chegou":x.status.replace("_"," "))+'</small></button>';
@@ -186,7 +186,9 @@ $("calendar").addEventListener("click",e=>{
  if(card){
   const x=rows.find(a=>a.id===card.dataset.appointmentId);
   if(!x)return;
-  if(x.source==="leads"){$("status").textContent="Agendamento do funil de leads. Abra e atualize o contato no Painel de leads.";return}
+  if(x.source==="leads"){$("status").textContent=x.recordType==="booking_request"?
+  "Pedido de horário ainda não confirmado. Abra o contato no Painel de leads e confirme primeiro no Gendo.":
+  "Agendamento do funil de leads. Abra o contato no Painel de leads para atualizar.";return}
   editing=x;
   $("statusTitle").textContent=x.recordType==="block"?"Bloqueio de horário":"Situação do atendimento";
   $("bookingInfo").textContent=x.professional+" · "+x.appointmentTime+" · "+x.name+" · "+x.service;
