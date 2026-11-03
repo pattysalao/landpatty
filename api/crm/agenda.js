@@ -7,9 +7,10 @@ export default async function handler(req,res){
     const date=String(req.query?.date||"");
     if(!validDate(date))return send(res,400,{error:"Informe uma data válida"});
     // Consultar somente o dia selecionado: evita carregar a base histórica toda.
-    const [leads,appointments]=await Promise.all([
+    const [leads,appointments,requests]=await Promise.all([
       db().collection("patty_leads").where("appointmentDate","==",date).limit(251).get(),
-      db().collection("patty_appointments").where("date","==",date).limit(251).get()
+      db().collection("patty_appointments").where("date","==",date).limit(251).get(),
+      db().collection("patty_leads").where("requestedDate","==",date).limit(251).get()
     ]);
     const legacy=leads.docs.slice(0,250).map(d=>{
       const v=d.data();
@@ -25,8 +26,16 @@ export default async function handler(req,res){
         durationMin:v.durationMin||60,status:v.status||"agendado",
         recordType:v.recordType||"appointment",source:"crm",notes:v.notes||""};
     }).filter(v=>v.status!=="cancelado");
-    const rows=legacy.concat(current).sort((a,b)=>(a.appointmentTime||"").localeCompare(b.appointmentTime||""));
-    return send(res,200,{date,appointments:rows,partial:leads.size>250||appointments.size>250,
+    const pendingRequests=requests.docs.slice(0,250).map(d=>{
+      const v=d.data();
+      return {id:d.id,name:v.name||"",service:v.service||"A definir",
+        professional:"Pedidos de horário",appointmentTime:v.requestedTime||"",
+        durationMin:60,status:"solicitado",recordType:"booking_request",
+        source:"leads",isTest:v.isTest===true};
+    }).filter(v=>!v.isTest&&v.bookingRequestStatus==="pendente"&&
+      !["agendado","atendido","perdido"].includes(v.status));
+    const rows=legacy.concat(current,pendingRequests).sort((a,b)=>(a.appointmentTime||"").localeCompare(b.appointmentTime||""));
+    return send(res,200,{date,appointments:rows,partial:leads.size>250||appointments.size>250||requests.size>250,
       disclaimer:"Agenda piloto do CRM. Agendamentos do Gendo ainda não são sincronizados."});
   }catch(e){
     if(e.status)return send(res,e.status,{error:e.message});
