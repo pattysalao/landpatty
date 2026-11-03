@@ -44,15 +44,13 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:9px;borde
 <div class="row"><button id="prevPage" class="secondary" disabled>Anterior</button><strong id="pageLabel">Página 1</strong><button id="more" class="secondary" disabled>Próxima</button><button id="logout" class="secondary">Sair</button></div></div>
 </section></main>
 <script type="module">
-import { initPattyAuth, showPattyAuthState, loadPattyPermissions } from "/patty-auth.js";
+import { initPattyAuth, showPattyAuthState, loadPattyPermissions, pattyCRMRequest } from "/patty-auth.js";
 import {signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $=x=>document.getElementById(x);let auth,customers=[],cursor=null,records=[],previewed=false,currentPage=0,pageCursors=[null],expected=11681;
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const currency=v=>Number.isSafeInteger(v)?(v/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"Não informado";
 async function req(url,opts={}){
- const user=auth?.currentUser;if(!user||!user.emailVerified)throw Error("Entre com um e-mail verificado.");
- const response=await fetch(url,{...opts,headers:{"Authorization":"Bearer "+await user.getIdToken(),...(opts.body?{"Content-Type":"application/json"}:{})}});
- const json=await response.json().catch(()=>({}));if(!response.ok){const error=new Error(json.error||"Falha na solicitação");error.status=response.status;throw error}return json;
+ return pattyCRMRequest(auth,url,opts);
 }
 function csvRows(text){
  let rows=[],row=[],cell="",quoted=false;
@@ -183,7 +181,7 @@ $("login-form").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailA
   const ok=!!user?.emailVerified;
   $("login").classList.toggle("hidden",ok);
   $("app").classList.toggle("hidden",!ok);
-  if(ok){const access=await loadPattyPermissions(auth);if(access.manager)await load(true);else $("list-message").textContent="Importação e dados históricos exigem permissão da administração."}
+  if(ok){const access=await loadPattyPermissions(auth);if(access.manager)await load(true);else $("list-message").textContent=access.status===403?"Acesso a dados históricos restrito à administração.":access.status===0?"Não foi possível verificar as permissões. Confira sua conexão e atualize a página.":"Importação e dados históricos exigem permissão da administração."}
  });
  }catch(e){$("auth-loading").classList.add("hidden");$("login").classList.remove("hidden");$("login-error").textContent=e.message}
 })();
