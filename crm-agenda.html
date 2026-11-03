@@ -43,7 +43,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <div class="card">
 <div class="row" style="justify-content:space-between;align-items:center">
 <div><h1>Agenda da equipe</h1><p class="muted" style="margin:0">Agendamentos por profissional, dia e situação</p></div>
-<div class="row"><button type="button" id="new" class="primary">+ Novo agendamento</button><button type="button" id="block" class="secondary">Bloquear horário</button></div>
+<div class="row"><button type="button" id="new" class="primary">+ Novo agendamento</button><button type="button" id="block" class="secondary">⛔ Bloquear agenda</button><a href="/crm-retencao.html" class="secondary" style="padding:10px;border:1px solid #dbc7cd;border-radius:9px;color:#801a39;text-decoration:none">Fila de espera · Retenção · Empresa</a></div>
 </div>
 <p class="note"><strong>Uso paralelo:</strong> a agenda do CRM não está sincronizada com o Gendo. Não substitua a agenda oficial até validar profissionais, serviços e todos os horários. Não há disparo automático de WhatsApp.</p>
 <div class="row"><button id="prev" class="secondary">‹ Anterior</button><input id="date" type="date" aria-label="Dia da agenda"><button id="next" class="secondary">Próximo ›</button><button id="today" class="secondary">Hoje</button><button id="refresh" class="secondary">Atualizar</button><button id="logout" class="secondary">Sair</button></div>
@@ -58,23 +58,23 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <div class="row" style="justify-content:space-between"><h2 id="formTitle">Novo agendamento</h2><button class="secondary" id="close" type="button">Fechar</button></div>
 <form id="bookingForm">
 <div class="fields">
-<label class="full" id="nameLabel">Nome da cliente *<input id="customerName" required maxlength="120" autocomplete="name"></label>
+<label class="full" id="nameLabel">Nome da cliente *<span style="position:relative;display:block"><input id="customerName" required maxlength="120" autocomplete="off" placeholder="Digite o nome para pesquisar"><span id="clientResults" class="hidden" style="position:absolute;top:100%;left:0;right:0;z-index:20;max-height:220px;overflow:auto;background:white;border:1px solid #e0ccd3;box-shadow:0 10px 30px #3514202b;border-radius:8px"></span></span><small id="customerSearchStatus" class="muted" aria-live="polite"></small></label>
 <label id="phoneLabel">Telefone (opcional)<input id="customerPhone" type="tel" inputmode="tel" maxlength="30"></label>
 <label id="codeLabel">Código Gendo (opcional)<input id="customerCode" maxlength="32" inputmode="numeric"><button id="findCustomer" class="secondary" type="button" style="margin-top:7px">Localizar cliente</button></label>
-<label class="full" id="serviceLabel">Serviço *<input id="service" list="serviceSuggestions" maxlength="120" required></label>
+<label class="full" id="serviceLabel">Serviço *<select id="service" required><option value="">Selecione um serviço</option></select><button class="secondary" id="createService" type="button" style="margin-top:7px">+ Criar serviço</button></label><label id="priceLabel">Preço desta cliente (R$)<input id="servicePrice" inputmode="decimal" placeholder="Preço personalizado"></label>
 <datalist id="serviceSuggestions"></datalist>
 <label>Profissional *<input id="professional" list="professionalSuggestions" maxlength="80" required></label>
 <datalist id="professionalSuggestions"></datalist>
 <label>Data *<input id="bookingDate" type="date" required></label>
-<label>Hora *<input id="bookingTime" type="time" min="09:00" max="18:45" step="900" required></label>
+<label>Hora *<input id="bookingTime" type="time" min="00:00" max="23:59" step="300" required></label><label class="full hidden" id="allDayLabel"><input id="allDay" type="checkbox" style="width:auto"> Bloquear o dia inteiro</label>
 <label>Duração *<select id="duration"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60" selected>1 hora</option><option value="90">1h30</option><option value="120">2 horas</option><option value="180">3 horas</option></select></label>
 <label class="full">Observação<input id="notes" maxlength="500" placeholder="Detalhe do agendamento ou motivo do bloqueio"></label>
 </div>
-<p class="muted small">Horário de referência: 9h às 19h. A confirmação depende da disponibilidade no CRM e não consulta o Gendo.</p>
+<p class="muted small">Horários configuráveis das 00h às 24h. O CRM ainda não consulta a disponibilidade do Gendo.</p>
 <p id="bookingError" class="error" role="alert"></p>
 <div class="form-actions"><button id="save" type="submit">Salvar agendamento</button><button id="cancel" type="button" class="secondary">Cancelar</button></div>
 </form></section></div>
-<div id="statusBackdrop" class="modal-backdrop hidden" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
+<div id="serviceBackdrop" class="modal-backdrop hidden"><section class="modal" role="dialog" aria-modal="true" aria-label="Novo serviço"><div class="row" style="justify-content:space-between"><h2>+ Criar serviço</h2><button id="closeService" class="secondary" type="button">Fechar</button></div><form id="serviceForm"><div class="fields"><label class="full">Nome *<input id="newServiceName" maxlength="120" required></label><label>Preço padrão (R$)<input id="newServicePrice" inputmode="decimal" placeholder="120,00"></label><label>Duração (minutos)<input id="newServiceDuration" type="number" min="15" max="720" value="60" required></label><label>Categoria<input id="newServiceCategory" maxlength="80"></label><label class="full">Descrição<input id="newServiceDescription" maxlength="250"></label></div><p class="muted small">Necessário acesso administrativo para criar serviços.</p><p id="serviceError" class="error" role="alert"></p><div class="form-actions"><button type="submit">Salvar serviço</button></div></form></section></div><div id="statusBackdrop" class="modal-backdrop hidden" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
 <div class="row" style="justify-content:space-between"><h2 id="statusTitle">Situação do agendamento</h2><button id="closeStatus" type="button" class="secondary">Fechar</button></div>
 <p id="bookingInfo" class="muted"></p><label for="bookingStatus">Situação</label><select id="bookingStatus">
 <option value="agendado">Agendado</option><option value="confirmado">Confirmado</option>
@@ -82,7 +82,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <option value="finalizado">Finalizado</option><option value="faltou">Faltou</option>
 <option value="cancelado">Cancelado</option>
 </select><p id="statusError" class="error" role="alert"></p>
-<div class="form-actions"><button id="saveStatus">Atualizar situação</button><button id="dismissStatus" class="secondary">Voltar</button></div>
+<div class="form-actions"><button id="saveStatus">Atualizar situação</button><a id="bookingWhatsApp" class="secondary hidden" rel="noopener noreferrer" target="_blank" style="border:1px solid #dbc7cd;border-radius:9px;padding:10px;color:#801a39;text-decoration:none">WhatsApp · Confirmar</a><button id="dismissStatus" class="secondary">Voltar</button></div>
 </section></div>
 <script type="module">
 import {initPattyAuth,showPattyAuthState,loadPattyPermissions} from "/patty-auth.js";
@@ -91,7 +91,9 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const starterPros=["Patty","Benedita","Deimy","Allegra","Héllen","Chele","Maira","Vaneza","Vanya"];
 const starterServices=["Cabelos e Cachos","Corte","Coloração","Mechas","Nail Design","Manicure","Pedicure","Sobrancelhas","Depilação","Cílios","Massoterapia"];
-let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],editing=null,isBlock=false,serviceDurations={};
+let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],editing=null,isBlock=false,serviceDurations={},servicePrices={},companySettings={openHour:9,closeHour:19},customerTimer=null,customerRequest=0;
+ const money=c=>Number.isSafeInteger(c)?(c/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"Preço sob consulta";
+ const cents=t=>{const v=String(t||"").trim().replace(/[^\d,.]/g,"");if(!v)return null;const n=Number(v.includes(",")?v.replace(/\./g,"").replace(",","."):v);return Number.isFinite(n)&&n>=0&&n<=1000000?Math.round(n*100):null};
 function today(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const v=k=>p.find(x=>x.type===k)?.value;return v("year")+"-"+v("month")+"-"+v("day")}
 async function api(url,opts={}){
  if(!auth?.currentUser?.emailVerified)throw Error("Entre com sua conta autorizada.");
