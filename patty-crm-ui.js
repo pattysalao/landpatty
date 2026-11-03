@@ -26,7 +26,41 @@ const groups=[
  {title:"Financeiro",items:[["Por cliente","/crm-modulos.html#financeiro_clientes","wallet"],["Faturamento","/crm-modulos.html#faturamento","chart"],["Ticket médio","/crm-modulos.html#ticket_clientes","coins"],["Comissões","/crm-modulos.html#comissoes","percent"]]}
 ];
 const pageTitles={"/crm.html":"Painel de leads","/crm-agenda.html":"Agenda da equipe","/crm-clientes.html":"Clientes e histórico","/crm-modulos.html":"Gestão do salão"};
+function installAuthWatchdog(){
+ const loading=document.getElementById("auth-loading")||document.getElementById("authloading");
+ if(!loading)return;
+ const isPending=()=>!loading.hidden&&!loading.classList.contains("hidden");
+ let timer=null;
+ const observer=new MutationObserver(()=>{
+   if(!isPending()){clearTimeout(timer);observer.disconnect();}
+ });
+ observer.observe(loading,{attributes:true,attributeFilter:["class","hidden"]});
+ timer=setTimeout(()=>{
+   if(!isPending())return;
+   loading.setAttribute("aria-live","polite");
+   loading.setAttribute("aria-busy","false");
+   const title=document.createElement("strong");
+   title.textContent="A conexão está demorando mais que o normal";
+   title.style.cssText="display:block;font-size:16px;margin:8px 0";
+   const message=document.createElement("p");
+   message.textContent="Seu acesso continua protegido. Se a conexão não voltar, tente novamente. Nenhum agendamento será alterado.";
+   message.style.cssText="font-size:13px;color:#6b5d62;margin:8px 0 12px";
+   const actions=document.createElement("div");
+   actions.style.cssText="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:9px";
+   const retry=document.createElement("button");
+   retry.type="button";retry.textContent="Tentar novamente";
+   retry.style.cssText="background:#801a39;color:white;border:0;border-radius:9px;padding:9px 14px;cursor:pointer";
+   retry.addEventListener("click",()=>window.location.reload());
+   const help=document.createElement("a");
+   help.href="/crm.html";help.textContent="Ir ao painel de leads";
+   help.style.cssText="font-size:13px;color:#801a39;padding:9px";
+   actions.append(retry,help);
+   loading.append(document.createElement("hr"),title,message,actions);
+ },9000);
+}
+
 function launch(){
+ installAuthWatchdog();
  const legacy=document.body.querySelector("body > header")||document.body.querySelector("header");
  const main=document.querySelector("body > main");
  if(!legacy||!main||document.querySelector(".patty-shell"))return;
