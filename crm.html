@@ -89,7 +89,7 @@ a{color:var(--wine)}.footnote{margin:10px 0;font-size:12px;color:var(--muted)}
 </div>
 <p id="insights-notice" class="muted" role="status">Carregando indicadores...</p>
 <div class="insights-grid" id="insights-cards"></div>
-<div class="insights-tables">
+<h3 style="margin:14px 0 7px">Retenção e recuperação de clientes</h3><div class="insights-grid" id="recovery-cards"></div><p class="smallnote"><a href="/crm-retencao.html">Abrir clientes sumidos, fila de espera e campanhas</a> · Recuperação contabilizada somente após confirmação manual.</p><div class="insights-tables">
  <div><h3>Por serviço</h3><div id="insights-services" class="insights-list"></div></div>
  <div><h3>Por origem</h3><div id="insights-channels" class="insights-list"></div></div>
 </div>
@@ -255,6 +255,13 @@ async function refreshInsights() {
       insightMetric("Retornos pendentes",result.dueFollowUps || 0,
         "Leads abertos com retorno previsto para hoje ou antes")
     ].join("");
+    try{const recovery=await request("/api/crm/operations?mode=recovery&days="+days);
+      $("recovery-cards").innerHTML=[
+       insightMetric("Contatos preparados",recovery.contactsPrepared,"Não equivale a envio"),
+       insightMetric("Clientes recuperadas",recovery.clientsRecovered,"Retorno confirmado"),
+       insightMetric("Receita recuperada",currency(recovery.realizedRevenueCents),"Valor realizado confirmado")
+      ].join("");
+    }catch(err){$("recovery-cards").textContent="Métricas de recuperação indisponíveis: "+err.message;}
     $("insights-services").innerHTML=insightTable(result.byService,"Serviço");
     $("insights-channels").innerHTML=insightTable(result.byChannel,"Origem");
     $("insights-loss").innerHTML=result.lossReasons?.length
