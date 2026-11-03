@@ -2,7 +2,7 @@ import { createHmac } from "node:crypto";
 import { db, firebaseAdmin, send } from "../lib/firebase.js";
 
 const services = new Set([
-  "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
+  "A definir", "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
   "Estética", "Cílios", "Maquiagem", "Depilação", "Massoterapia e Terapias"
 ]);
 
@@ -66,7 +66,7 @@ export default async function handler(req, res) {
     const phone = onlyString(body.phone, 24).replace(/\D/g, "");
     const service = onlyString(body.service, 100);
     const reference = onlyString(body.reference, 30);
-    const source = body.source === "botao_servico" ? "botao_servico" : "formulario_site";
+    const source = ["botao_servico","botao_geral"].includes(body.source) ? body.source : "formulario_site";
     // Preferência solicitada no site. NÃO equivale a horário confirmado na agenda.
     const requestedDate=onlyString(body.requestedDate,10);
     const requestedTime=onlyString(body.requestedTime,5);
