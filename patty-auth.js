@@ -71,6 +71,44 @@ export async function initPattyAuth() {
   return singleton;
 }
 
+// Shared API client: bounded GET requests prevent indefinitely frozen screens.
+// Mutations are deliberately not aborted: a timeout after a write may otherwise
+// tempt the user to resubmit an operation that was already committed.
+export async function pattyCRMRequest(auth, url, options = {}) {
+  const user = auth?.currentUser;
+  if (!user?.emailVerified) throw new Error("Entre com uma conta autorizada e e-mail confirmado.");
+  const method = String(options.method || "GET").toUpperCase();
+  const controller = method === "GET" ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), 12000) : null;
+  try {
+    const token = await pattyTimeout(
+      user.getIdToken(), 7000, "A sessão demorou para responder. Tente novamente."
+    );
+    const response = await fetch(url, {
+      ...options,
+      ...(controller ? {signal: controller.signal} : {}),
+      headers: {
+        ...(options.headers || {}),
+        Authorization: "Bearer " + token,
+        ...(options.body ? {"Content-Type": "application/json"} : {})
+      }
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(result.error || "Não foi possível consultar o CRM.");
+      error.status = response.status;
+      throw error;
+    }
+    return result;
+  } catch (error) {
+    if (error?.name === "AbortError")
+      throw new Error("A consulta demorou demais. Verifique sua conexão e tente Atualizar novamente.");
+    throw error;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 export function showPattyAuthState(user, persistence) {
   const signedIn = !!user?.emailVerified;
   document.body.classList.toggle("patty-auth-ready", signedIn);
