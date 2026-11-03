@@ -136,7 +136,7 @@ function show(){
   for(const p of professionals){
    const allBlocked=rows.some(x=>x.recordType==="block"&&x.professional===p&&x.appointmentTime==="00:00"&&x.durationMin===1440);
     const selected=hourSlot(p,hr);
-   h+='<div class="cell"'+(allBlocked?' style="background:repeating-linear-gradient(45deg,#f3e9ec,#f3e9ec 8px,#faf6f7 8px,#faf6f7 16px)"':'')+'>'+(allBlocked?'<small>⛔ Bloqueado</small>':p==="Pedidos de horário"?'':'<button class="slot" type="button" data-new-prof="'+esc(p)+'" data-new-time="'+hr+':00" aria-label="Agendar '+esc(p)+' às '+hr+' horas">+ Agendar</button>');
+   h+='<div class="cell"'+(allBlocked?' style="background:repeating-linear-gradient(45deg,#f3e9ec,#f3e9ec 8px,#faf6f7 8px,#faf6f7 16px)"':'')+'>'+(allBlocked?'<button class="appt bloqueio" type="button" data-appointment-id="'+esc(rows.find(x=>x.recordType==="block"&&x.professional===p&&x.appointmentTime==="00:00"&&x.durationMin===1440).id)+'">⛔ Dia bloqueado · liberar</button>':p==="Pedidos de horário"?'':'<button class="slot" type="button" data-new-prof="'+esc(p)+'" data-new-time="'+hr+':00" aria-label="Agendar '+esc(p)+' às '+hr+' horas">+ Agendar</button>');
    h+=selected.map(x=>{
     const cls=safeStatus(x.status);
     return '<button class="appt '+cls+'" type="button" data-appointment-id="'+esc(x.id)+'"><strong>'+esc(x.appointmentTime||"Sem horário")+' · '+esc(x.name)+'</strong><div>'+esc(x.service)+' · '+esc(x.durationMin||60)+' min</div><small>'+esc(x.status==="chegou"?"Cliente chegou":x.status.replace("_"," "))+'</small></button>';
@@ -233,7 +233,7 @@ $("calendar").addEventListener("click",e=>{
   "Agendamento do funil de leads. Abra o contato no Painel de leads para atualizar.";return}
   editing=x;
   $("statusTitle").textContent=x.recordType==="block"?"Bloqueio de horário":"Situação do atendimento";
-  $("bookingInfo").textContent=x.professional+" · "+x.appointmentTime+" · "+x.name+" · "+x.service+(x.priceCents!==null?" · "+money(x.priceCents):"");
+  $("bookingInfo").textContent=x.professional+" · "+x.appointmentTime+" · "+x.name+" · "+x.service+(Number.isSafeInteger(x.priceCents)?" · "+money(x.priceCents):"");
    $("bookingWhatsApp").classList.toggle("hidden",!x.phone);
    if(x.phone){const phone=x.phone.replace(/\D/g,"");const msg="Olá, "+x.name+"! ✨ Aqui é da Patty Centro de Beleza. Gostaríamos de confirmar seu atendimento de "+x.service+" no dia "+x.date+" às "+x.appointmentTime+". Podemos confirmar?";$("bookingWhatsApp").href="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);}
   $("bookingStatus").innerHTML=x.recordType==="block"?'<option value="liberado">Liberar este horário</option>':
