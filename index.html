@@ -552,6 +552,15 @@
                             <option value="Massoterapia e Terapias">Massoterapia e Terapias</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="patty-request-date">Dia desejado (sujeito à confirmação)</label>
+                        <input id="patty-request-date" name="requestedDate" type="date" aria-describedby="patty-booking-caution">
+                    </div>
+                    <div class="form-group">
+                        <label for="patty-request-time">Horário desejado</label>
+                        <input id="patty-request-time" name="requestedTime" type="time" step="900" aria-describedby="patty-booking-caution">
+                    </div>
+                    <p id="patty-booking-caution" style="font-size:.82rem;line-height:1.4;margin:5px 0 12px">Escolher um horário registra uma solicitação. A equipe confirmará a disponibilidade; este formulário não reserva automaticamente um horário no Gendo.</p>
                     <div class="form-group" style="display:none" aria-hidden="true"><label for="patty_site">Site</label><input type="text" id="patty_site" name="website" tabindex="-1" autocomplete="off"></div>
                     <div class="form-group" style="font-size:.88rem">
                         <label style="display:flex;align-items:flex-start;gap:9px;font-weight:400">
@@ -982,6 +991,11 @@
           <input id="patty-capture-name" type="text" name="nome" autocomplete="name" required minlength="2" maxlength="120" placeholder="Como podemos chamar você?">
           <label for="patty-capture-phone">Seu WhatsApp</label>
           <input id="patty-capture-phone" type="tel" name="phone" autocomplete="tel" inputmode="tel" required minlength="10" maxlength="24" placeholder="DDD + número">
+          <label for="patty-capture-request-date">Dia desejado (a confirmar)</label>
+          <input id="patty-capture-request-date" name="requestedDate" type="date" aria-describedby="patty-capture-booking-caution">
+          <label for="patty-capture-request-time">Horário desejado</label>
+          <input id="patty-capture-request-time" name="requestedTime" type="time" step="900" aria-describedby="patty-capture-booking-caution">
+          <p id="patty-capture-booking-caution" style="font-size:.82rem;margin:8px 0">O horário é uma preferência; a equipe confirmará a disponibilidade. Sem sincronização automática com o Gendo.</p>
           <input id="patty-capture-website" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none">
           <label style="display:flex;align-items:flex-start;gap:8px;font-weight:400;margin-top:12px;">
             <input id="patty-capture-privacy" type="checkbox" required>
@@ -999,6 +1013,23 @@
     <script>
         // Eventos de intenção: não equivalem a mensagens recebidas ou agendamentos.
         // Nunca enviar nome, telefone ou conteúdo da mensagem ao GA4/Google Ads.
+        function pattyHojeBrasil() {
+            const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+            const p=Object.fromEntries(parts.filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+            return p.year+'-'+p.month+'-'+p.day;
+        }
+        function pattyPreferencia(dataId,horaId) {
+            const dia=document.getElementById(dataId).value;
+            const hora=document.getElementById(horaId).value;
+            if((dia&&!hora)||(!dia&&hora))throw Error('Informe dia e horário desejados juntos ou deixe ambos vazios.');
+            if(dia&&dia<pattyHojeBrasil())throw Error('Selecione uma data de hoje em diante.');
+            return {requestedDate:dia||'',requestedTime:hora||''};
+        }
+        function pattyTextoPreferencia(preferencia) {
+            if(!preferencia.requestedDate)return '';
+            const [y,m,d]=preferencia.requestedDate.split('-');
+            return '\nDia/horário de preferência: '+d+'/'+m+'/'+y+' às '+preferencia.requestedTime+' (sujeito à confirmação da equipe)';
+        }
         function pattyReferencia() {
             const random = window.crypto && window.crypto.randomUUID
                 ? window.crypto.randomUUID().replace(/-/g, '').slice(0, 10)
@@ -1086,16 +1117,17 @@
             pattyServicoPendente = dados;
             capturaForm.reset();
             document.getElementById('patty-capture-status').textContent = '';
+            document.getElementById('patty-capture-request-date').min=pattyHojeBrasil();
             document.getElementById('patty-capture-service').textContent = dados.serviceName;
             capturaModal.hidden = false;
             document.getElementById('patty-capture-name').focus();
         }
-        function abrirWhatsAppCaptura({url, ref, serviceName, area, botao}, janela, nome, telefone) {
+        function abrirWhatsAppCaptura({url, ref, serviceName, area, botao}, janela, nome, telefone,preferencia={}) {
             const destino = new URL(url);
             if (nome) {
                 const original = destino.searchParams.get('text') || '';
                 destino.searchParams.set('text', original + '\nMeu nome: ' + nome +
-                    '\nWhatsApp para retorno: ' + telefone);
+                    '\nWhatsApp para retorno: ' + telefone + pattyTextoPreferencia(preferencia));
             }
             registrarCliqueWhatsApp(area, serviceName, botao, ref);
             if (janela && !janela.closed) janela.location.href = destino.toString();
@@ -1124,6 +1156,8 @@
             const telefone = document.getElementById('patty-capture-phone').value.trim();
             const status = document.getElementById('patty-capture-status');
             const submit = document.getElementById('patty-capture-submit');
+            let preferencia;try{preferencia=pattyPreferencia('patty-capture-request-date','patty-capture-request-time')}
+            catch(error){status.textContent=error.message;return}
             const janela = window.open('about:blank', '_blank');
             if (janela) janela.document.body.textContent = 'Abrindo seu atendimento...';
             submit.disabled = true;
@@ -1133,7 +1167,7 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        name: nome, phone: telefone,
+                        name: nome, phone: telefone,...preferencia,
                         service: normalizarServicoPatty(dados.serviceName),
                         reference: dados.ref, campaign: pattyCampanha(),
                         source: 'botao_servico',
@@ -1143,7 +1177,7 @@
                 });
                 const resultado = await resposta.json().catch(() => ({}));
                 if (!resposta.ok || !resultado.ok) throw new Error(resultado.error || 'Falha ao salvar');
-                pattyEvento('crm_lead_saved', {
+                if(resultado.created)pattyEvento('crm_lead_saved', {
                     lead_reference: dados.ref,
                     form_service: normalizarServicoPatty(dados.serviceName),
                     lead_source: 'botao_servico'
@@ -1155,7 +1189,7 @@
                 pattyEvento('crm_capture_failed', {lead_reference: dados.ref, lead_source: 'botao_servico'});
                 status.textContent = 'Não foi possível confirmar o cadastro. Continue o atendimento pelo WhatsApp.';
             } finally {
-                abrirWhatsAppCaptura(dados, janela, nome, telefone);
+                abrirWhatsAppCaptura(dados, janela, nome, telefone,preferencia);
                 submit.disabled = false;
             }
         });
@@ -1282,6 +1316,7 @@
             // O site continua encaminhando a cliente ao WhatsApp Business.
             // O CRM salva o lead primeiro, sem publicar nome/telefone no GA4.
             const agendamentoForm = document.getElementById('agendamentoForm');
+            document.getElementById('patty-request-date').min=pattyHojeBrasil();
             agendamentoForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
                 if (!agendamentoForm.reportValidity()) return;
@@ -1291,10 +1326,13 @@
                 const ref = pattyReferencia();
                 const camp = pattyCampanha();
                 const alert = document.getElementById('patty-crm-alert');
+                let preferencia;
+                try{preferencia=pattyPreferencia('patty-request-date','patty-request-time')}
+                catch(error){alert.textContent=error.message;return}
                 const btn = agendamentoForm.querySelector('button[type="submit"]');
                 const msg = 'Olá, me chamo ' + nome + ', escolhi o serviço de *' + servico
                   + '* e gostaria de agendar um horário. Meu WhatsApp é ' + phone
-                  + '.\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + ref;
+                  + pattyTextoPreferencia(preferencia)+'.\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + ref;
                 const waUrl = 'https://wa.me/5548988032478?text=' + encodeURIComponent(msg);
                 // Abre uma janela ainda no gesto do usuário; evita bloqueio após a chamada assíncrona.
                 const tab = window.open('about:blank', '_blank');
@@ -1310,14 +1348,14 @@
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({
-                            name: nome, phone, service: servico, reference: ref,
+                            name: nome, phone, service: servico, reference: ref,...preferencia,
                             campaign: camp, privacyAcknowledged: document.getElementById('privacy-ack').checked,
                             website: document.getElementById('patty_site').value
                         })
                     });
                     const result = await response.json().catch(() => ({}));
                     if (!response.ok || !result.ok) throw Error(result.error || 'CRM indisponível');
-                    pattyEvento('crm_lead_saved', {lead_reference: ref, form_service: String(servico).slice(0,100)});
+                    if(result.created)pattyEvento('crm_lead_saved', {lead_reference: ref, form_service: String(servico).slice(0,100)});
                     alert.textContent = 'Solicitação registrada. Confirme o envio da mensagem no WhatsApp.';
                 } catch (err) {
                     // Não perder o atendimento mesmo se a API, Firebase ou API estiver indisponível.
