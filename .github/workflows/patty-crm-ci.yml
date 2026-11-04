@@ -30,6 +30,10 @@ jobs:
         run: node scripts/check-crm-syntax.mjs
       - name: Test Gendo historical import integrity
         run: node scripts/test-gendo-archive.mjs
+      - name: Validate appointment API syntax
+        run: node --check api/crm/appointments.js
+      - name: Test concurrent appointment reservations and blocks
+        run: node scripts/test-appointments-concurrency.mjs
       - name: Test retention and consent protections
         if: ${{ hashFiles('scripts/test-retention.mjs') != '' }}
         run: node scripts/test-retention.mjs
