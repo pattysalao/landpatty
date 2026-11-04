@@ -8,7 +8,7 @@ const timeValid = v => typeof v==="string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(v
 const str=(v,n=100)=>typeof v==="string"?v.trim().slice(0,n):"";
 const minute=t=>Number(t.slice(0,2))*60+Number(t.slice(3,5));
 const shape=d=>{const x=d.data();return {id:d.id,recordType:x.recordType||"appointment",
-  customerCode:x.customerCode||"",name:x.name||"",phone:x.phone||"",service:x.service||"",
+  customerCode:x.customerCode||"",name:x.name||"",phone:x.phone||"",service:x.service||"",serviceId:x.serviceId||null,
   professional:x.professional||"",date:x.date||"",appointmentTime:x.appointmentTime||"",
   durationMin:x.durationMin||60,priceCents:Number.isSafeInteger(x.priceCents)?x.priceCents:null,status:x.status||"agendado",notes:x.notes||"",
   source:x.source||"crm",createdAt:x.createdAt?.toDate?.()?.toISOString()||null};};
@@ -36,7 +36,7 @@ export default async function handler(req,res){
    const recordType=b.recordType==="block"?"block":"appointment";
    const date=str(b.date,10),appointmentTime=str(b.appointmentTime,5);
    const professional=str(b.professional,80),durationMin=Number(b.durationMin);
-   const name=str(b.name,120),service=str(b.service,120),phone=str(b.phone,30).replace(/\D/g,"");
+   const name=str(b.name,120),service=str(b.service,120),serviceId=str(b.serviceId,80),phone=str(b.phone,30).replace(/\D/g,"");
    const customerCode=str(b.customerCode,32),notes=str(b.notes,500);
     const priceCents=b.priceCents===null||b.priceCents===undefined?null:Number(b.priceCents);
     if(priceCents!==null&&(!Number.isSafeInteger(priceCents)||priceCents<0||priceCents>100000000))return send(res,400,{error:"Valor de serviço inválido"});
@@ -47,6 +47,13 @@ export default async function handler(req,res){
      return send(res,400,{error:"Confira profissional, data, horário (00h–24h) e duração válida."});
    if(recordType==="appointment"&&(name.length<2||service.length<2))
      return send(res,400,{error:"Informe o nome da cliente e o serviço."});
+   if(serviceId&&!/^[A-Za-z0-9_-]{6,80}$/.test(serviceId))
+     return send(res,400,{error:"Identificador do serviço inválido."});
+   if(recordType==="appointment"&&serviceId){
+     const catalog=await database.collection("patty_module_servicos").doc(serviceId).get();
+     if(!catalog.exists||catalog.data().active===false||catalog.data().name!==service)
+       return send(res,409,{error:"Serviço alterado ou indisponível. Atualize o catálogo e selecione novamente."});
+   }
    if(phone&&(phone.length<10||phone.length>13))
      return send(res,400,{error:"Telefone inválido. Deixe em branco se não estiver disponível."});
    const refCode=createHash("sha256").update(professional.toLocaleLowerCase("pt-BR")).digest("hex").slice(0,14);
@@ -74,7 +81,7 @@ export default async function handler(req,res){
      });
      if(occupied)throw Object.assign(new Error("Horário ocupado ou bloqueado nessa agenda. Escolha outro horário."),{status:409});
      tx.create(appointmentRef,{recordType,name:recordType==="block"?"Horário bloqueado":name,
-       service:recordType==="block"?"Bloqueio":service,professional,date,appointmentTime,durationMin,
+       service:recordType==="block"?"Bloqueio":service,serviceId:recordType==="block"?null:serviceId||null,professional,date,appointmentTime,durationMin,
        status:recordType==="block"?"bloqueio":"agendado",phone:recordType==="block"?"":phone,
        customerCode:recordType==="block"?"":customerCode,notes,priceCents:recordType==="block"?null:priceCents,allDay,source:"crm",
        marketingOptIn:false,createdAt:now,updatedAt:now,createdBy:staff.email,
