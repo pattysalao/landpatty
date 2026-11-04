@@ -23,7 +23,7 @@ export default async function handler(req,res){
  if(!["GET","POST","PATCH"].includes(req.method))return send(res,405,{error:"Método não permitido"});
  try{
   const staff=await requireStaff(req);
-  const coll=db().collection("patty_appointments");
+  const database=db(),coll=database.collection("patty_appointments");
   if(req.method==="GET"){
    const date=str(req.query?.date,10);
    if(!dateValid(date))return send(res,400,{error:"Informe uma data válida"});
@@ -51,30 +51,40 @@ export default async function handler(req,res){
      return send(res,400,{error:"Telefone inválido. Deixe em branco se não estiver disponível."});
    const refCode=createHash("sha256").update(professional.toLocaleLowerCase("pt-BR")).digest("hex").slice(0,14);
    const baseKey="appt-"+date.replace(/-/g,"")+"-"+refCode+"-"+appointmentTime.replace(":","");
-   const before=await coll.where("date","==",date).limit(401).get();
-   if(before.size>400)return send(res,409,{error:"Agenda com muitos registros para verificar disponibilidade."});
    const start=minute(appointmentTime),end=start+durationMin;
-   const occupied=before.docs.some(doc=>{
-     const x=doc.data();
-     if(x.professional?.toLocaleLowerCase("pt-BR")!==professional.toLocaleLowerCase("pt-BR")
-       ||x.status==="cancelado"||!timeValid(x.appointmentTime))return false;
-     const otherStart=minute(x.appointmentTime);
-     return start<otherStart+(Number(x.durationMin)||60) && end>otherStart;
-   });
-   if(occupied)return send(res,409,{error:"Horário ocupado ou bloqueado nessa agenda. Escolha outro horário."});
    const now=firebaseAdmin().firestore.FieldValue.serverTimestamp();
-   // Unique suffix allows a cancelled slot to be booked again without modifying its history.
+   // A cancelled slot may be booked again without changing its historical record.
    const key=baseKey+"-"+createHash("sha256").update(staff.email+Date.now()+Math.random()).digest("hex").slice(0,10);
+   const appointmentRef=coll.doc(key);
+   // Every booking and all-day block for the same professional/date must touch this
+   // guard inside the transaction. A concurrent transaction will retry and recheck
+   // the fresh calendar before it creates the appointment.
+   const guardRef=database.collection("patty_appointment_locks").doc(date+"-"+refCode);
    try{
-    await coll.doc(key).create({recordType,name:recordType==="block"?"Horário bloqueado":name,
-      service:recordType==="block"?"Bloqueio":service,professional,date,appointmentTime,durationMin,
-      status:recordType==="block"?"bloqueio":"agendado",phone:recordType==="block"?"":phone,
-      customerCode:recordType==="block"?"":customerCode,notes,priceCents:recordType==="block"?null:priceCents,allDay,source:"crm",
-      marketingOptIn:false,createdAt:now,updatedAt:now,createdBy:staff.email,
-      history:[{at:new Date(),by:staff.email,status:recordType==="block"?"bloqueio":"agendado"}]});
+    await database.runTransaction(async tx=>{
+     await tx.get(guardRef);
+     const before=await tx.get(coll.where("date","==",date).limit(401));
+     if(before.size>400)throw Object.assign(new Error("Agenda com muitos registros para verificar disponibilidade."),{status:409});
+     const occupied=before.docs.some(doc=>{
+      const x=doc.data();
+      if(x.professional?.toLocaleLowerCase("pt-BR")!==professional.toLocaleLowerCase("pt-BR")
+        ||x.status==="cancelado"||!timeValid(x.appointmentTime))return false;
+      const otherStart=minute(x.appointmentTime);
+      return start<otherStart+(Number(x.durationMin)||60) && end>otherStart;
+     });
+     if(occupied)throw Object.assign(new Error("Horário ocupado ou bloqueado nessa agenda. Escolha outro horário."),{status:409});
+     tx.create(appointmentRef,{recordType,name:recordType==="block"?"Horário bloqueado":name,
+       service:recordType==="block"?"Bloqueio":service,professional,date,appointmentTime,durationMin,
+       status:recordType==="block"?"bloqueio":"agendado",phone:recordType==="block"?"":phone,
+       customerCode:recordType==="block"?"":customerCode,notes,priceCents:recordType==="block"?null:priceCents,allDay,source:"crm",
+       marketingOptIn:false,createdAt:now,updatedAt:now,createdBy:staff.email,
+       history:[{at:new Date(),by:staff.email,status:recordType==="block"?"bloqueio":"agendado"}]});
+     tx.set(guardRef,{date,professionalKey:refCode,updatedAt:now},{merge:true});
+    });
    }catch(e){
-     if(e.code===6||e.code==="already-exists")return send(res,409,{error:"Já existe um horário registrado nesse início. Se foi cancelado, crie no próximo horário ou peça a liberação."});
-     throw e;
+    if(e.code===6||e.code==="already-exists")return send(res,409,{error:"Esse horário já foi reservado. Atualize a agenda."});
+    if(e.code===10||e.code==="aborted")return send(res,409,{error:"Agenda alterada por outro usuário. Atualize e tente novamente."});
+    throw e;
    }
    return send(res,201,{ok:true,id:key,recordType});
   }
