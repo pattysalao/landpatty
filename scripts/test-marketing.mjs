@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import vm from "node:vm";
+import {createHash} from "node:crypto";
 import {audienceFilters,eligibleCustomer,normalizedPhone,validateCampaign,previewMessage} from "../lib/patty-campaign-rules.js";
 
 const now=new Date("2026-11-04T12:00:00.000Z");
@@ -41,7 +42,7 @@ const compose=(source,overrides={})=>{
  const context=vm.createContext({console,process:{env:{CRM_MANAGER_EMAILS:"manager@example.test"}},Date,URL,URLSearchParams,Number,
   requireStaff:async()=>({email:"manager@example.test"}),db:()=>({}),firebaseAdmin:()=>({firestore:{FieldValue:{serverTimestamp:()=>123}}}),
   send:(_,status,body)=>({status,body}),safeText: (s,max=200)=>typeof s==="string"?s.trim().slice(0,max):"",
-  validateCampaign,eligibleCustomer,normalizedPhone,audienceFilters,Buffer,
+  validateCampaign,eligibleCustomer,normalizedPhone,audienceFilters,createHash,Buffer,
   fetch:async()=>{throw Error("Unexpected network request")},...overrides});
  vm.runInContext(strip(source),context);
  return async request=>{context.request=request;return await vm.runInContext("handler(request,{setHeader(){},status(c){return {send(t){return {status:c,text:t}}}}})",context)};
@@ -63,6 +64,46 @@ assert.equal(writes,1);
 result=await campaigns({method:"GET",query:{mode:"connection"}});
 assert.equal(result.body.sendingEnabled,false);
 assert.equal(result.body.configured,false);
+// Preparação em lotes: deduplica telefone, confirma opt-in e não reescreve o mesmo contato.
+const store=new Map([["patty_campaigns/campaign1234",{status:"draft",segment:{inactiveDays:0,minVisits:0,birthdayMonth:0,maxRecipients:3},stagedCount:0}]]);
+const customerDocs=[
+ ["gendo-1",{...client,lastVisit:"2026-07-01"}],
+ ["gendo-2",{...client,name:"Bia",phone:"5548998887777",marketingOptIn:false}],
+ ["gendo-3",{...client,name:"Clara",phone:"5548999996666",marketingOptOut:true}],
+ ["gendo-4",{...client,name:"Duplicada",phone:client.phone}]
+].map(([id,data])=>({id,data:()=>data,ref:{collection:"patty_customers",id}}));
+for(const customer of customerDocs)store.set("patty_customers/"+customer.id,customer.data());
+const snapshot=(ref)=>({id:ref.id,exists:store.has(ref.collection+"/"+ref.id),
+ data:()=>store.get(ref.collection+"/"+ref.id)});
+const recRef=(collection,id)=>({collection,id,collectionFn:null,get:async()=>snapshot({collection,id}),
+ collection(name){return {doc:docId=>recRef(collection+"/"+id+"/"+name,docId)}}});
+const mockDb={
+ collection:name=>({
+  doc:id=>recRef(name,id||"campaign1234"),
+  orderBy:()=>({limit:()=>({get:async()=>({docs:customerDocs,size:customerDocs.length})})})
+ }),
+ runTransaction:async fn=>fn({
+  get:async ref=>snapshot(ref),
+  create:(ref,value)=>store.set(ref.collection+"/"+ref.id,value),
+  update:(ref,values)=>{
+   const previous=store.get(ref.collection+"/"+ref.id);
+   const updated={...previous};
+   for(const [k,v] of Object.entries(values))updated[k]=v&&typeof v==="object"&&v.incr?Number(previous[k]||0)+v.incr:v;
+   store.set(ref.collection+"/"+ref.id,updated);
+  }
+ })
+};
+const stage=compose(codes.campaigns,{db:()=>mockDb,
+ firebaseAdmin:()=>({firestore:{FieldPath:{documentId:()=>"_id"},FieldValue:{serverTimestamp:()=>123,increment:n=>({incr:n})}}})});
+let stageResult=await stage({method:"POST",headers:{},body:{action:"stage",id:"campaign1234"}});
+assert.equal(stageResult.status,200);
+assert.equal(stageResult.body.staged,1,"Only opted-in unique phone may be staged");
+assert.equal(store.get("patty_campaigns/campaign1234").stagedCount,1);
+stageResult=await stage({method:"POST",headers:{},body:{action:"stage",id:"campaign1234"}});
+assert.equal(stageResult.status,200);
+assert.equal(stageResult.body.staged,0,"Repeated staging must be idempotent");
+assert.equal(store.get("patty_campaigns/campaign1234").stagedCount,1);
+
 const forbidden=compose(codes.campaigns,{requireStaff:async()=>({email:"staff@example.test"})});
 result=await forbidden({method:"POST",headers:{},body:{action:"create",...c}});
 assert.equal(result.status,403,"Staff cannot create campaigns");
