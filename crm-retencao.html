@@ -95,9 +95,33 @@ function buildHours(){for(let n=0;n<=24;n++){const op=document.createElement("op
 buildHours();
 async function loadSettings(){try{const r=await api("/api/crm/operations?mode=settings");manager=r.manager===true;const s=r.settings||{};$("businessName").value=s.name||"";$("businessPhone").value=s.phone||"";$("businessAddress").value=s.address||"";$("openHour").value=s.openHour??9;$("closeHour").value=s.closeHour??19;$("slotMinutes").value=s.slotMinutes??15;$("saveSettings").disabled=!manager;$("runIndex").disabled=!manager;$("settingsStatus").textContent=manager?"":"Somente administradores podem editar configurações.";}catch(e){$("settingsStatus").textContent=e.message;}}
 $("settingsForm").onsubmit=async e=>{e.preventDefault();try{await post({action:"settings",settings:{name:$("businessName").value,phone:$("businessPhone").value,address:$("businessAddress").value,openHour:Number($("openHour").value),closeHour:Number($("closeHour").value),slotMinutes:Number($("slotMinutes").value)}});$("settingsStatus").textContent="Configurações salvas";}catch(err){$("settingsStatus").textContent=err.message;}};
-$("runIndex").onclick=async()=>{if(!manager)return;const btn=$("runIndex");btn.disabled=true;let cursor=null,processed=0;try{
- for(let i=0;i<300;i++){const r=await api("/api/crm/customer-search",{method:"POST",body:JSON.stringify({action:"index",cursor})});processed+=r.processed;cursor=r.cursor;$("indexStatus").textContent=processed+" clientes processados";if(r.done){$("indexStatus").textContent="Indexação concluída: "+processed+" clientes";break;}}
- }catch(e){$("indexStatus").textContent=e.message+" · "+processed+" processados; execute novamente para continuar.";}finally{btn.disabled=false;}};
+$("runIndex").onclick=async()=>{
+ if(!manager)return;
+ const btn=$("runIndex"),key="patty_customer_index_cursor_v1";
+ btn.disabled=true;
+ let cursor=null,processed=0,updated=0,finished=false;
+ try{cursor=localStorage.getItem(key)||null;}catch(_){}
+ $("indexStatus").textContent=cursor?"Retomando indexação do último lote concluído...":"Iniciando indexação...";
+ try{
+  for(let i=0;i<300;i++){
+   const r=await api("/api/crm/customer-search",{method:"POST",body:JSON.stringify({action:"index",cursor})});
+   processed+=r.processed||0;updated+=r.updated||0;
+   if(r.done){
+    finished=true;cursor=null;
+    try{localStorage.removeItem(key);}catch(_){}
+    $("indexStatus").textContent="Indexação concluída: "+processed+" clientes verificados nesta execução, "+updated+" atualizados.";
+    break;
+   }
+   if(!r.cursor)throw Error("O servidor não informou o ponto de retomada.");
+   cursor=r.cursor;
+   try{localStorage.setItem(key,cursor);}catch(_){}
+   $("indexStatus").textContent=processed+" clientes verificados nesta execução, "+updated+" atualizados. Progresso salvo.";
+  }
+  if(!finished)$("indexStatus").textContent="Lote pausado: "+processed+" verificados, "+updated+" atualizados. Execute novamente para continuar.";
+ }catch(e){
+  $("indexStatus").textContent=e.message+" · "+processed+" verificados nesta execução; execute novamente para continuar de onde parou.";
+ }finally{btn.disabled=false;}
+};
 $("loginForm").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value);}catch(e){$("loginError").textContent="Falha na autenticação";}};
 (async()=>{try{const s=await initPattyAuth();auth=s.auth;onAuthStateChanged(auth,async user=>{$("authloading").classList.add("hidden");showPattyAuthState(user,s.persistence);
  const verified=!!user?.emailVerified;$("login").classList.toggle("hidden",verified);$("app").classList.toggle("hidden",!verified);if(verified){const a=await loadPattyPermissions(auth);canUse=a.authorized;if(canUse){await loadSettings();await loadWait();}else $("app").innerHTML='<section class="box">Usuário não autorizado</section>';}});}catch(e){$("authloading").textContent=e.message;}})();
