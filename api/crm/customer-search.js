@@ -48,7 +48,12 @@ export default async function handler(req,res){
     const batch=db().batch();let updated=0;
     for(const d of selected){
       const prefixes=prefixTokens(d.data().name||"");
-      if(prefixes.length){batch.update(d.ref,{searchPrefixes:prefixes});updated++;}
+      const existing=d.data().searchPrefixes;
+      // Re-running a page after a timeout must not spend quota rewriting
+      // customer documents whose search index is already current.
+      const unchanged=Array.isArray(existing)&&existing.length===prefixes.length&&
+        existing.every((value,i)=>value===prefixes[i]);
+      if(prefixes.length&&!unchanged){batch.update(d.ref,{searchPrefixes:prefixes});updated++;}
     }
     if(updated)await batch.commit();
     const done=snap.size<=100;
