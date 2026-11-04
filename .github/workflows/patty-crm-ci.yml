@@ -1,22 +1,23 @@
-name: Patty CRM - syntax checks
+name: Patty CRM - syntax and regression checks
 on:
   push:
     branches:
-      - feature/patty-crm-upstream-20261019
-      - feature/patty-crm-sem-cloudflare-20261020
-      - feature/patty-crm-captacao-servicos-e-manual-20261020
-      - feature/patty-crm-relatorios-receita-20261020
+      - main
+      - feature/patty-agenda-retencao-20261103
+      - fix/patty-retention-validation-20261103
   pull_request:
     paths:
       - "api/**"
       - "lib/**"
-      - "crm.html"
+      - "crm*.html"
+      - "patty-*.js"
       - "index.html"
-      - "scripts/check-crm-syntax.mjs"
+      - "scripts/*.mjs"
+      - ".github/workflows/patty-crm-ci.yml"
       - "package.json"
   workflow_dispatch:
 jobs:
-  syntax:
+  validate:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,4 +26,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: node scripts/check-crm-syntax.mjs
+      - name: Check CRM JavaScript syntax
+        run: node scripts/check-crm-syntax.mjs
+      - name: Test Gendo historical import integrity
+        run: node scripts/test-gendo-archive.mjs
+      - name: Test retention and consent protections
+        if: ${{ hashFiles('scripts/test-retention.mjs') != '' }}
+        run: node scripts/test-retention.mjs
