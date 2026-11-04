@@ -1,0 +1,236 @@
+<!doctype html><html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<title>Marketing e campanhas | CRM Patty</title>
+<link rel="stylesheet" href="/patty-crm-ui.css?v=1"><script defer src="/patty-crm-ui.js?v=1"></script>
+<style>
+:root{--wine:#801a39;--line:#eadde1;--muted:#74616b}
+*{box-sizing:border-box}body{margin:0;background:#f7f3f2;color:#302128;font:14px/1.55 system-ui,Arial}
+header{background:var(--wine);color:white;padding:15px 20px}header a{color:white}
+main{max-width:1210px;margin:auto;padding:16px}
+.card{background:white;border:1px solid var(--line);box-shadow:0 6px 24px #3514200d;border-radius:14px;padding:18px;margin-bottom:14px}
+h1{font-size:24px;margin:0 0 6px}h2{font-size:18px;margin:0 0 10px}
+h3{font-size:15px}p{margin:8px 0 12px}.muted{color:var(--muted)}.small{font-size:12px}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{display:block;font-size:12px;font-weight:680;margin:6px 0 3px}
+input,select,textarea{display:block;width:100%;border:1px solid #d9cbd1;border-radius:9px;min-height:41px;padding:10px;font:inherit;background:white;color:#302128}
+textarea{min-height:125px;resize:vertical}button{border:1px solid transparent;border-radius:9px;background:var(--wine);color:white;padding:10px 13px;font:inherit;font-weight:650;cursor:pointer}
+button.secondary{background:white;color:var(--wine);border-color:#d9c5cd}button:disabled{opacity:.45;cursor:not-allowed}
+.controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}
+.tab{background:white;border:1px solid #dccbd1;color:var(--wine)}.tab.active{background:var(--wine);color:#fff}
+.notice{background:#fff8ed;border-left:3px solid #c99a59;border-radius:8px;padding:11px}
+.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:660px}td,th{padding:9px 10px;text-align:left;border-bottom:1px solid #f0e6e9}th{color:#6e5360;font-size:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.metric{border:1px solid var(--line);border-radius:10px;padding:12px}.metric strong{display:block;font-size:21px;color:var(--wine)}
+.error{color:#a62249;min-height:18px}.mono{font-family:ui-monospace,monospace;font-size:12px;word-break:break-word}
+@media(max-width:760px){main{padding:9px}.card{padding:13px}.grid,.metrics{grid-template-columns:1fr}h1{font-size:22px}.controls button{flex-grow:1}}
+</style></head><body>
+<header><strong>Patty | Marketing</strong> · <a href="/crm-retencao.html">Retenção</a> · <a href="/crm.html">Painel</a></header>
+<main>
+<section class="card" id="authloading" role="status">Verificando acesso da administração…</section>
+<section class="card hidden" id="login"><h1>Acesso ao CRM</h1><form id="loginForm" class="grid">
+<label>E-mail<input id="email" type="email" autocomplete="username" required></label>
+<label>Senha<input id="password" type="password" autocomplete="current-password" required></label>
+<button type="submit">Entrar</button></form><p class="error" id="loginStatus"></p></section>
+<div id="app" class="hidden">
+<section class="card"><h1>Marketing → Campanhas</h1>
+<p>Segmente sua base, personalize a campanha, confira o consentimento e prepare o envio pela conta oficial da Meta.</p>
+<p class="notice"><strong>Segurança:</strong> rascunhos, prévia, preparação e agendamento planejado <strong>não disparam mensagens</strong>. O envio real exige um modelo aprovado na Meta, conexão configurada e confirmação individual da administração. Não há envio automático em lote nesta etapa.</p>
+<p id="connection" class="muted" role="status">Conferindo integração…</p>
+<div class="tabs"><button class="tab active" type="button" data-tab="compose">Criar campanha</button>
+<button class="tab" type="button" data-tab="campaigns">Campanhas</button>
+<button class="tab" type="button" data-tab="recipients">Destinatárias e envio</button></div></section>
+
+<section id="panel-compose" class="card">
+<h2>1. Criar uma campanha</h2>
+<form id="campaignForm">
+<div class="grid">
+<label>Nome interno *<input id="title" required minlength="3" maxlength="100" placeholder="Retorno clientes 90 dias"></label>
+<label>Modelo aprovado no WhatsApp Manager *<input id="templateName" pattern="[a-z0-9_]{3,100}" required placeholder="patty_retorno_90_dias"></label>
+<label>Idioma do modelo *<input id="language" value="pt_BR" required maxlength="15"></label>
+<label>Data e hora planejadas (opcional)<input id="scheduledAt" type="datetime-local"></label>
+<label>Sem visitar há<select id="inactiveDays"><option value="0">Qualquer data</option><option value="30">30 dias</option><option value="60">60 dias</option><option value="90">90 dias</option><option value="120">120 dias</option><option value="180">180 dias</option><option value="365">365 dias</option></select></label>
+<label>Atendimentos anteriores mínimos<input id="minVisits" type="number" min="0" max="100" value="1" required></label>
+<label>Aniversário no mês<select id="birthdayMonth"><option value="0">Qualquer mês</option><option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option></select></label>
+<label>Limite de destinatárias<input id="maxRecipients" type="number" min="1" max="500" value="100" required></label>
+</div>
+<label>Prévia de texto (não é o modelo aprovado pela Meta) *<textarea id="bodyPreview" minlength="10" maxlength="800" required placeholder="Olá, {nome}! Temos uma novidade especial na Patty. Se preferir não receber ofertas, é só nos avisar."></textarea></label>
+<label><input id="useCustomerName" type="checkbox" style="display:inline;width:auto;min-height:0"> O modelo aprovado da Meta usa o nome da cliente como variável {{1}} do corpo</label>
+<p class="small muted">No campo de prévia, utilize <code>{nome}</code> para demonstrar a personalização. O texto enviado de verdade será o modelo aprovado no WhatsApp Manager, não esta prévia. O agendamento é apenas planejado; não há robô que dispara na data.</p>
+<div class="controls"><button type="button" class="secondary" id="previewAudience">Prévia de público</button><button type="submit">Salvar rascunho</button></div>
+<p id="composeStatus" role="status"></p>
+</form><h3>Amostra de clientes elegíveis</h3>
+<p class="muted small">Mostra somente uma página de até 80 cadastros por vez. Não é a contagem total da base. Clientes sem opt-in comprovado não aparecem.</p>
+<div class="tablewrap"><table><thead><tr><th>Cliente</th><th>Última visita</th><th>Visitas</th><th>Telefone</th></tr></thead><tbody id="audienceRows"></tbody></table></div>
+<div class="controls"><button id="nextAudience" type="button" class="secondary hidden">Ver próxima página</button><span id="audienceStatus" class="muted" role="status"></span></div></section>
+
+<section id="panel-campaigns" class="card hidden">
+<h2>2. Campanhas salvas</h2>
+<div class="controls"><button id="refreshCampaigns" type="button" class="secondary">Atualizar campanhas</button></div>
+<div class="tablewrap"><table><thead><tr><th>Campanha</th><th>Situação</th><th>Destinatárias</th><th>Meta aceitou</th><th>Ação</th></tr></thead><tbody id="campaignRows"></tbody></table></div>
+<p class="small muted" id="listNote"></p></section>
+
+<section id="panel-recipients" class="card hidden">
+<h2>3. Público preparado, status e envio individual</h2>
+<label>Campanha selecionada<input id="campaignId" readonly class="mono" placeholder="Selecione uma campanha na lista"></label>
+<div id="metrics" class="metrics"></div><p id="detailStatus" class="muted" role="status"></p>
+<div class="controls"><button type="button" id="stageBatch">Preparar próximo lote</button><button type="button" id="stageTen" class="secondary">Preparar até 10 lotes</button><button type="button" id="refreshRecipients" class="secondary">Atualizar destinatárias</button></div>
+<p id="stageStatus" class="muted" role="status"></p>
+<div class="controls"><button id="approveCampaign" class="secondary" type="button">Aprovar público para envio</button><button type="button" id="pauseCampaign" class="secondary">Pausar</button><button type="button" id="cancelCampaign" class="secondary">Cancelar campanha</button></div>
+<p class="small muted">O limite de frequência é 1 tentativa por telefone a cada 7 dias, das 9h às 19h (Brasília). Consentimento é conferido novamente antes de cada envio. Resultado incerto não é reenviado automaticamente.</p>
+<div class="tablewrap"><table><thead><tr><th>Cliente</th><th>Telefone</th><th>Resultado</th><th>Ações</th></tr></thead><tbody id="recipientRows"></tbody></table></div>
+<div class="controls"><button id="nextRecipients" class="secondary hidden" type="button">Mais destinatárias</button><span id="sendStatus" role="status"></span></div></section>
+</div></main>
+<script type="module">
+import {initPattyAuth,loadPattyPermissions,showPattyAuthState,pattyCRMRequest} from "/patty-auth.js";
+import {signInWithEmailAndPassword,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const $=id=>document.getElementById(id),esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let auth,canUse=false,metaReady=false,campaigns=[],current=null,stageCursor=null,recipientCursor=null,audienceCursor=null,audienceFiltersKey="";
+const api=(url,opts={})=>pattyCRMRequest(auth,url,opts);
+const post=(url,body)=>api(url,{method:"POST",body:JSON.stringify(body)});
+function tab(k){document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===k));["compose","campaigns","recipients"].forEach(x=>$("panel-"+x).classList.toggle("hidden",x!==k));}
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{tab(b.dataset.tab);if(b.dataset.tab==="campaigns")loadCampaigns();});
+const filterValues=()=>({inactiveDays:Number($("inactiveDays").value),minVisits:Number($("minVisits").value),birthdayMonth:Number($("birthdayMonth").value),maxRecipients:Number($("maxRecipients").value)});
+const segmentQuery=f=>new URLSearchParams(Object.fromEntries(Object.entries(f).map(([k,v])=>[k,String(v)])));
+function campaignBody(){
+ const scheduled=$("scheduledAt").value;
+ return {action:"create",title:$("title").value,templateName:$("templateName").value,
+ language:$("language").value,bodyPreview:$("bodyPreview").value,
+ useCustomerName:$("useCustomerName").checked,scheduledAt:scheduled?new Date(scheduled).toISOString():null,segment:filterValues()};
+}
+async function loadConnection(){
+ const s=await api("/api/crm/campaigns?mode=connection");
+ metaReady=s.sendingEnabled===true;
+ $("connection").textContent=metaReady?"Meta oficial conectada e envio individual habilitado. Não há disparo automático.":
+ "Integração Meta não habilitada: é possível preparar campanhas, mas NÃO enviar mensagens. Necessários WABA, Phone Number ID, token, segredo, webhook, versão Graph e ativação administrativa.";
+}
+async function previewAudience(reset){
+ if(reset)audienceCursor=null;
+ const f=filterValues(),key=JSON.stringify(f);
+ if(key!==audienceFiltersKey){audienceCursor=null;audienceFiltersKey=key;}
+ const params=segmentQuery(f);params.set("mode","audience");
+ if(audienceCursor)params.set("cursor",audienceCursor);
+ $("audienceStatus").textContent="Consultando a página de clientes autorizadas…";
+ try{
+ const r=await api("/api/crm/campaigns?"+params.toString());
+ $("audienceRows").innerHTML=(r.audience||[]).map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.lastVisit||"—")+'</td><td>'+esc(x.visits)+'</td><td>'+esc(x.phone)+'</td></tr>').join("")||
+ '<tr><td colspan="4">Nenhuma cliente elegível nesta página.</td></tr>';
+ audienceCursor=r.nextCursor;
+ $("nextAudience").classList.toggle("hidden",!audienceCursor);
+ $("audienceStatus").textContent=r.eligibleInPage+" elegíveis nos "+r.scanned+" cadastros desta página. Não representa o público total.";
+ }catch(e){$("audienceStatus").textContent=e.message;}
+}
+$("previewAudience").onclick=()=>previewAudience(true);
+$("nextAudience").onclick=()=>previewAudience(false);
+$("campaignForm").onsubmit=async e=>{
+ e.preventDefault();$("composeStatus").textContent="Salvando rascunho…";
+ try{const r=await post("/api/crm/campaigns",campaignBody());
+ $("composeStatus").textContent="Campanha criada: "+r.id+" · nenhum envio realizado.";
+ stageCursor=null;await selectCampaign(r.id);tab("recipients");
+ }catch(err){$("composeStatus").textContent=err.message;}
+};
+async function loadCampaigns(){
+ $("listNote").textContent="Atualizando…";
+ try{const r=await api("/api/crm/campaigns?mode=list");campaigns=r.campaigns||[];
+ $("campaignRows").innerHTML=campaigns.map(c=>'<tr><td>'+esc(c.title)+'<div class="muted small">'+esc(c.templateName)+' · '+esc(c.scheduledAt||"sem data")+'</div></td><td>'+esc(c.status)+'</td><td>'+esc(c.stagedCount||0)+'</td><td>'+esc(c.acceptedCount||0)+'</td><td><button type="button" class="secondary" data-select="'+esc(c.id)+'">Abrir</button></td></tr>').join("")||
+ '<tr><td colspan="5">Nenhuma campanha criada.</td></tr>';
+ $("listNote").textContent=r.partial?"Exibidas as 50 campanhas recentes.":"Rascunhos são preparados sem mensagens enviadas.";
+ }catch(e){$("listNote").textContent=e.message;}
+}
+$("refreshCampaigns").onclick=loadCampaigns;
+$("campaignRows").onclick=async e=>{const b=e.target.closest("[data-select]");if(!b)return;await selectCampaign(b.dataset.select);tab("recipients");};
+async function selectCampaign(id){
+ const r=await api("/api/crm/campaigns?mode=detail&id="+encodeURIComponent(id));
+ current=r.campaign;stageCursor=null;recipientCursor=null;$("campaignId").value=id;await refreshDetail();await loadRecipients(true);
+}
+async function refreshDetail(){
+ if(!current)return;
+ const r=await api("/api/crm/campaigns?mode=detail&id="+encodeURIComponent(current.id));current=r.campaign;
+ const cells=[["Preparadas",current.stagedCount],["Aceitas Meta",current.acceptedCount],["Entregues",current.deliveredCount],["Lidas",current.readCount]];
+ $("metrics").innerHTML=cells.map(([k,v])=>'<div class="metric"><span>'+esc(k)+'</span><strong>'+esc(v||0)+'</strong></div>').join("");
+ $("detailStatus").textContent=current.title+" · "+current.status+" · limite "+current.segment?.maxRecipients+" destinatárias · "+(current.scheduledAt||"sem agendamento")+" · falhas "+(current.failedCount||0);
+ const draft=current.status==="draft",approved=current.status==="approved";
+ $("stageBatch").disabled=!draft;$("stageTen").disabled=!draft;
+ $("approveCampaign").disabled=!(draft||current.status==="paused")||!(current.stagedCount>0);
+ $("pauseCampaign").disabled=!approved;$("cancelCampaign").disabled=!["draft","approved","paused"].includes(current.status);
+}
+async function stagePages(count){
+ if(!current||current.status!=="draft")return;
+ $("stageBatch").disabled=true;$("stageTen").disabled=true;
+ let processed=0,staged=0,done=false;
+ try{for(let n=0;n<count;n++){
+  const result=await post("/api/crm/campaigns",{action:"stage",id:current.id,cursor:stageCursor});
+  processed+=result.scanned;staged+=result.staged;
+  stageCursor=result.nextCursor||null;
+  $("stageStatus").textContent=processed+" cadastros consultados, "+staged+" destinatárias novas nesta execução; "+
+   (result.finished?"preparação encerrada nesta consulta.":"cursor da próxima página preservado.");
+  if(result.finished){done=true;break;}
+ }
+ await refreshDetail();await loadRecipients(true);
+ if(!done&&count===10)$("stageStatus").textContent+=" Use novamente para continuar.";
+ }catch(e){$("stageStatus").textContent=e.message+" · Retome pelo próximo lote, sem reiniciar as destinatárias já preparadas.";}
+ finally{await refreshDetail();}
+}
+$("stageBatch").onclick=()=>stagePages(1);$("stageTen").onclick=()=>stagePages(10);
+async function updateStatus(status){
+ if(!current)return;
+ const confirmText=status==="approved"?"Confirma que revisou o público e tem consentimento comprovado? Aprovar NÃO dispara as mensagens.":
+  status==="cancelled"?"Cancelar esta campanha?":"Pausar esta campanha?";
+ if(!confirm(confirmText))return;
+ try{await post("/api/crm/campaigns",{action:"status",id:current.id,status,
+   ...(status==="approved"?{confirm:"CONFIRMO_PUBLICO_E_CONSENTIMENTO"}:{})});
+ await refreshDetail();$("sendStatus").textContent="Situação atualizada. Nenhum envio automático.";
+ }catch(e){$("sendStatus").textContent=e.message;}
+}
+$("approveCampaign").onclick=()=>updateStatus("approved");
+$("pauseCampaign").onclick=()=>updateStatus("paused");
+$("cancelCampaign").onclick=()=>updateStatus("cancelled");
+async function loadRecipients(reset){
+ if(!current)return;
+ if(reset)recipientCursor=null;
+ const params=new URLSearchParams({mode:"recipients",id:current.id});
+ if(recipientCursor)params.set("cursor",recipientCursor);
+ try{const r=await api("/api/crm/campaigns?"+params.toString());
+ $("recipientRows").innerHTML=(r.recipients||[]).map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.phone)+'</td><td>'+esc(x.status)+'</td><td>'+
+  (x.status==="staged"?
+   '<button type="button" class="secondary" data-exclude="'+esc(x.id)+'">Excluir</button> '+
+   '<button type="button" data-send="'+esc(x.id)+'" '+(!(metaReady&&current.status==="approved")?"disabled":"")+'>Enviar via Meta</button>':
+   '<span class="muted">—</span>')+'</td></tr>').join("")||
+  '<tr><td colspan="4">Nenhuma destinatária preparada nesta página.</td></tr>';
+ recipientCursor=r.nextCursor;$("nextRecipients").classList.toggle("hidden",!recipientCursor);
+ }catch(e){$("sendStatus").textContent=e.message;}
+}
+$("nextRecipients").onclick=()=>loadRecipients(false);
+$("refreshRecipients").onclick=async()=>{await refreshDetail();await loadRecipients(true);};
+$("recipientRows").onclick=async e=>{
+ const button=e.target.closest("[data-exclude],[data-send]");if(!button||!current)return;
+ const recipientId=button.dataset.exclude||button.dataset.send;
+ if(button.dataset.exclude){
+  if(!confirm("Excluir esta destinatária da campanha?"))return;
+  try{await post("/api/crm/campaigns",{action:"exclude",id:current.id,recipientId});await loadRecipients(true);}catch(err){$("sendStatus").textContent=err.message;}
+  return;
+ }
+ if(!metaReady||current.status!=="approved")return;
+ if(!confirm("CONFIRMA O ENVIO REAL desta mensagem via Meta para ESTA cliente? O modelo precisa estar aprovado e a cliente ter opt-in."))return;
+ button.disabled=true;
+ try{const r=await post("/api/crm/marketing-send",{action:"send_one",campaignId:current.id,recipientId,confirm:"CONFIRMO_ENVIO_REAL"});
+ $("sendStatus").textContent=r.status==="accepted"?"Meta aceitou a mensagem; aguarde entrega pelo webhook.":r.note;
+ await refreshDetail();await loadRecipients(true);
+ }catch(err){$("sendStatus").textContent=err.message;button.disabled=false;}
+};
+$("loginForm").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value);}catch(err){$("loginStatus").textContent="Falha na autenticação.";}};
+(async()=>{try{
+ const connection=await initPattyAuth();auth=connection.auth;
+ onAuthStateChanged(auth,async user=>{
+  $("authloading").classList.add("hidden");showPattyAuthState(user,connection.persistence);
+  const verified=!!user?.emailVerified;$("login").classList.toggle("hidden",verified);$("app").classList.toggle("hidden",!verified);
+  if(!verified)return;
+  const access=await loadPattyPermissions(auth);
+  if(!access.authorized){$("app").innerHTML='<section class="card">Usuário não autorizado.</section>';return;}
+  canUse=true;
+  try{await loadConnection();await loadCampaigns();}
+  catch(e){$("app").innerHTML='<section class="card">Acesso ao marketing restrito à administração. '+esc(e.message)+'</section>';}
+ });
+}catch(e){$("authloading").textContent=e.message;}})();
+</script></body></html>
