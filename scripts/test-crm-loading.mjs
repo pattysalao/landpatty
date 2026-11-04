@@ -14,7 +14,7 @@ function harness(extra={}){
 {
  const h=harness();h.$('date').value='2026-11-03';
  h.run('let canUse=true,rows=[]; function show(){$("calendar").innerHTML=rows.map(x=>x.name).join();}');
- h.run(sourceBetween(agenda,'let agendaRequest=0;','\nfunction openForm'));
+ h.run(sourceBetween(agenda,'let agendaRequest=0;','\nasync function suggestWait'));
  const old=h.run('load()');h.$('date').value='2026-11-04';const current=h.run('load()');
  h.pending[1].resolve({appointments:[{name:'dia correto'}]});await current;
  h.pending[0].resolve({appointments:[{name:'dia antigo'}]});await old;
@@ -24,19 +24,30 @@ function harness(extra={}){
  assert.equal(h.$('status').textContent,'Sem conexão');
 }
 {
- const h=harness();h.run('let allPros=[],allServices=[],serviceDurations={};function fillCatalog(){}');
- h.run(sourceBetween(agenda,'async function catalogItems','\nfunction hourSlot'));
+ const h=harness();
+ h.run('let allPros=[],catalogServices=[],companySettings={};function fillCatalog(){};const normalizeServiceCatalog=items=>items.filter(x=>x.active!==false);');
+ h.run(sourceBetween(agenda,'async function catalogPages','\nfunction hourSlot'));
  const work=h.run('catalogs()');
- h.pending.find(x=>x.url.endsWith('profissionais')).resolve({items:[{name:'A',active:true}],nextCursor:null});
- h.pending.find(x=>x.url.endsWith('servicos')).resolve({items:[{name:'Corte',durationMin:30},{name:'Mechas',durationMin:60}],nextCursor:'second'});
+ const prof=h.pending.find(x=>x.url.endsWith('profissionais'));
+ const services=h.pending.find(x=>x.url.endsWith('servicos'));
+ assert.ok(prof&&services);
+ prof.resolve({items:[{id:'p1',name:'A',active:true}],nextCursor:null});
+ services.resolve({items:[{id:'s1',name:'Mechas',durationMin:60,priceCents:10000}],nextCursor:'second'});
  await new Promise(resolve=>setImmediate(resolve));
- h.pending.find(x=>x.url.includes('cursor=second')).resolve({items:[{name:'Mechas',durationMin:90},{name:'Última página',durationMin:45},{name:'Inativo',active:false}],nextCursor:null});
+ const page2=h.pending.find(x=>x.url.includes('cursor=second'));
+ assert.ok(page2,'The service catalog must paginate');
+ page2.resolve({items:[{id:'s2',name:'Mechas',durationMin:90,priceCents:20000},{id:'s3',name:'Inativo',active:false}],nextCursor:null});
+ await new Promise(resolve=>setImmediate(resolve));
+ const settings=h.pending.find(x=>x.url.includes('mode=settings'));
+ if(settings)settings.resolve({settings:{}});
  await work;
- assert.equal(h.run('allServices.includes("Última página")'),true);
- assert.equal(h.run('allServices.includes("Inativo")'),false);
- assert.equal(h.run('serviceDurations.Mechas'),undefined);
- assert.equal(h.run('serviceDurations.Corte'),30);
+ assert.equal(h.run('catalogServices.length'),2);
+ assert.equal(h.run('catalogServices[0].id'),'s1');
+ assert.equal(h.run('catalogServices[1].id'),'s2');
+ assert.equal(h.run('catalogServices[1].durationMin'),90);
+ assert.equal(h.run('allPros.length'),1);
 }
+
 {
  const h=harness();h.run('let module="servicos",rows=[],cursor=null;function renderTable(){$("table").innerHTML=rows.map(x=>x.name).join();}');
  h.run(sourceBetween(modules,'let moduleRequest=0;','\nfunction renderTable'));
@@ -51,4 +62,4 @@ function harness(extra={}){
  const ctx=vm.createContext({admin:mock,process:{env:{}}});vm.runInContext(code,ctx);
  await assert.rejects(vm.runInContext('requireStaff({headers:{authorization:"Bearer expired"}})',ctx),e=>e.status===401);
 }
-console.log('CRM regressions passed: out-of-order agenda/modules, stale error clearing, full catalog, ambiguous service durations, expired session.');
+console.log('CRM regressions passed: out-of-order agenda/modules, stale error clearing, full catalog with exact service IDs, expired session.');
