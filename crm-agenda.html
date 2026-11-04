@@ -86,12 +86,13 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 </section></div>
 <script type="module">
 import {initPattyAuth,showPattyAuthState,loadPattyPermissions,pattyTimeout} from "/patty-auth.js";
+import {normalizeServiceCatalog,uniqueServiceByName,serviceOptionLabel,selectedService} from "/patty-service-catalog.js";
 import {signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const starterPros=["Patty","Benedita","Deimy","Allegra","Héllen","Chele","Maira","Vaneza","Vanya"];
 const starterServices=["Cabelos e Cachos","Corte","Coloração","Mechas","Nail Design","Manicure","Pedicure","Sobrancelhas","Depilação","Cílios","Massoterapia"];
-let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],editing=null,isBlock=false,serviceDurations={},servicePrices={},companySettings={openHour:9,closeHour:19},customerTimer=null,customerRequest=0,waitCandidates=[],selectedWaitId=null;
+let auth,canUse=false,allPros=starterPros,catalogServices=[],rows=[],editing=null,isBlock=false,companySettings={openHour:9,closeHour:19},customerTimer=null,customerRequest=0,waitCandidates=[],selectedWaitId=null;
  const money=c=>Number.isSafeInteger(c)?(c/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"Preço sob consulta";
  const cents=t=>{const v=String(t||"").trim().replace(/[^\d,.]/g,"");if(!v)return null;const n=Number(v.includes(",")?v.replace(/\./g,"").replace(",","."):v);return Number.isFinite(n)&&n>=0&&n<=1000000?Math.round(n*100):null};
 function today(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const v=k=>p.find(x=>x.type===k)?.value;return v("year")+"-"+v("month")+"-"+v("day")}
@@ -108,26 +109,43 @@ async function api(url,opts={}){
  finally{clearTimeout(timer)}
 }
 function safeStatus(a){return ["solicitado","agendado","confirmado","chegou","em_atendimento","finalizado","atendido","faltou","bloqueio","novo","em_contato"].includes(a)?a:"agendado"}
-function fillCatalog(){
+function fillCatalog(preferred=""){
+ const chosen=preferred||$("service").value;
  $("professionalSuggestions").innerHTML=allPros.map(p=>'<option value="'+esc(p)+'"></option>').join("");
- $("service").innerHTML='<option value="">Selecione um serviço</option>'+allServices.map(p=>'<option value="'+esc(p)+'">'+esc(p)+' · '+esc(money(servicePrices[p]))+'</option>').join("");
+ const options=catalogServices.length?
+   catalogServices.map(p=>'<option value="'+esc(p.id)+'">'+esc(serviceOptionLabel(p,catalogServices))+'</option>'):
+   starterServices.map(name=>'<option value="'+esc("manual:"+name)+'">'+esc(name+" · preço manual")+'</option>');
+ $("service").innerHTML='<option value="">Selecione um serviço</option>'+options.join("");
+ if([...$("service").options].some(o=>o.value===chosen))$("service").value=chosen;
+}
+async function catalogPages(module){
+ const items=[],seen=new Set();
+ let cursor=null;
+ for(let i=0;i<50;i++){
+  const page=await api("/api/crm/modulos?module="+module+(cursor?"&cursor="+encodeURIComponent(cursor):""));
+  items.push(...(page.items||[]));
+  cursor=page.nextCursor||null;
+  if(!cursor)return items;
+  if(seen.has(cursor))throw Error("Paginação repetida no catálogo "+module);
+  seen.add(cursor);
+ }
+ throw Error("Catálogo "+module+" não pôde ser carregado por completo.");
 }
 async function catalogs(){
- try{
- const [p,s]=await Promise.allSettled([api("/api/crm/modulos?module=profissionais"),api("/api/crm/modulos?module=servicos")]);
- if(p.status==="fulfilled"&&p.value.items?.length){allPros=p.value.items.filter(x=>x.active!==false&&x.hasCalendar!==false).map(x=>x.name).filter(Boolean);$("catalogNotice").textContent="Profissionais carregadas do cadastro do CRM. Complete o cadastro para exibir toda a equipe."}
- else $("catalogNotice").textContent="Equipe provisória: importe os dados em Operação → Profissionais para substituir a lista inicial.";
- if(s.status==="fulfilled"&&s.value.items?.length){
-   let items=[...s.value.items],cursor=s.value.nextCursor,page=0;
-   while(cursor&&page++<20){const next=await api("/api/crm/modulos?module=servicos&cursor="+encodeURIComponent(cursor));items.push(...(next.items||[]));cursor=next.nextCursor;}
-   const active=items.filter(x=>x.active!==false);
-   allServices=[...new Set(active.map(x=>x.name).filter(Boolean))];
-   serviceDurations=Object.fromEntries(active.filter(x=>x.name&&Number.isInteger(x.durationMin)).map(x=>[x.name,x.durationMin]));
-   servicePrices=Object.fromEntries(active.filter(x=>x.name&&Number.isSafeInteger(x.priceCents)).map(x=>[x.name,x.priceCents]));
-  }
-  try{companySettings=(await api("/api/crm/operations?mode=settings")).settings||companySettings;}catch(_){}
+ const [p,sv]=await Promise.allSettled([catalogPages("profissionais"),catalogPages("servicos")]);
+ const notices=[];
+ if(p.status==="fulfilled")allPros=p.value.filter(x=>x.active!==false&&x.hasCalendar!==false).map(x=>x.name).filter(Boolean);
+ else notices.push("Equipe provisória: catálogo de profissionais indisponível.");
+ if(sv.status==="fulfilled"){
+  catalogServices=normalizeServiceCatalog(sv.value);
+  if(!catalogServices.length)notices.push("Nenhum serviço ativo encontrado no CRM.");
+ }else{
+  catalogServices=[];
+  notices.push("Catálogo de serviços indisponível: preços devem ser informados manualmente.");
+ }
+ try{companySettings=(await api("/api/crm/operations?mode=settings")).settings||companySettings;}catch(_){}
  fillCatalog();
- }catch(_){fillCatalog();}
+ $("catalogNotice").textContent=notices.join(" ")||(catalogServices.length+" serviços com identidade própria e "+allPros.length+" profissionais carregados.");
 }
 function hourSlot(p,h){return rows.filter(a=>(a.professional||"Não atribuído")===p&&(a.appointmentTime||"").slice(0,2)===h)}
 function show(){
@@ -174,7 +192,11 @@ async function suggestWait(prof,time,date){
  }catch(_){$("waitSuggestions").classList.add("hidden");}
 }
 $("waitCandidates").addEventListener("click",e=>{const b=e.target.closest("[data-wait-candidate]");if(!b)return;const x=waitCandidates[Number(b.dataset.waitCandidate)];if(!x)return;
- selectedWaitId=x.id;$("customerName").value=x.clientName;$("customerPhone").value=x.phone||"";$("customerCode").value=x.customerCode||"";$("service").value=x.service;$("service").dispatchEvent(new Event("change"));
+ selectedWaitId=x.id;$("customerName").value=x.clientName;$("customerPhone").value=x.phone||"";$("customerCode").value=x.customerCode||"";
+ const match=uniqueServiceByName(catalogServices,x.service);
+ $("service").value=match?.id||(!catalogServices.length&&starterServices.includes(x.service)?"manual:"+x.service:"");
+ $("service").dispatchEvent(new Event("change"));
+ if(!$("service").value)$("bookingError").textContent="Serviço da fila ambíguo ou não localizado. Selecione a opção exata antes de salvar.";
  $("waitSuggestions").classList.add("hidden");$("customerSearchStatus").textContent="Cliente vinculada à fila de espera";
 });
 function openForm(prof="",time="",block=false){
@@ -208,10 +230,12 @@ $("createService").onclick=()=>$("serviceBackdrop").classList.remove("hidden");
 $("closeService").onclick=()=>$("serviceBackdrop").classList.add("hidden");
 $("serviceForm").onsubmit=async e=>{e.preventDefault();$("serviceError").textContent="";
  const name=$("newServiceName").value.trim();
- try{await api("/api/crm/modulos?module=servicos",{method:"POST",body:JSON.stringify({action:"create",item:{
+ try{const created=await api("/api/crm/modulos?module=servicos",{method:"POST",body:JSON.stringify({action:"create",item:{
   name,priceCents:cents($("newServicePrice").value),durationMin:Number($("newServiceDuration").value),
   category:$("newServiceCategory").value,description:$("newServiceDescription").value,active:true}})});
-  await catalogs();$("service").value=name;$("service").dispatchEvent(new Event("change"));
+  await catalogs();
+  if(!catalogServices.some(x=>x.id===created.id))throw Error("Serviço salvo, mas ainda não localizado no catálogo. Atualize a agenda antes de agendar.");
+  $("service").value=created.id;$("service").dispatchEvent(new Event("change"));
   $("serviceBackdrop").classList.add("hidden");$("serviceForm").reset();
  }catch(err){$("serviceError").textContent=err.message;}
 };
@@ -230,11 +254,12 @@ $("findCustomer").onclick=async()=>{
  finally{$("findCustomer").disabled=false}
 };
 $("service").addEventListener("change",()=>{
- const value=$("service").value;
-  $("servicePrice").value=Number.isSafeInteger(servicePrices[value])?(servicePrices[value]/100).toFixed(2).replace(".",","):"";
-  const n=serviceDurations[value];if(!Number.isInteger(n)||n<15||n>720)return;
+ const row=selectedService(catalogServices,$("service").value);
+ $("servicePrice").value=Number.isSafeInteger(row?.priceCents)?(row.priceCents/100).toFixed(2).replace(".",","):"";
+ const n=row?.durationMin;
+ if(!Number.isInteger(n)||n<15||n>720){$("duration").value="60";return;}
  let option=Array.from($("duration").options).find(o=>o.value===String(n));
- if(!option){option=document.createElement("option");option.value=String(n);option.textContent=n+" minutos (serviço)";$("duration").append(option)}
+ if(!option){option=document.createElement("option");option.value=String(n);option.textContent=n+" minutos (serviço)";$("duration").append(option);}
  $("duration").value=String(n);
 });
 const closeForm=()=>$("formBackdrop").classList.add("hidden");
@@ -278,8 +303,11 @@ bookingMessage();
 $("bookingForm").onsubmit=async e=>{
  e.preventDefault();if(!$("bookingForm").reportValidity())return;
  const date=$("bookingDate").value,allDay=isBlock&&$("allDay").checked,appointmentTime=allDay?"00:00":$("bookingTime").value,durationMin=allDay?1440:Number($("duration").value);
+ const selected=selectedService(catalogServices,$("service").value);
+ const manual=$("service").value.startsWith("manual:")?$("service").value.slice(7):"";
+ if(!isBlock&&!selected&&!manual){$("bookingError").textContent="Selecione um serviço válido.";return;}
  const body={recordType:isBlock?"block":"appointment",name:$("customerName").value,phone:$("customerPhone").value,
- customerCode:$("customerCode").value,service:$("service").value,professional:$("professional").value,
+ customerCode:$("customerCode").value,service:selected?.name||manual,serviceId:selected?.id||null,professional:$("professional").value,
  date,appointmentTime,durationMin,priceCents:isBlock?null:cents($("servicePrice").value),allDay,notes:$("notes").value};
  $("save").disabled=true;$("bookingError").textContent="";
  try{
