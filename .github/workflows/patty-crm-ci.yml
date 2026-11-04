@@ -32,6 +32,10 @@ jobs:
         run: node scripts/test-gendo-archive.mjs
       - name: Validate appointment API syntax
         run: node --check api/crm/appointments.js
+      - name: Validate customer search API syntax
+        run: node --check api/crm/customer-search.js
+      - name: Test customer indexing and quota recovery
+        run: node scripts/test-customer-index.mjs
       - name: Test concurrent appointment reservations and blocks
         run: node scripts/test-appointments-concurrency.mjs
       - name: Test retention and consent protections
