@@ -39,3 +39,5 @@ jobs:
         run: node scripts/test-customer-index.mjs
       - name: Preserve retention and consent records
         run: node scripts/test-retention.mjs
+      - name: Test marketing campaigns, opt-in/out and Meta transport safety
+        run: node scripts/test-marketing.mjs
