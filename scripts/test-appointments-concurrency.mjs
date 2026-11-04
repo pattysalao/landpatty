@@ -4,9 +4,9 @@ import {readFileSync} from "node:fs";
 import vm from "node:vm";
 
 // Local in-memory Firestore model: no access to production or external credentials.
-const data=new Map(),guards=new Map();
+const data=new Map(),guards=new Map(),services=new Map();
 const ref=(collection,id)=>({type:"doc",collection,id});
-const contents=r=>(r.collection==="patty_appointments"?data:guards);
+const contents=r=>(r.collection==="patty_appointments"?data:r.collection==="patty_module_servicos"?services:guards);
 const document=r=>({id:r.id,exists:contents(r).has(r.id),data:()=>contents(r).get(r.id)});
 const collection=name=>({
   doc(id){
@@ -99,4 +99,17 @@ assert.equal((await call("POST",{...base,professional:"Benedita",appointmentTime
   "Released all-day block stops occupying time");
 assert.equal((await call("POST",{...base,date:"2026-02-31"})).status,400,
   "Impossible dates are rejected");
-console.log("Appointment regression passed: simultaneous booking, overlap, adjacent slots, distinct staff, cancellation, day blocks and dates.");
+services.set("catalog-service-01",{name:"Mechas",active:true,durationMin:60,priceCents:25000});
+services.set("catalog-service-02",{name:"Mechas",active:false,durationMin:90,priceCents:30000});
+const exact={...base,name:"Outra Cliente",service:"Mechas",serviceId:"catalog-service-01",
+  professional:"Chele",appointmentTime:"11:00"};
+const exactSaved=await call("POST",exact);
+assert.equal(exactSaved.status,201,"Valid catalog service ID must be accepted");
+assert.equal(data.get(exactSaved.body.id).serviceId,"catalog-service-01","Exact catalog identity must persist");
+assert.equal((await call("POST",{...exact,service:"Corte",appointmentTime:"13:00"})).status,409,
+  "Service ID and name mismatch must be rejected");
+assert.equal((await call("POST",{...exact,serviceId:"catalog-service-02",appointmentTime:"13:00"})).status,409,
+  "Inactive services must be rejected");
+assert.equal((await call("POST",{...exact,serviceId:"invalid!",appointmentTime:"13:00"})).status,400,
+  "Invalid service IDs must be rejected");
+console.log("Appointment regression passed: simultaneous booking, overlap, adjacent slots, distinct staff, cancellation, blocks, catalog identity and dates.");
