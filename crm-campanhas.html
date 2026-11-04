@@ -146,7 +146,7 @@ async function loadCampaigns(){
 $("refreshCampaigns").onclick=loadCampaigns;
 $("optoutButton").onclick=async()=>{
  const customerCode=$("optoutCode").value.trim();
- if(!/^\\d{1,15}$/.test(customerCode)){$("optoutStatus").textContent="Informe o código Gendo válido.";return;}
+ if(!/^\d{1,15}$/.test(customerCode)){$("optoutStatus").textContent="Informe o código Gendo válido.";return;}
  if(!confirm("Confirma que esta cliente pediu para não receber marketing?"))return;
  try{await post("/api/crm/operations",{action:"consent",customerCode,source:$("optoutSource").value,consent:false});
  $("optoutCode").value="";$("optoutStatus").textContent="Descadastramento registrado. O envio será bloqueado.";
