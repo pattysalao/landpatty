@@ -1,0 +1,31 @@
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {normalizeServiceCatalog,serviceOptionLabel,uniqueServiceByName,selectedService} from "../patty-service-catalog.js";
+
+const a={id:"service-001",name:"Corte Feminino",code:"G100",category:"Cabelo",durationMin:45,priceCents:8500,active:true};
+const b={id:"service-002",name:"Corte Feminino",code:"G200",category:"Cabelo",durationMin:90,priceCents:15500,active:true};
+const c={id:"service-003",name:"Escova",durationMin:60,priceCents:7500,active:false};
+const rows=normalizeServiceCatalog([a,b,c,{...a}]);
+assert.equal(rows.length,2,"Inactive records and duplicate IDs must be excluded");
+assert.deepEqual(rows.map(x=>x.id),["service-001","service-002"]);
+assert.equal(uniqueServiceByName(rows,"corte feminino"),null,"Duplicate names must not auto-select");
+assert.equal(uniqueServiceByName(rows,"serviço inexistente"),null);
+assert.equal(selectedService(rows,"service-001").durationMin,45);
+assert.equal(selectedService(rows,"service-001").priceCents,8500);
+assert.equal(selectedService(rows,"service-002").durationMin,90);
+assert.equal(selectedService(rows,"service-002").priceCents,15500);
+assert.notEqual(serviceOptionLabel(rows[0],rows),serviceOptionLabel(rows[1],rows));
+assert.match(serviceOptionLabel(rows[0],rows),/G100/);
+assert.match(serviceOptionLabel(rows[1],rows),/G200/);
+assert.match(serviceOptionLabel(rows[0],rows),/ref\..*001/);
+const unique=normalizeServiceCatalog([{...a,name:"Luzes"}]);
+assert.equal(uniqueServiceByName(unique,"luzes").id,"service-001");
+
+const html=readFileSync("crm-agenda.html","utf8");
+const api=readFileSync("api/crm/appointments.js","utf8");
+assert.match(html,/serviceId:selected\?\.id\|\|null/,"Appointment UI must submit exact ID");
+assert.match(html,/selectedService\(catalogServices,\$\("service"\)\.value\)/);
+assert.match(html,/uniqueServiceByName\(catalogServices,x\.service\)/,"Waitlist must not guess ambiguous services");
+assert.match(api,/serviceId:recordType==="block"\?null:serviceId\|\|null/,"Appointment API must persist ID");
+assert.match(api,/catalog\.data\(\)\.name!==service/,"Server must reject mismatched ID/name");
+console.log("Service identity validation passed: homonyms remain distinct, duration and price are correct, identity persisted.");

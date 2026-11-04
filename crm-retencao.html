@@ -1,0 +1,128 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Retenção, fila de espera e empresa | Patty</title><link rel="stylesheet" href="/patty-crm-ui.css?v=1"><script defer src="/patty-crm-ui.js?v=1"></script><style>
+:root{--wine:#801a39;--line:#e9dce0;--muted:#72666c}*{box-sizing:border-box}body{font:14px/1.5 system-ui,Arial;background:#f8f4f2;margin:0;color:#2c2227}header{background:var(--wine);color:white;padding:15px 20px}header a{color:white}main{max-width:1250px;margin:auto;padding:16px}
+section.box{background:white;border:1px solid var(--line);border-radius:15px;padding:18px;margin-bottom:15px;box-shadow:0 6px 25px #30131e10}.hidden{display:none!important}
+button,input,select,textarea{font:inherit}input,select,textarea{width:100%;border:1px solid #d6c6cd;border-radius:9px;padding:10px;min-height:42px;background:white;color:#241e22}
+button{cursor:pointer;border:1px solid transparent;background:#801a39;color:white;border-radius:9px;font-weight:650;padding:10px 13px}button.secondary{background:white;border-color:#dfcbd2;color:#801a39}button:disabled{opacity:.5;cursor:wait}
+a{color:#801a39}h1,h2{margin:0 0 8px}h1{font-size:24px}h2{font-size:19px}.muted{color:var(--muted)}.tiny{font-size:12px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+label{display:block;font-weight:600;font-size:12px;margin:7px 0 3px}.actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:12px 0}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 17px}.tab{background:#fff;border:1px solid #d8c4cd;color:#801a39}.tab.active{background:#801a39;color:white}
+.metric{padding:13px;border:1px solid var(--line);border-radius:12px;background:#fffafa}.metric strong{display:block;font-size:24px;color:#801a39}.metric span{font-size:12px;color:#7c6771}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:720px}th,td{text-align:left;padding:10px;border-bottom:1px solid #efe7e9}th{font-size:12px;color:#715965}td{font-size:13px}td button{padding:6px 9px;font-size:12px}
+.error{color:#ac2546;min-height:20px}.notice{background:#fff8ec;border-left:3px solid #c79a67;padding:10px;border-radius:7px}
+@media(max-width:750px){main{padding:9px}.grid,.grid.two{grid-template-columns:1fr}section.box{padding:13px}h1{font-size:21px}.metric strong{font-size:20px}}
+</style></head><body><header><strong>Patty | Gestão de relacionamento</strong> <a href="/crm-agenda.html">Voltar à agenda</a></header><main>
+<section id="authloading" class="box">Autenticando acesso seguro…</section>
+<section id="login" class="box hidden"><h1>Acesso da equipe</h1><form id="loginForm" class="grid two"><input id="email" type="email" required placeholder="E-mail"><input id="password" type="password" required placeholder="Senha"><button>Entrar</button></form><p id="loginError" class="error"></p></section>
+<div id="app" class="hidden"><section class="box"><h1>Agenda, fila de espera e retenção</h1><p class="muted">Recupere oportunidades usando dados do CRM. Nenhuma campanha é disparada automaticamente. Mensagens promocionais só para clientes com opt-in registrado.</p>
+<div class="tabs"><button class="tab active" data-tab="wait">Fila de espera</button><button class="tab" data-tab="inactive">Clientes sumidos</button><button class="tab" data-tab="results">Insights de retenção</button><button class="tab" data-tab="settings">Configurações da empresa</button></div></section>
+<section class="box" id="panel-wait"><h2>Fila de espera</h2><p class="muted">Quando a agenda estiver lotada, registre a preferência da cliente. Quando surgir uma vaga, filtre os pedidos, ofereça manualmente e marque como ofertada ou agendada.</p>
+<form id="waitForm"><div class="grid"><div><label>Cliente *</label><input id="waitName" required placeholder="Nome"></div><div><label>WhatsApp</label><input id="waitPhone" type="tel" placeholder="48 99999-9999"></div><div><label>Código Gendo</label><input id="waitCode"></div><div><label>Serviço *</label><input id="waitService" required placeholder="Serviço desejado"></div><div><label>Profissional</label><input id="waitPro" placeholder="Qualquer profissional"></div><div><label>Data de preferência</label><input id="waitDate" type="date"></div><div><label>Horário desejado</label><input id="waitTime" type="time"></div><div><label style="margin-top:17px"><input id="waitFlexible" type="checkbox" style="width:auto;min-height:auto"> Qualquer horário livre</label></div><div><label>Observações</label><input id="waitNotes" maxlength="300"></div></div><div class="actions"><button type="submit">+ Adicionar à fila</button><button type="button" class="secondary" id="refreshWait">Atualizar lista</button></div><p id="waitStatus" class="error" role="status"></p></form>
+<div class="tablewrap"><table><thead><tr><th>Cliente</th><th>Serviço</th><th>Preferência</th><th>Profissional</th><th>Ações</th></tr></thead><tbody id="waitRows"></tbody></table></div></section>
+<section class="box hidden" id="panel-inactive"><h2>Clientes sumidos</h2><p class="muted">Filtrados pela última visita registrada no histórico do Gendo. Não considera cancelamentos posteriores não importados. Os filtros consultam lotes de até 100 clientes, com paginação.</p>
+<div class="actions"><label>Sem atendimento há<select id="inactiveDays"><option value="30">30 dias</option><option value="60" selected>60 dias</option><option value="90">90 dias</option><option value="120">120 dias</option><option value="180">180 dias</option><option value="365">365 dias</option></select></label><label>Visitas anteriores (mínimo)<input id="inactiveVisits" type="number" min="0" max="1000" value="2" style="width:100px"></label><button id="searchInactive" type="button">Pesquisar</button><button id="nextInactive" class="secondary hidden" type="button">Próxima página</button></div>
+<div class="actions"><label>Registrar opt-in comprovado (código Gendo)<input id="consentCode" placeholder="Código da cliente" inputmode="numeric" style="width:145px"></label><label>Origem da autorização<select id="consentSource"><option value="whatsapp">WhatsApp</option><option value="formulario">Formulário</option><option value="presencial">Presencial</option><option value="outro">Outro</option></select></label><label style="align-self:end"><input id="consentConfirmed" type="checkbox" style="width:auto;min-height:auto"> Tenho comprovação do consentimento</label><button id="registerConsent" type="button" class="secondary">Registrar autorização</button></div><p id="inactiveStatus" role="status" class="muted"></p><div class="tablewrap"><table><thead><tr><th>Cliente</th><th>Última visita</th><th>Visitas</th><th>Consentimento</th><th>Ação</th></tr></thead><tbody id="inactiveRows"></tbody></table></div></section>
+<section class="box hidden" id="panel-results"><h2>Resultados de recuperação</h2><div class="actions"><label>Período<select id="resultDays"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">365 dias</option></select></label><button id="refreshResults" type="button">Atualizar insights</button></div><div id="resultCards" class="grid"></div><p id="resultStatus" class="muted"></p>
+<form id="recoveryForm"><h2>Confirmar recuperação após atendimento</h2><p class="muted tiny">Após abrir uma campanha no WhatsApp, copie o identificador exibido em Clientes sumidos. Confirme somente se a cliente retornou e foi atendida. O valor é receita efetivamente recebida.</p><div class="grid"><label>ID de contato<input id="recoveryId" required maxlength="32" placeholder="ID de 32 caracteres"></label><label>Receita recebida (R$)<input id="recoveryAmount" inputmode="decimal" placeholder="Ex.: 180,00"></label><div style="align-self:end"><button type="submit">Confirmar cliente recuperada</button></div></div><p id="recoveryStatus" role="status"></p></form><p class="notice">Contato preparado não equivale a mensagem enviada. Cliente recuperada e faturamento recuperado só entram nos resultados após confirmação manual do retorno e do valor recebido. Valores históricos do Gendo não são receita recuperada.</p></section>
+<section class="box hidden" id="panel-settings"><h2>Informações e expediente da empresa</h2><p class="muted">O expediente define quais horas ficam visíveis no calendário. A API de agendamentos admite atendimento das 00h às 24h. Bloqueios podem ser criados pela agenda do CRM ou, futuramente, pelo aplicativo das profissionais usando a mesma base e autenticação.</p>
+<form id="settingsForm"><div class="grid two"><div><label>Nome da empresa</label><input id="businessName" required maxlength="120"></div><div><label>Telefone</label><input id="businessPhone"></div><div><label>Endereço</label><input id="businessAddress" maxlength="200"></div><div><label>Fuso horário</label><input value="America/Sao_Paulo" disabled></div><div><label>Hora inicial</label><select id="openHour"></select></div><div><label>Hora final</label><select id="closeHour"></select></div><div><label>Intervalos da agenda</label><select id="slotMinutes"><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="20">20 min</option><option value="30">30 min</option><option value="60">60 min</option></select></div></div><div class="actions"><button type="submit" id="saveSettings">Salvar configurações</button><button type="button" class="secondary" id="runIndex">Indexar nomes da base</button><span id="indexStatus" class="muted tiny"></span></div><p id="settingsStatus" class="error" role="status"></p></form></section></div></main>
+<script type="module">
+import {initPattyAuth,showPattyAuthState,loadPattyPermissions,pattyCRMRequest} from "/patty-auth.js";
+import {signInWithEmailAndPassword,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const $=id=>document.getElementById(id);
+const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=v=>Number.isSafeInteger(v)?(v/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"Não registrado";
+let auth,manager=false,inactiveCursor=null,inactiveRows=[],waitItems=[],canUse=false;
+const toCents=x=>{const raw=String(x||"").trim().replace(/[^\d,.]/g,"");if(!raw)return null;const n=Number(raw.includes(",")?raw.replace(/\./g,"").replace(",","."):raw);return Number.isFinite(n)&&n>=0&&n<1000000?Math.round(n*100):null};
+const templates={
+sumidos:name=>"Oi, "+name+"! ✨ Faz tempo que não temos o prazer de cuidar de você aqui na Patty Centro de Beleza. Como você está? Preparamos um atendimento especial para sua volta. Posso te mostrar os horários disponíveis?",
+retorno:name=>"Olá, "+name+"! 💕 Seu momento de autocuidado merece atenção. Que tal reservar seu próximo horário na Patty? Posso encontrar uma opção que combine com sua rotina?",
+pos_atendimento:name=>"Oi, "+name+"! ✨ Foi um prazer receber você na Patty. Como está se sentindo com o resultado do atendimento? Conte para nós, adoramos acompanhar sua experiência!",
+avaliacao:name=>"Olá, "+name+"! Sua experiência é muito importante para a Patty. Se gostou do atendimento, sua avaliação ajuda outras mulheres a encontrar um espaço de confiança. Podemos te enviar o link de avaliação?",
+lembrete:name=>"Olá, "+name+"! Passando para lembrar sobre seu horário na Patty Centro de Beleza. Caso precise ajustar, por favor nos avise com antecedência.",
+vaga_disponivel:name=>"Olá, "+name+"! ✨ Surgiu um horário na Patty que pode combinar com sua preferência. Você ainda tem interesse? Respondendo aqui, verificamos a disponibilidade."
+};
+async function api(url,opts={}){ return pattyCRMRequest(auth,url,opts); }
+async function post(data){return api("/api/crm/operations",{method:"POST",body:JSON.stringify(data)});}
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));["wait","inactive","results","settings"].forEach(k=>$("panel-"+k).classList.toggle("hidden",b.dataset.tab!==k));if(b.dataset.tab==="inactive")searchInactive(true);if(b.dataset.tab==="results")loadResults();if(b.dataset.tab==="settings")loadSettings();});
+async function loadWait(){try{const r=await api("/api/crm/operations?mode=waitlist");waitItems=r.items||[];
+ $("waitRows").innerHTML=waitItems.map(x=>'<tr><td>'+esc(x.clientName)+'<small style="display:block">'+esc(x.phone)+'</small></td><td>'+esc(x.service)+'</td><td>'+esc(x.date||"Flexível")+' '+esc(x.requestedTime||"")+'</td><td>'+esc(x.professional||"Qualquer")+'</td><td><button class="secondary" data-offer="'+esc(x.id)+'">Ofertar</button> <button class="secondary" data-scheduled="'+esc(x.id)+'">Agendado</button> <button class="secondary" data-cancel="'+esc(x.id)+'">Remover</button></td></tr>').join("")||'<tr><td colspan="5">Nenhum pedido na fila.</td></tr>';
+ $("waitStatus").textContent=r.partial?"Fila parcial: mais de 100 solicitações.":"";
+ }catch(e){$("waitStatus").textContent=e.message;}}
+$("waitForm").onsubmit=async e=>{e.preventDefault();try{await post({action:"waitlist",clientName:$("waitName").value,phone:$("waitPhone").value,customerCode:$("waitCode").value,service:$("waitService").value,professional:$("waitPro").value,date:$("waitDate").value,requestedTime:$("waitTime").value,flexible:$("waitFlexible").checked,notes:$("waitNotes").value});$("waitForm").reset();$("waitStatus").textContent="Cliente adicionada à fila";await loadWait();}catch(err){$("waitStatus").textContent=err.message;}};
+$("refreshWait").onclick=loadWait;
+$("waitRows").onclick=async e=>{const button=e.target.closest("[data-offer],[data-scheduled],[data-cancel]");if(!button)return;
+ const id=button.dataset.offer||button.dataset.scheduled||button.dataset.cancel;
+ const row=waitItems.find(x=>x.id===id);if(!row)return;
+ if(button.dataset.offer&&row.phone){const msg=templates.vaga_disponivel(row.clientName);window.open("https://wa.me/"+row.phone+"?text="+encodeURIComponent(msg),"_blank","noopener");}
+ const status=button.dataset.offer?"offered":button.dataset.scheduled?"scheduled":"cancelled";
+ try{await post({action:"waitlist_status",id,status});await loadWait();}catch(err){$("waitStatus").textContent=err.message;}
+};
+async function searchInactive(reset){if(!manager){$("inactiveStatus").textContent="Acesso gerencial necessário";return}
+ if(reset){inactiveCursor=null;inactiveRows=[];}
+ $("inactiveStatus").textContent="Consultando histórico...";
+ try{const params=new URLSearchParams({mode:"inactive",days:$("inactiveDays").value,visits:$("inactiveVisits").value});
+  if(inactiveCursor)params.set("cursor",inactiveCursor);
+  const r=await api("/api/crm/operations?"+params.toString());
+  inactiveRows=r.customers||[];inactiveCursor=r.nextCursor;
+  $("inactiveRows").innerHTML=inactiveRows.map((x,i)=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.lastVisit||"—")+'</td><td>'+esc(x.visits)+'</td><td>'+(x.marketingOptIn?"Autorizado":"Sem opt-in")+'</td><td><button class="secondary" data-contact="'+i+'" '+(!x.marketingOptIn||!x.phone?"disabled":"")+'>Preparar WhatsApp</button></td></tr>').join("")||'<tr><td colspan="5">Nenhuma cliente nessa página.</td></tr>';
+  $("nextInactive").classList.toggle("hidden",!inactiveCursor);
+  $("inactiveStatus").textContent="Resultado paginado. Clientes sem opt-in não podem receber campanha de marketing.";
+ }catch(e){$("inactiveStatus").textContent=e.message;}
+}
+$("registerConsent").onclick=async()=>{if(!$("consentConfirmed").checked){$("inactiveStatus").textContent="Confirme que possui registro real da autorização";return}
+ try{await post({action:"consent",customerCode:$("consentCode").value,source:$("consentSource").value,consent:true});$("inactiveStatus").textContent="Consentimento registrado com data e responsável";$("consentConfirmed").checked=false;searchInactive(true);}catch(e){$("inactiveStatus").textContent=e.message;}
+};
+$("searchInactive").onclick=()=>searchInactive(true);$("nextInactive").onclick=()=>searchInactive(false);
+$("inactiveRows").onclick=async e=>{const b=e.target.closest("[data-contact]");if(!b)return;const row=inactiveRows[Number(b.dataset.contact)];if(!row)return;
+ const contactWindow=window.open("about:blank","_blank");
+ try{const r=await post({action:"marketing_prepare",customerCode:row.gendoCode,phone:row.phone,customerName:row.name,kind:"sumidos",marketingOptIn:row.marketingOptIn});
+  const text=templates.sumidos(row.name);if(contactWindow)contactWindow.location.href="https://wa.me/"+row.phone+"?text="+encodeURIComponent(text);else $("inactiveStatus").textContent="Janela bloqueada pelo navegador; habilite pop-ups para abrir WhatsApp.";
+  $("inactiveStatus").textContent="Link preparado · ID da campanha: "+r.id+" · sem confirmação de envio. Use esse ID em Insights após o retorno efetivo.";
+ }catch(err){if(contactWindow)contactWindow.close();$("inactiveStatus").textContent=err.message;}
+};
+async function loadResults(){try{const r=await api("/api/crm/operations?mode=recovery&days="+$("resultDays").value);$("resultCards").innerHTML=[
+ ["Contatos preparados",r.contactsPrepared],["Clientes recuperadas",r.clientsRecovered],["Receita recuperada",money(r.realizedRevenueCents)]
+ ].map(([k,v])=>'<div class="metric"><span>'+esc(k)+'</span><strong>'+esc(v)+'</strong></div>').join("");
+ $("resultStatus").textContent=(r.partial?"Indicadores parciais por limite de consulta. ":"")+r.withoutValue+" recuperação(ões) sem valor confirmado.";
+ }catch(e){$("resultStatus").textContent=e.message;}}
+$("recoveryForm").onsubmit=async e=>{e.preventDefault();
+ const amount=toCents($("recoveryAmount").value);const id=$("recoveryId").value.trim();
+ if(!confirm("Confirma que a cliente compareceu ao atendimento? A receita informada já foi recebida?"))return;
+ try{await post({action:"mark_recovered",id,realizedCents:amount});$("recoveryStatus").textContent="Recuperação contabilizada";$("recoveryForm").reset();await loadResults();}
+ catch(err){$("recoveryStatus").textContent=err.message;}
+};
+$("refreshResults").onclick=loadResults;
+function buildHours(){for(let n=0;n<=24;n++){const op=document.createElement("option");op.value=n;op.textContent=n===24?"24:00":String(n).padStart(2,"0")+":00";$("closeHour").add(op);if(n<24)$("openHour").add(op.cloneNode(true));}}
+buildHours();
+async function loadSettings(){try{const r=await api("/api/crm/operations?mode=settings");manager=r.manager===true;const s=r.settings||{};$("businessName").value=s.name||"";$("businessPhone").value=s.phone||"";$("businessAddress").value=s.address||"";$("openHour").value=s.openHour??9;$("closeHour").value=s.closeHour??19;$("slotMinutes").value=s.slotMinutes??15;$("saveSettings").disabled=!manager;$("runIndex").disabled=!manager;$("settingsStatus").textContent=manager?"":"Somente administradores podem editar configurações.";}catch(e){$("settingsStatus").textContent=e.message;}}
+$("settingsForm").onsubmit=async e=>{e.preventDefault();try{await post({action:"settings",settings:{name:$("businessName").value,phone:$("businessPhone").value,address:$("businessAddress").value,openHour:Number($("openHour").value),closeHour:Number($("closeHour").value),slotMinutes:Number($("slotMinutes").value)}});$("settingsStatus").textContent="Configurações salvas";}catch(err){$("settingsStatus").textContent=err.message;}};
+$("runIndex").onclick=async()=>{
+ if(!manager)return;
+ const btn=$("runIndex"),key="patty_customer_index_cursor_v1";
+ btn.disabled=true;
+ let cursor=null,processed=0,updated=0,finished=false;
+ try{cursor=localStorage.getItem(key)||null;}catch(_){}
+ $("indexStatus").textContent=cursor?"Retomando indexação do último lote concluído...":"Iniciando indexação...";
+ try{
+  for(let i=0;i<300;i++){
+   const r=await api("/api/crm/customer-search",{method:"POST",body:JSON.stringify({action:"index",cursor})});
+   processed+=r.processed||0;updated+=r.updated||0;
+   if(r.done){
+    finished=true;cursor=null;
+    try{localStorage.removeItem(key);}catch(_){}
+    $("indexStatus").textContent="Indexação concluída: "+processed+" clientes verificados nesta execução, "+updated+" atualizados.";
+    break;
+   }
+   if(!r.cursor)throw Error("O servidor não informou o ponto de retomada.");
+   cursor=r.cursor;
+   try{localStorage.setItem(key,cursor);}catch(_){}
+   $("indexStatus").textContent=processed+" clientes verificados nesta execução, "+updated+" atualizados. Progresso salvo.";
+  }
+  if(!finished)$("indexStatus").textContent="Lote pausado: "+processed+" verificados, "+updated+" atualizados. Execute novamente para continuar.";
+ }catch(e){
+  $("indexStatus").textContent=e.message+" · "+processed+" verificados nesta execução; execute novamente para continuar de onde parou.";
+ }finally{btn.disabled=false;}
+};
+$("loginForm").onsubmit=async e=>{e.preventDefault();try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value);}catch(e){$("loginError").textContent="Falha na autenticação";}};
+(async()=>{try{const s=await initPattyAuth();auth=s.auth;onAuthStateChanged(auth,async user=>{$("authloading").classList.add("hidden");showPattyAuthState(user,s.persistence);
+ const verified=!!user?.emailVerified;$("login").classList.toggle("hidden",verified);$("app").classList.toggle("hidden",!verified);if(verified){const a=await loadPattyPermissions(auth);canUse=a.authorized;if(canUse){await loadSettings();await loadWait();}else $("app").innerHTML='<section class="box">Usuário não autorizado</section>';}});}catch(e){$("authloading").textContent=e.message;}})();
+</script></body></html>

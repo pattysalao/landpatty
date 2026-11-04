@@ -43,7 +43,7 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <div class="card">
 <div class="row" style="justify-content:space-between;align-items:center">
 <div><h1>Agenda da equipe</h1><p class="muted" style="margin:0">Agendamentos por profissional, dia e situação</p></div>
-<div class="row"><button type="button" id="new" class="primary">+ Novo agendamento</button><button type="button" id="block" class="secondary">Bloquear horário</button></div>
+<div class="row"><button type="button" id="new" class="primary">+ Novo agendamento</button><button type="button" id="block" class="secondary">⛔ Bloquear agenda</button><a href="/crm-retencao.html" class="secondary" style="padding:10px;border:1px solid #dbc7cd;border-radius:9px;color:#801a39;text-decoration:none">Fila de espera · Retenção · Empresa</a></div>
 </div>
 <p class="note"><strong>Uso paralelo:</strong> a agenda do CRM não está sincronizada com o Gendo. Não substitua a agenda oficial até validar profissionais, serviços e todos os horários. Não há disparo automático de WhatsApp.</p>
 <div class="row"><button id="prev" class="secondary">‹ Anterior</button><input id="date" type="date" aria-label="Dia da agenda"><button id="next" class="secondary">Próximo ›</button><button id="today" class="secondary">Hoje</button><button id="refresh" class="secondary">Atualizar</button><button id="logout" class="secondary">Sair</button></div>
@@ -58,23 +58,23 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <div class="row" style="justify-content:space-between"><h2 id="formTitle">Novo agendamento</h2><button class="secondary" id="close" type="button">Fechar</button></div>
 <form id="bookingForm">
 <div class="fields">
-<label class="full" id="nameLabel">Nome da cliente *<input id="customerName" required maxlength="120" autocomplete="name"></label>
+<label class="full" id="nameLabel">Nome da cliente *<span style="position:relative;display:block"><input id="customerName" required maxlength="120" autocomplete="off" placeholder="Digite o nome para pesquisar"><span id="clientResults" class="hidden" style="position:absolute;top:100%;left:0;right:0;z-index:20;max-height:220px;overflow:auto;background:white;border:1px solid #e0ccd3;box-shadow:0 10px 30px #3514202b;border-radius:8px"></span></span><small id="customerSearchStatus" class="muted" aria-live="polite"></small></label>
 <label id="phoneLabel">Telefone (opcional)<input id="customerPhone" type="tel" inputmode="tel" maxlength="30"></label>
 <label id="codeLabel">Código Gendo (opcional)<input id="customerCode" maxlength="32" inputmode="numeric"><button id="findCustomer" class="secondary" type="button" style="margin-top:7px">Localizar cliente</button></label>
-<label class="full" id="serviceLabel">Serviço *<input id="service" list="serviceSuggestions" maxlength="120" required></label>
+<label class="full" id="serviceLabel">Serviço *<select id="service" required><option value="">Selecione um serviço</option></select><button class="secondary" id="createService" type="button" style="margin-top:7px">+ Criar serviço</button></label><label id="priceLabel">Preço desta cliente (R$)<input id="servicePrice" inputmode="decimal" placeholder="Preço personalizado"></label>
 <datalist id="serviceSuggestions"></datalist>
 <label>Profissional *<input id="professional" list="professionalSuggestions" maxlength="80" required></label>
 <datalist id="professionalSuggestions"></datalist>
 <label>Data *<input id="bookingDate" type="date" required></label>
-<label>Hora *<input id="bookingTime" type="time" min="09:00" max="18:45" step="900" required></label>
-<label>Duração *<select id="duration"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60" selected>1 hora</option><option value="90">1h30</option><option value="120">2 horas</option><option value="180">3 horas</option></select></label>
+<label>Hora *<input id="bookingTime" type="time" min="00:00" max="23:59" step="300" required></label><label class="full hidden" id="allDayLabel"><input id="allDay" type="checkbox" style="width:auto"> Bloquear o dia inteiro</label>
+<label>Duração *<select id="duration"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60" selected>1 hora</option><option value="90">1h30</option><option value="120">2 horas</option><option value="180">3 horas</option><option value="240">4 horas</option><option value="300">5 horas</option><option value="360">6 horas</option><option value="480">8 horas</option><option value="720">12 horas</option></select></label>
 <label class="full">Observação<input id="notes" maxlength="500" placeholder="Detalhe do agendamento ou motivo do bloqueio"></label>
 </div>
-<p class="muted small">Horário de referência: 9h às 19h. A confirmação depende da disponibilidade no CRM e não consulta o Gendo.</p>
-<p id="bookingError" class="error" role="alert"></p>
+<p class="muted small">Horários configuráveis das 00h às 24h. O CRM ainda não consulta a disponibilidade do Gendo.</p>
+<div id="waitSuggestions" class="hidden" style="background:#fff8ee;border:1px solid #eddfcd;border-radius:10px;padding:9px;margin-top:9px"><strong>Fila de espera para este horário</strong><div id="waitCandidates" class="row"></div></div><p id="bookingError" class="error" role="alert"></p>
 <div class="form-actions"><button id="save" type="submit">Salvar agendamento</button><button id="cancel" type="button" class="secondary">Cancelar</button></div>
 </form></section></div>
-<div id="statusBackdrop" class="modal-backdrop hidden" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
+<div id="serviceBackdrop" class="modal-backdrop hidden"><section class="modal" role="dialog" aria-modal="true" aria-label="Novo serviço"><div class="row" style="justify-content:space-between"><h2>+ Criar serviço</h2><button id="closeService" class="secondary" type="button">Fechar</button></div><form id="serviceForm"><div class="fields"><label class="full">Nome *<input id="newServiceName" maxlength="120" required></label><label>Preço padrão (R$)<input id="newServicePrice" inputmode="decimal" placeholder="120,00"></label><label>Duração (minutos)<input id="newServiceDuration" type="number" min="15" max="720" value="60" required></label><label>Categoria<input id="newServiceCategory" maxlength="80"></label><label class="full">Descrição<input id="newServiceDescription" maxlength="250"></label></div><p class="muted small">Necessário acesso administrativo para criar serviços.</p><p id="serviceError" class="error" role="alert"></p><div class="form-actions"><button type="submit">Salvar serviço</button></div></form></section></div><div id="statusBackdrop" class="modal-backdrop hidden" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
 <div class="row" style="justify-content:space-between"><h2 id="statusTitle">Situação do agendamento</h2><button id="closeStatus" type="button" class="secondary">Fechar</button></div>
 <p id="bookingInfo" class="muted"></p><label for="bookingStatus">Situação</label><select id="bookingStatus">
 <option value="agendado">Agendado</option><option value="confirmado">Confirmado</option>
@@ -82,69 +82,75 @@ input[type=date]{width:auto;min-width:165px}.hidden{display:none!important}
 <option value="finalizado">Finalizado</option><option value="faltou">Faltou</option>
 <option value="cancelado">Cancelado</option>
 </select><p id="statusError" class="error" role="alert"></p>
-<div class="form-actions"><button id="saveStatus">Atualizar situação</button><button id="dismissStatus" class="secondary">Voltar</button></div>
+<label for="bookingMessageType">Mensagem pelo WhatsApp</label><select id="bookingMessageType"><option value="confirmar">Confirmar horário</option><option value="lembrete">Lembrete de agendamento</option><option value="chegada">Boas-vindas</option><option value="agradecer">Agradecer atendimento</option><option value="avaliar">Solicitar avaliação</option></select><p class="small muted">O WhatsApp abre uma mensagem pré-preenchida, sem envio automático. Mensagens promocionais exigem autorização.</p><div class="form-actions"><button id="saveStatus">Atualizar situação</button><a id="bookingWhatsApp" class="secondary hidden" rel="noopener noreferrer" target="_blank" style="border:1px solid #dbc7cd;border-radius:9px;padding:10px;color:#801a39;text-decoration:none">WhatsApp · Confirmar</a><button id="dismissStatus" class="secondary">Voltar</button></div>
 </section></div>
 <script type="module">
-import {initPattyAuth,showPattyAuthState,loadPattyPermissions,pattyTimeout,pattyCRMRequest} from "/patty-auth.js";
+import {initPattyAuth,showPattyAuthState,loadPattyPermissions,pattyCRMRequest} from "/patty-auth.js";
+import {normalizeServiceCatalog,uniqueServiceByName,serviceOptionLabel,selectedService} from "/patty-service-catalog.js";
 import {signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const starterPros=["Patty","Benedita","Deimy","Allegra","Héllen","Chele","Maira","Vaneza","Vanya"];
 const starterServices=["Cabelos e Cachos","Corte","Coloração","Mechas","Nail Design","Manicure","Pedicure","Sobrancelhas","Depilação","Cílios","Massoterapia"];
-let auth,canUse=false,allPros=starterPros,allServices=starterServices,rows=[],editing=null,isBlock=false,serviceDurations={};
+let auth,canUse=false,allPros=starterPros,catalogServices=[],rows=[],editing=null,isBlock=false,companySettings={openHour:9,closeHour:19},customerTimer=null,customerRequest=0,waitCandidates=[],selectedWaitId=null;
+ const money=c=>Number.isSafeInteger(c)?(c/100).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"Preço sob consulta";
+ const cents=t=>{const v=String(t||"").trim().replace(/[^\d,.]/g,"");if(!v)return null;const n=Number(v.includes(",")?v.replace(/\./g,"").replace(",","."):v);return Number.isFinite(n)&&n>=0&&n<=1000000?Math.round(n*100):null};
 function today(){const p=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const v=k=>p.find(x=>x.type===k)?.value;return v("year")+"-"+v("month")+"-"+v("day")}
-async function api(url,opts={}){ return pattyCRMRequest(auth,url,opts); }
-
+async function api(url,opts={}){return pattyCRMRequest(auth,url,opts);}
 function safeStatus(a){return ["solicitado","agendado","confirmado","chegou","em_atendimento","finalizado","atendido","faltou","bloqueio","novo","em_contato"].includes(a)?a:"agendado"}
-function fillCatalog(){
+function fillCatalog(preferred=""){
+ const chosen=preferred||$("service").value;
  $("professionalSuggestions").innerHTML=allPros.map(p=>'<option value="'+esc(p)+'"></option>').join("");
- $("serviceSuggestions").innerHTML=allServices.map(p=>'<option value="'+esc(p)+'"></option>').join("");
+ const options=catalogServices.length?
+   catalogServices.map(p=>'<option value="'+esc(p.id)+'">'+esc(serviceOptionLabel(p,catalogServices))+'</option>'):
+   starterServices.map(name=>'<option value="'+esc("manual:"+name)+'">'+esc(name+" · preço manual")+'</option>');
+ $("service").innerHTML='<option value="">Selecione um serviço</option>'+options.join("");
+ if([...$("service").options].some(o=>o.value===chosen))$("service").value=chosen;
 }
-async function catalogItems(module){
- let items=[],cursor=null;
- const seen=new Set();
- do {
+async function catalogPages(module){
+ const items=[],seen=new Set();
+ let cursor=null;
+ for(let i=0;i<50;i++){
   const page=await api("/api/crm/modulos?module="+module+(cursor?"&cursor="+encodeURIComponent(cursor):""));
   items.push(...(page.items||[]));
   cursor=page.nextCursor||null;
-  if(cursor&&seen.has(cursor))throw Error("Não foi possível concluir o catálogo. Atualize a página.");
-  if(cursor)seen.add(cursor);
- }while(cursor);
- return items;
+  if(!cursor)return items;
+  if(seen.has(cursor))throw Error("Paginação repetida no catálogo "+module);
+  seen.add(cursor);
+ }
+ throw Error("Catálogo "+module+" não pôde ser carregado por completo.");
 }
 async function catalogs(){
- const [p,s]=await Promise.allSettled([catalogItems("profissionais"),catalogItems("servicos")]);
- const warnings=[];
- if(p.status==="fulfilled"){
-  allPros=p.value.filter(x=>x.active!==false&&x.hasCalendar!==false).map(x=>x.name).filter(Boolean);
- }else warnings.push("Equipe provisória: não foi possível carregar o cadastro de profissionais.");
- if(s.status==="fulfilled"){
-  const active=s.value.filter(x=>x.active!==false);
-  allServices=[...new Set(active.map(x=>x.name).filter(Boolean))];
-  // Equal names can identify different services; don't choose a duration silently.
-  serviceDurations={};
-  for(const name of allServices){
-   const matches=active.filter(x=>x.name===name);
-   if(matches.length===1&&Number.isInteger(matches[0].durationMin))serviceDurations[name]=matches[0].durationMin;
-  }
- }else warnings.push("Serviços provisórios: não foi possível carregar o catálogo completo.");
- $("catalogNotice").textContent=warnings.join(" ")||allServices.length+" nomes de serviços e "+allPros.length+" profissionais carregados. Serviços com nomes repetidos exigem conferir a duração.";
+ const [p,sv]=await Promise.allSettled([catalogPages("profissionais"),catalogPages("servicos")]);
+ const notices=[];
+ if(p.status==="fulfilled")allPros=p.value.filter(x=>x.active!==false&&x.hasCalendar!==false).map(x=>x.name).filter(Boolean);
+ else notices.push("Equipe provisória: catálogo de profissionais indisponível.");
+ if(sv.status==="fulfilled"){
+  catalogServices=normalizeServiceCatalog(sv.value);
+  if(!catalogServices.length)notices.push("Nenhum serviço ativo encontrado no CRM.");
+ }else{
+  catalogServices=[];
+  notices.push("Catálogo de serviços indisponível: preços devem ser informados manualmente.");
+ }
+ try{companySettings=(await api("/api/crm/operations?mode=settings")).settings||companySettings;}catch(_){}
  fillCatalog();
+ $("catalogNotice").textContent=notices.join(" ")||(catalogServices.length+" serviços com identidade própria e "+allPros.length+" profissionais carregados.");
 }
-
 function hourSlot(p,h){return rows.filter(a=>(a.professional||"Não atribuído")===p&&(a.appointmentTime||"").slice(0,2)===h)}
 function show(){
  const date=$("date").value;
  const professionals=[...new Set([...allPros,...rows.map(x=>x.professional||"Não atribuído")])].filter(Boolean);
  if(!professionals.length)professionals.push("Não atribuído");
- const hours=Array.from({length:10},(_,i)=>String(9+i).padStart(2,"0"));
+ const first=Math.max(0,Math.min(23,Number(companySettings.openHour??9))),last=Math.max(first+1,Math.min(24,Number(companySettings.closeHour??19)));
+  const hours=Array.from({length:last-first},(_,i)=>String(first+i).padStart(2,"0"));
  let h='<div class="calendar" style="--cols:'+professionals.length+'"><div class="corner">Hora</div>';
- h+=professionals.map(p=>'<div class="col-title">'+esc(p)+'</div>').join("");
+ h+=professionals.map(p=>'<div class="col-title"><span style="display:inline-flex;align-items:center;justify-content:center;border-radius:50%;width:28px;height:28px;background:#e6ced8;color:#801a39;margin-right:6px;font-size:11px">'+esc(p.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase())+'</span>'+esc(p)+'</div>').join("");
  for(const hr of hours){
   h+='<div class="hour">'+hr+':00</div>';
   for(const p of professionals){
-   const selected=hourSlot(p,hr);
-   h+='<div class="cell">'+(p==="Pedidos de horário"?'':'<button class="slot" type="button" data-new-prof="'+esc(p)+'" data-new-time="'+hr+':00" aria-label="Agendar '+esc(p)+' às '+hr+' horas">+ Agendar</button>');
+   const allBlocked=rows.some(x=>x.recordType==="block"&&x.professional===p&&x.appointmentTime==="00:00"&&x.durationMin===1440);
+    const selected=hourSlot(p,hr);
+   h+='<div class="cell"'+(allBlocked?' style="background:repeating-linear-gradient(45deg,#f3e9ec,#f3e9ec 8px,#faf6f7 8px,#faf6f7 16px)"':'')+'>'+(allBlocked?'<button class="appt bloqueio" type="button" data-appointment-id="'+esc(rows.find(x=>x.recordType==="block"&&x.professional===p&&x.appointmentTime==="00:00"&&x.durationMin===1440).id)+'">⛔ Dia bloqueado · liberar</button>':p==="Pedidos de horário"?'':'<button class="slot" type="button" data-new-prof="'+esc(p)+'" data-new-time="'+hr+':00" aria-label="Agendar '+esc(p)+' às '+hr+' horas">+ Agendar</button>');
    h+=selected.map(x=>{
     const cls=safeStatus(x.status);
     return '<button class="appt '+cls+'" type="button" data-appointment-id="'+esc(x.id)+'"><strong>'+esc(x.appointmentTime||"Sem horário")+' · '+esc(x.name)+'</strong><div>'+esc(x.service)+' · '+esc(x.durationMin||60)+' min</div><small>'+esc(x.status==="chegou"?"Cliente chegou":x.status.replace("_"," "))+'</small></button>';
@@ -160,27 +166,75 @@ let agendaRequest=0;
 async function load(){
  if(!canUse)return;
  const request=++agendaRequest,date=$("date").value;
- rows=[];$("calendar").innerHTML="";
+ rows=[];show();
  $("status").textContent="Atualizando agenda…";
  try{
   const d=await api("/api/crm/agenda?date="+encodeURIComponent(date));
-  if(request!==agendaRequest||date!==$("date").value||!canUse)return;
+  if(request!==agendaRequest||date!==$("date").value)return;
   rows=d.appointments||[];
   show();
   if(d.partial)$("status").textContent+=" Listagem parcial: consulte a administração.";
- }catch(e){if(request===agendaRequest&&date===$("date").value)$("status").textContent=e.message}
+ }catch(e){
+  if(request!==agendaRequest||date!==$("date").value)return;
+  rows=[];show();$("status").textContent=e.message;
+ }
 }
-
+async function suggestWait(prof,time,date){
+ try{
+  const r=await api("/api/crm/operations?mode=waitlist");
+  waitCandidates=(r.items||[]).filter(x=>(x.flexible||!x.date||x.date===date)&&(!x.professional||x.professional.toLowerCase()===prof.toLowerCase())&&(!x.requestedTime||x.flexible||x.requestedTime===time)).slice(0,12);
+  $("waitCandidates").innerHTML=waitCandidates.map((x,i)=>'<button type="button" class="secondary" data-wait-candidate="'+i+'" style="padding:7px;font-size:12px">'+esc(x.clientName)+' · '+esc(x.service)+'</button>').join("");
+  $("waitSuggestions").classList.toggle("hidden",!waitCandidates.length);
+ }catch(_){$("waitSuggestions").classList.add("hidden");}
+}
+$("waitCandidates").addEventListener("click",e=>{const b=e.target.closest("[data-wait-candidate]");if(!b)return;const x=waitCandidates[Number(b.dataset.waitCandidate)];if(!x)return;
+ selectedWaitId=x.id;$("customerName").value=x.clientName;$("customerPhone").value=x.phone||"";$("customerCode").value=x.customerCode||"";
+ const match=uniqueServiceByName(catalogServices,x.service);
+ $("service").value=match?.id||(!catalogServices.length&&starterServices.includes(x.service)?"manual:"+x.service:"");
+ $("service").dispatchEvent(new Event("change"));
+ if(!$("service").value)$("bookingError").textContent="Serviço da fila ambíguo ou não localizado. Selecione a opção exata antes de salvar.";
+ $("waitSuggestions").classList.add("hidden");$("customerSearchStatus").textContent="Cliente vinculada à fila de espera";
+});
 function openForm(prof="",time="",block=false){
- isBlock=block;$("bookingForm").reset();$("bookingError").textContent="";
+ isBlock=block;selectedWaitId=null;$("waitSuggestions").classList.add("hidden");$("bookingForm").reset();$("bookingTime").disabled=false;$("duration").disabled=false;$("bookingError").textContent="";$("clientResults").classList.add("hidden");$("customerSearchStatus").textContent="";
  $("formTitle").textContent=block?"Bloquear horário":"Novo agendamento";
- $("nameLabel").classList.toggle("hidden",block);$("serviceLabel").classList.toggle("hidden",block);
+ $("nameLabel").classList.toggle("hidden",block);$("serviceLabel").classList.toggle("hidden",block);$("priceLabel").classList.toggle("hidden",block);$("allDayLabel").classList.toggle("hidden",!block);
  $("phoneLabel").classList.toggle("hidden",block);$("codeLabel").classList.toggle("hidden",block);
  $("customerName").required=!block;$("service").required=!block;
  $("professional").value=prof;$("bookingDate").value=$("date").value||today();
- $("bookingTime").value=time||"09:00";$("save").textContent=block?"Salvar bloqueio":"Salvar agendamento";
- $("formBackdrop").classList.remove("hidden");$("professional").focus();
+ $("bookingTime").value=time||String(companySettings.openHour||9).padStart(2,"0")+":00";$("save").textContent=block?"Salvar bloqueio":"Salvar agendamento";
+ $("formBackdrop").classList.remove("hidden");$("professional").focus();if(!block&&prof)suggestWait(prof,time||"09:00",$("bookingDate").value);
 }
+let customerSelection=null;
+function selectCustomer(row){customerSelection=row;$("customerName").value=row.name||"";$("customerPhone").value=row.phone||"";$("customerCode").value=row.gendoCode||"";$("clientResults").classList.add("hidden");$("customerSearchStatus").textContent="Cliente selecionada · "+(row.visits||0)+" visitas";}
+$("customerName").addEventListener("input",()=>{
+ customerSelection=null;$("customerCode").value="";clearTimeout(customerTimer);
+ const q=$("customerName").value.trim(),token=++customerRequest;
+ if(q.length<2){$("clientResults").classList.add("hidden");$("customerSearchStatus").textContent="Digite duas letras";return;}
+ $("customerSearchStatus").textContent="Pesquisando...";
+ customerTimer=setTimeout(async()=>{try{
+  const answer=await api("/api/crm/customer-search?q="+encodeURIComponent(q));if(token!==customerRequest)return;
+  const clients=answer.customers||[];$("clientResults")._clients=clients;
+  $("clientResults").innerHTML=clients.map((r,i)=>'<button type="button" data-client="'+i+'" style="display:block;width:100%;text-align:left;border-bottom:1px solid #eee;background:#fff;color:#31232a;border-radius:0">'+esc(r.name)+'<small style="display:block;color:#75676c">'+esc(r.phone||"Sem telefone")+' · Código '+esc(r.gendoCode||"—")+'</small></button>').join("");
+  $("clientResults").classList.toggle("hidden",!clients.length);
+  $("customerSearchStatus").textContent=clients.length?clients.length+" resultado(s)":answer.note||"Nenhuma correspondência";
+ }catch(err){if(token===customerRequest)$("customerSearchStatus").textContent=err.message;}},250);
+});
+$("clientResults").addEventListener("click",e=>{const target=e.target.closest("[data-client]");if(target)selectCustomer($("clientResults")._clients[Number(target.dataset.client)]);});
+$("allDay").onchange=()=>{$("bookingTime").disabled=$("allDay").checked;$("duration").disabled=$("allDay").checked;};
+$("createService").onclick=()=>$("serviceBackdrop").classList.remove("hidden");
+$("closeService").onclick=()=>$("serviceBackdrop").classList.add("hidden");
+$("serviceForm").onsubmit=async e=>{e.preventDefault();$("serviceError").textContent="";
+ const name=$("newServiceName").value.trim();
+ try{const created=await api("/api/crm/modulos?module=servicos",{method:"POST",body:JSON.stringify({action:"create",item:{
+  name,priceCents:cents($("newServicePrice").value),durationMin:Number($("newServiceDuration").value),
+  category:$("newServiceCategory").value,description:$("newServiceDescription").value,active:true}})});
+  await catalogs();
+  if(!catalogServices.some(x=>x.id===created.id))throw Error("Serviço salvo, mas ainda não localizado no catálogo. Atualize a agenda antes de agendar.");
+  $("service").value=created.id;$("service").dispatchEvent(new Event("change"));
+  $("serviceBackdrop").classList.add("hidden");$("serviceForm").reset();
+ }catch(err){$("serviceError").textContent=err.message;}
+};
 $("findCustomer").onclick=async()=>{
  const key=$("customerCode").value.trim()||$("customerPhone").value.trim();
  if(!key){$("bookingError").textContent="Informe o código Gendo ou telefone para localizar.";return}
@@ -189,16 +243,19 @@ $("findCustomer").onclick=async()=>{
    const found=await api("/api/crm/customers?lookup="+encodeURIComponent(key));
    const customer=found.customers?.[0];
    if(!customer)throw Error("Cliente não localizado. Você pode preencher o nome manualmente.");
-   $("customerName").value=customer.name||"";
+   selectCustomer(customer);
    $("customerPhone").value=customer.phone||"";
    $("customerCode").value=customer.gendoCode||"";
  }catch(err){$("bookingError").textContent=err.status===403?"Consulta à base histórica reservada à administração. Digite o cliente manualmente.":err.message}
  finally{$("findCustomer").disabled=false}
 };
 $("service").addEventListener("change",()=>{
- const n=serviceDurations[$("service").value];if(!Number.isInteger(n)||n<15||n>300)return;
+ const row=selectedService(catalogServices,$("service").value);
+ $("servicePrice").value=Number.isSafeInteger(row?.priceCents)?(row.priceCents/100).toFixed(2).replace(".",","):"";
+ const n=row?.durationMin;
+ if(!Number.isInteger(n)||n<15||n>720){$("duration").value="60";return;}
  let option=Array.from($("duration").options).find(o=>o.value===String(n));
- if(!option){option=document.createElement("option");option.value=String(n);option.textContent=n+" minutos (serviço)";$("duration").append(option)}
+ if(!option){option=document.createElement("option");option.value=String(n);option.textContent=n+" minutos (serviço)";$("duration").append(option);}
  $("duration").value=String(n);
 });
 const closeForm=()=>$("formBackdrop").classList.add("hidden");
@@ -216,7 +273,23 @@ $("calendar").addEventListener("click",e=>{
   "Agendamento do funil de leads. Abra o contato no Painel de leads para atualizar.";return}
   editing=x;
   $("statusTitle").textContent=x.recordType==="block"?"Bloqueio de horário":"Situação do atendimento";
-  $("bookingInfo").textContent=x.professional+" · "+x.appointmentTime+" · "+x.name+" · "+x.service;
+  $("bookingInfo").textContent=x.professional+" · "+x.appointmentTime+" · "+x.name+" · "+x.service+(Number.isSafeInteger(x.priceCents)?" · "+money(x.priceCents):"");
+   $("bookingWhatsApp").classList.toggle("hidden",!x.phone);
+   function bookingMessage(){
+ if(!editing?.phone)return;
+ const x=editing,name=x.name||"cliente",service=x.service||"serviço",date=x.date||$("date").value,time=x.appointmentTime||"horário combinado";
+ const messages={
+ confirmar:"Olá, "+name+"! ✨ Aqui é da Patty Centro de Beleza. Gostaríamos de confirmar seu atendimento de "+service+" no dia "+date+" às "+time+". Podemos confirmar?",
+ lembrete:"Olá, "+name+"! 💕 Passando para lembrar seu horário na Patty Centro de Beleza: "+date+" às "+time+". Esperamos você!",
+ chegada:"Oi, "+name+"! ✨ Seja muito bem-vinda à Patty! Nossa equipe está pronta para cuidar de você com carinho.",
+ agradecer:"Oi, "+name+"! 💕 Foi um prazer receber você na Patty. Obrigada pela confiança! Como está se sentindo depois do atendimento?",
+ avaliar:"Olá, "+name+"! ✨ Sua opinião é muito importante para a Patty. Se desejar, podemos compartilhar nosso link de avaliações. Obrigada por confiar no nosso trabalho!"
+ };
+ const phone=x.phone.replace(/\D/g,""),msg=messages[$("bookingMessageType").value]||messages.confirmar;
+ $("bookingWhatsApp").href="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);
+}
+$("bookingMessageType").onchange=bookingMessage;
+bookingMessage();
   $("bookingStatus").innerHTML=x.recordType==="block"?'<option value="liberado">Liberar este horário</option>':
    '<option value="agendado">Agendado</option><option value="confirmado">Confirmado</option><option value="chegou">Cliente chegou</option><option value="em_atendimento">Em atendimento</option><option value="finalizado">Finalizado</option><option value="faltou">Faltou</option><option value="cancelado">Cancelado</option>';
   if(x.recordType!=="block")$("bookingStatus").value=x.status;
@@ -225,13 +298,17 @@ $("calendar").addEventListener("click",e=>{
 });
 $("bookingForm").onsubmit=async e=>{
  e.preventDefault();if(!$("bookingForm").reportValidity())return;
- const date=$("bookingDate").value,appointmentTime=$("bookingTime").value,durationMin=Number($("duration").value);
+ const date=$("bookingDate").value,allDay=isBlock&&$("allDay").checked,appointmentTime=allDay?"00:00":$("bookingTime").value,durationMin=allDay?1440:Number($("duration").value);
+ const selected=selectedService(catalogServices,$("service").value);
+ const manual=$("service").value.startsWith("manual:")?$("service").value.slice(7):"";
+ if(!isBlock&&!selected&&!manual){$("bookingError").textContent="Selecione um serviço válido.";return;}
  const body={recordType:isBlock?"block":"appointment",name:$("customerName").value,phone:$("customerPhone").value,
- customerCode:$("customerCode").value,service:$("service").value,professional:$("professional").value,
- date,appointmentTime,durationMin,notes:$("notes").value};
+ customerCode:$("customerCode").value,service:selected?.name||manual,serviceId:selected?.id||null,professional:$("professional").value,
+ date,appointmentTime,durationMin,priceCents:isBlock?null:cents($("servicePrice").value),allDay,notes:$("notes").value};
  $("save").disabled=true;$("bookingError").textContent="";
  try{
   await api("/api/crm/appointments",{method:"POST",body:JSON.stringify(body)});
+  if(selectedWaitId){try{await api("/api/crm/operations",{method:"POST",body:JSON.stringify({action:"waitlist_status",id:selectedWaitId,status:"scheduled"})});}catch(e){$("status").textContent="Agendamento salvo. Atualize a fila de espera manualmente: "+e.message;}}
   closeForm();$("date").value=date;await load();
  }catch(error){$("bookingError").textContent=error.message}
  finally{$("save").disabled=false}

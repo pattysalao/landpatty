@@ -1,11 +1,9 @@
-name: Patty CRM - syntax checks
+name: Patty CRM - complete regression suite
 on:
   push:
     branches:
-      - feature/patty-crm-upstream-20261019
-      - feature/patty-crm-sem-cloudflare-20261020
-      - feature/patty-crm-captacao-servicos-e-manual-20261020
-      - feature/patty-crm-relatorios-receita-20261020
+      - main
+      - release/patty-crm-20261104-integrated
   pull_request:
     paths:
       - "api/**"
@@ -14,10 +12,11 @@ on:
       - "patty-*.js"
       - "index.html"
       - "scripts/*.mjs"
+      - ".github/workflows/patty-crm-ci.yml"
       - "package.json"
   workflow_dispatch:
 jobs:
-  syntax:
+  validate:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -26,7 +25,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: node scripts/check-crm-syntax.mjs
-      - run: node scripts/test-crm-loading.mjs
-      - run: node scripts/test-gendo-archive.mjs
-
+      - name: Full JavaScript syntax checks
+        run: node scripts/check-crm-syntax.mjs
+      - name: Protect loading, ordering, catalog pages and sessions
+        run: node scripts/test-crm-loading.mjs
+      - name: Protect Gendo import integrity
+        run: node scripts/test-gendo-archive.mjs
+      - name: Prevent double bookings
+        run: node scripts/test-appointments-concurrency.mjs
+      - name: Validate exact service identities
+        run: node scripts/test-agenda-services.mjs
+      - name: Test resumable customer search index
+        run: node scripts/test-customer-index.mjs
+      - name: Preserve retention and consent records
+        run: node scripts/test-retention.mjs
