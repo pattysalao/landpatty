@@ -101,7 +101,7 @@ export default async function handler(req,res){
      return send(res,400,{error:"Informe código válido e origem comprovável do consentimento"});
    const ref=dbi.collection("patty_customers").doc("gendo-"+customerCode),old=await ref.get();
    if(!old.exists)return send(res,404,{error:"Cliente não localizada"});
-   await ref.update({marketingOptIn:consent,consentSource:source,consentRecordedAt:stamp(),consentRecordedBy:staff.email});
+   await ref.update({marketingOptIn:consent,marketingOptOut:!consent,consentSource:source,consentRecordedAt:stamp(),consentRecordedBy:staff.email});
    return send(res,200,{ok:true,consent});
   }
   if(action==="marketing_prepare"){
