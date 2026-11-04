@@ -82,9 +82,11 @@ export default async function handler(req,res){
       const changes={status:status.state,deliveryStatusAt:stamp()};
       tx.update(ref,changes);
       const increments={updatedAt:stamp()};
-      if(status.state==="sent")increments.sentCount=firebaseAdmin().firestore.FieldValue.increment(1);
-      if(status.state==="delivered")increments.deliveredCount=firebaseAdmin().firestore.FieldValue.increment(1);
-      if(status.state==="read")increments.readCount=firebaseAdmin().firestore.FieldValue.increment(1);
+      // Eventos podem chegar fora de ordem; conte todos os marcos realmente alcançados.
+      const beforeRank=rank[before]??0,afterRank=rank[status.state]??0;
+      if(beforeRank<1&&afterRank>=1)increments.sentCount=firebaseAdmin().firestore.FieldValue.increment(1);
+      if(beforeRank<2&&afterRank>=2)increments.deliveredCount=firebaseAdmin().firestore.FieldValue.increment(1);
+      if(beforeRank<3&&afterRank>=3)increments.readCount=firebaseAdmin().firestore.FieldValue.increment(1);
       tx.update(campRef,increments);
       applied++;
     });
