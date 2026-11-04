@@ -30,7 +30,7 @@ export default async function handler(req,res){
   if(req.method==="GET"){
     const mode=safeText(req.query?.mode,25)||"list";
     if(mode==="connection"){
-      const configured=!!(process.env.PATTY_META_ACCESS_TOKEN&&process.env.PATTY_META_PHONE_NUMBER_ID&&process.env.PATTY_META_GRAPH_VERSION&&process.env.PATTY_META_APP_SECRET&&process.env.PATTY_META_WEBHOOK_VERIFY_TOKEN);
+      const configured=!!(process.env.PATTY_META_ACCESS_TOKEN&&process.env.PATTY_META_PHONE_NUMBER_ID&&process.env.PATTY_META_WABA_ID&&process.env.PATTY_META_GRAPH_VERSION&&process.env.PATTY_META_APP_SECRET&&process.env.PATTY_META_WEBHOOK_VERIFY_TOKEN);
       return send(res,200,{provider:"meta_cloud_api",configured,sendingEnabled:configured&&process.env.PATTY_META_SEND_ENABLED==="true",
         note:"Prévia e preparação não enviam mensagens. Somente envio explícito por gerente, com modelo aprovado, opt-in e conexão Meta habilitada."});
     }
