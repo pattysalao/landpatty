@@ -38,11 +38,14 @@ export default async function handler(req,res){
   if(parsed.object!=="whatsapp_business_account")return plain(res,200,"OK");
   const statuses=[],optOutPhones=new Set();
   for(const entry of (Array.isArray(parsed.entry)?parsed.entry:[])){
+    if(process.env.PATTY_META_WABA_ID&&String(entry.id||"")!==process.env.PATTY_META_WABA_ID)continue;
     for(const change of (Array.isArray(entry.changes)?entry.changes:[])){
+      if(process.env.PATTY_META_PHONE_NUMBER_ID&&change.value?.metadata?.phone_number_id&&
+         String(change.value.metadata.phone_number_id)!==process.env.PATTY_META_PHONE_NUMBER_ID)continue;
       for(const message of (Array.isArray(change.value?.messages)?change.value.messages:[])){
-        const command=String(message.text?.body||"").trim().toLocaleUpperCase("pt-BR");
+        const command=String(message.text?.body||message.button?.text||message.interactive?.button_reply?.title||"").trim().toLocaleUpperCase("pt-BR");
         const phone=normalizedPhone(message.from);
-        if(phone&&["PARAR","SAIR","STOP","CANCELAR","NAO QUERO","NÃO QUERO"].includes(command))
+        if(phone&&["PARAR","SAIR","STOP","CANCELAR","DESCADASTRAR","NAO QUERO","NÃO QUERO"].includes(command))
           optOutPhones.add(phone);
       }
       for(const status of (Array.isArray(change.value?.statuses)?change.value.statuses:[])){
