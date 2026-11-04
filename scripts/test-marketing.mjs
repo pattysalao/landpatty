@@ -71,11 +71,11 @@ const customerDocs=[
  ["gendo-2",{...client,name:"Bia",phone:"5548998887777",marketingOptIn:false}],
  ["gendo-3",{...client,name:"Clara",phone:"5548999996666",marketingOptOut:true}],
  ["gendo-4",{...client,name:"Duplicada",phone:client.phone}]
-].map(([id,data])=>({id,data:()=>data,ref:{collection:"patty_customers",id}}));
+].map(([id,data])=>({id,data:()=>data,ref:{_collection:"patty_customers",id}}));
 for(const customer of customerDocs)store.set("patty_customers/"+customer.id,customer.data());
-const snapshot=(ref)=>({id:ref.id,exists:store.has(ref.collection+"/"+ref.id),
- data:()=>store.get(ref.collection+"/"+ref.id)});
-const recRef=(collection,id)=>({collection,id,collectionFn:null,get:async()=>snapshot({collection,id}),
+const snapshot=(ref)=>({id:ref.id,exists:store.has(ref._collection+"/"+ref.id),
+ data:()=>store.get(ref._collection+"/"+ref.id)});
+const recRef=(collection,id)=>({_collection:collection,id,get:async()=>snapshot({_collection:collection,id}),
  collection(name){return {doc:docId=>recRef(collection+"/"+id+"/"+name,docId)}}});
 const mockDb={
  collection:name=>({
@@ -84,12 +84,12 @@ const mockDb={
  }),
  runTransaction:async fn=>fn({
   get:async ref=>snapshot(ref),
-  create:(ref,value)=>store.set(ref.collection+"/"+ref.id,value),
+  create:(ref,value)=>store.set(ref._collection+"/"+ref.id,value),
   update:(ref,values)=>{
-   const previous=store.get(ref.collection+"/"+ref.id);
+   const previous=store.get(ref._collection+"/"+ref.id);
    const updated={...previous};
    for(const [k,v] of Object.entries(values))updated[k]=v&&typeof v==="object"&&v.incr?Number(previous[k]||0)+v.incr:v;
-   store.set(ref.collection+"/"+ref.id,updated);
+   store.set(ref._collection+"/"+ref.id,updated);
   }
  })
 };
