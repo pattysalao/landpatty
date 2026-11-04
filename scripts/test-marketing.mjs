@@ -99,6 +99,7 @@ let stageResult=await stage({method:"POST",headers:{},body:{action:"stage",id:"c
 assert.equal(stageResult.status,200);
 assert.equal(stageResult.body.staged,1,"Only opted-in unique phone may be staged");
 assert.equal(store.get("patty_campaigns/campaign1234").stagedCount,1);
+assert.equal(store.get("patty_campaigns/campaign1234").stageComplete,true,"Final page should mark completed audience");
 stageResult=await stage({method:"POST",headers:{},body:{action:"stage",id:"campaign1234"}});
 assert.equal(stageResult.status,200);
 assert.equal(stageResult.body.staged,0,"Repeated staging must be idempotent");
