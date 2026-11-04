@@ -73,7 +73,7 @@ export default async function handler(req,res){
   if(action==="create"){
     const entry=validateCampaign(b);
     const ref=campaigns.doc();
-    await ref.create({...entry,stagedCount:0,acceptedCount:0,createdAt:stamp(),updatedAt:stamp(),createdBy:staff.email,
+    await ref.create({...entry,stagedCount:0,stageComplete:false,acceptedCount:0,createdAt:stamp(),updatedAt:stamp(),createdBy:staff.email,
       deliveryMode:"single_explicit_manager_action",externalProviderConfigured:false});
     return send(res,201,{ok:true,id:ref.id,status:"draft",note:"Rascunho salvo. Nenhuma mensagem foi enviada."});
   }
@@ -81,7 +81,9 @@ export default async function handler(req,res){
     const id=safeText(b.id,100),cursor=safeText(b.cursor,100);
     const doc=await getCampaign(database,id),config=doc.data();
     if(config.status!=="draft")return send(res,409,{error:"Prepare o público apenas enquanto a campanha é rascunho"});
-    const snap=await customerQuery(database,cursor).get(),page=snap.docs.slice(0,maxPage);
+    if(config.stageComplete===true)return send(res,200,{ok:true,staged:0,remaining:0,scanned:0,eligibleInPage:0,
+      nextCursor:null,finished:true,note:"O público já foi preparado e não será lido novamente."});
+    const snap=await customerQuery(database,cursor).get(),page=snap.docs.slice(0,maxPage),hasMore=snap.size>maxPage;
     const seen=new Set(),selected=[];
     for(const customer of page){
       const data=customer.data(),phone=normalizedPhone(data.phone);
@@ -91,7 +93,7 @@ export default async function handler(req,res){
     }
     const out=await database.runTransaction(async tx=>{
       const latest=await tx.get(doc.ref);
-      if(!latest.exists||latest.data().status!=="draft")throw bad("Campanha alterada durante a preparação",409);
+      if(!latest.exists||latest.data().status!=="draft"||latest.data().stageComplete===true)throw bad("Campanha alterada durante a preparação",409);
       const allowed=Math.max(0,latest.data().segment.maxRecipients-(latest.data().stagedCount||0));
       const found=await Promise.all(selected.map(x=>tx.get(x.ref)));
       const verified=await Promise.all(selected.map(x=>tx.get(x.customer.ref)));
@@ -103,13 +105,15 @@ export default async function handler(req,res){
           status:"staged",consentSource:c.consentSource||"",createdAt:stamp()}});
       }
       for(const entry of fresh)tx.create(entry.ref,entry.record);
-      if(fresh.length)tx.update(doc.ref,{stagedCount:firebaseAdmin().firestore.FieldValue.increment(fresh.length),
-        lastStagedAt:stamp(),updatedAt:stamp()});
-      return {staged:fresh.length,remaining:Math.max(0,allowed-fresh.length)};
+      const remaining=Math.max(0,allowed-fresh.length),finished=remaining===0||!hasMore;
+      if(fresh.length||finished)tx.update(doc.ref,{
+        ...(fresh.length?{stagedCount:firebaseAdmin().firestore.FieldValue.increment(fresh.length),lastStagedAt:stamp()}:{}),
+        ...(finished?{stageComplete:true}:{}),updatedAt:stamp()});
+      return {staged:fresh.length,remaining,finished};
     });
-    const nextCursor=snap.size>maxPage?page.at(-1).id:null;
+    const nextCursor=hasMore&&!out.finished?page.at(-1).id:null;
     return send(res,200,{ok:true,...out,scanned:page.length,eligibleInPage:selected.length,
-      nextCursor:out.remaining===0?null:nextCursor,finished:out.remaining===0||!nextCursor,
+      nextCursor,
       note:"Destinatárias preparadas e deduplicadas, sem disparo."});
   }
   if(action==="status"){
