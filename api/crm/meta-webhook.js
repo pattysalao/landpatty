@@ -1,5 +1,6 @@
 import {createHmac,createHash,timingSafeEqual} from "node:crypto";
 import {db,firebaseAdmin} from "../../lib/firebase.js";
+import {normalizedPhone} from "../../lib/patty-campaign-rules.js";
 
 // Webhook oficial da Meta. Jamais recebe login nem consentimento por URL pública.
 export const config={api:{bodyParser:false}};
@@ -35,9 +36,15 @@ export default async function handler(req,res){
     return plain(res,403,"Invalid signature");
   const parsed=JSON.parse(body.toString("utf8"));
   if(parsed.object!=="whatsapp_business_account")return plain(res,200,"OK");
-  const statuses=[];
+  const statuses=[],optOutPhones=new Set();
   for(const entry of (Array.isArray(parsed.entry)?parsed.entry:[])){
     for(const change of (Array.isArray(entry.changes)?entry.changes:[])){
+      for(const message of (Array.isArray(change.value?.messages)?change.value.messages:[])){
+        const command=String(message.text?.body||"").trim().toLocaleUpperCase("pt-BR");
+        const phone=normalizedPhone(message.from);
+        if(phone&&["PARAR","SAIR","STOP","CANCELAR","NAO QUERO","NÃO QUERO"].includes(command))
+          optOutPhones.add(phone);
+      }
       for(const status of (Array.isArray(change.value?.statuses)?change.value.statuses:[])){
         if(status?.id&&["sent","delivered","read","failed"].includes(status.status))
           statuses.push({wamid:String(status.id),state:status.status});
@@ -46,6 +53,15 @@ export default async function handler(req,res){
   }
   // Um webhook com muitos eventos não pode causar leituras sem limite.
   const database=db();let applied=0;
+  // Pedido de saída recebido no WhatsApp: revoga autorização antes de novos disparos.
+  for(const phone of [...optOutPhones].slice(0,20)){
+    const matched=await database.collection("patty_customers").where("phone","==",phone).limit(25).get();
+    if(matched.empty)continue;
+    const changes=database.batch();
+    for(const doc of matched.docs)changes.update(doc.ref,{marketingOptIn:false,marketingOptOut:true,
+      consentSource:"whatsapp_optout",consentRecordedAt:stamp(),consentRecordedBy:"meta_webhook",updatedAt:stamp()});
+    await changes.commit();
+  }
   for(const status of statuses.slice(0,40)){
     const index=await database.collection("patty_whatsapp_message_index").doc(sha(status.wamid)).get();
     if(!index.exists)continue;
