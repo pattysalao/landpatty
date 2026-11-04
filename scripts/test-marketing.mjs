@@ -73,7 +73,7 @@ const customerDocs=[
  ["gendo-4",{...client,name:"Duplicada",phone:client.phone}]
 ].map(([id,data])=>({id,data:()=>data,ref:{_collection:"patty_customers",id}}));
 for(const customer of customerDocs)store.set("patty_customers/"+customer.id,customer.data());
-const snapshot=(ref)=>({id:ref.id,exists:store.has(ref._collection+"/"+ref.id),
+const snapshot=(ref)=>({id:ref.id,ref,exists:store.has(ref._collection+"/"+ref.id),
  data:()=>store.get(ref._collection+"/"+ref.id)});
 const recRef=(collection,id)=>({_collection:collection,id,get:async()=>snapshot({_collection:collection,id}),
  collection(name){return {doc:docId=>recRef(collection+"/"+id+"/"+name,docId)}}});
