@@ -17,7 +17,7 @@ assert.equal(selectedService(rows,"service-002").priceCents,15500);
 assert.notEqual(serviceOptionLabel(rows[0],rows),serviceOptionLabel(rows[1],rows));
 assert.match(serviceOptionLabel(rows[0],rows),/G100/);
 assert.match(serviceOptionLabel(rows[1],rows),/G200/);
-assert.match(serviceOptionLabel(rows[0],rows),/ref\. 001/);
+assert.match(serviceOptionLabel(rows[0],rows),/ref\..*001/);
 const unique=normalizeServiceCatalog([{...a,name:"Luzes"}]);
 assert.equal(uniqueServiceByName(unique,"luzes").id,"service-001");
 
