@@ -69,7 +69,12 @@ button.secondary{background:white;color:var(--wine);border-color:#d9c5cd}button:
 <h2>2. Campanhas salvas</h2>
 <div class="controls"><button id="refreshCampaigns" type="button" class="secondary">Atualizar campanhas</button></div>
 <div class="tablewrap"><table><thead><tr><th>Campanha</th><th>Situação</th><th>Destinatárias</th><th>Meta aceitou</th><th>Ação</th></tr></thead><tbody id="campaignRows"></tbody></table></div>
-<p class="small muted" id="listNote"></p></section>
+<p class="small muted" id="listNote"></p>
+<div class="notice"><h3>Bloquear mensagens para uma cliente</h3>
+<p class="small">Quando a cliente revogar a autorização por telefone, presencialmente ou pelo WhatsApp, registre o descadastramento. Mensagens recebidas com PARAR/SAIR também são processadas pelo webhook oficial após configurar a Meta.</p>
+<div class="grid"><label>Código Gendo da cliente<input id="optoutCode" inputmode="numeric" placeholder="Código da cliente"></label>
+<label>Origem do pedido<select id="optoutSource"><option value="whatsapp">WhatsApp</option><option value="presencial">Presencial</option><option value="formulario">Formulário</option><option value="outro">Outro</option></select></label></div>
+<div class="controls"><button id="optoutButton" class="secondary" type="button">Registrar descadastramento</button><span id="optoutStatus" role="status"></span></div></div></section>
 
 <section id="panel-recipients" class="card hidden">
 <h2>3. Público preparado, status e envio individual</h2>
@@ -139,10 +144,20 @@ async function loadCampaigns(){
  }catch(e){$("listNote").textContent=e.message;}
 }
 $("refreshCampaigns").onclick=loadCampaigns;
+$("optoutButton").onclick=async()=>{
+ const customerCode=$("optoutCode").value.trim();
+ if(!/^\\d{1,15}$/.test(customerCode)){$("optoutStatus").textContent="Informe o código Gendo válido.";return;}
+ if(!confirm("Confirma que esta cliente pediu para não receber marketing?"))return;
+ try{await post("/api/crm/operations",{action:"consent",customerCode,source:$("optoutSource").value,consent:false});
+ $("optoutCode").value="";$("optoutStatus").textContent="Descadastramento registrado. O envio será bloqueado.";
+ }catch(e){$("optoutStatus").textContent=e.message;}
+};
 $("campaignRows").onclick=async e=>{const b=e.target.closest("[data-select]");if(!b)return;await selectCampaign(b.dataset.select);tab("recipients");};
 async function selectCampaign(id){
  const r=await api("/api/crm/campaigns?mode=detail&id="+encodeURIComponent(id));
- current=r.campaign;stageCursor=null;recipientCursor=null;$("campaignId").value=id;await refreshDetail();await loadRecipients(true);
+ current=r.campaign;recipientCursor=null;
+ try{stageCursor=sessionStorage.getItem("patty_stage_"+id)||null;}catch(_){stageCursor=null;}
+ $("campaignId").value=id;await refreshDetail();await loadRecipients(true);
 }
 async function refreshDetail(){
  if(!current)return;
@@ -163,6 +178,8 @@ async function stagePages(count){
   const result=await post("/api/crm/campaigns",{action:"stage",id:current.id,cursor:stageCursor});
   processed+=result.scanned;staged+=result.staged;
   stageCursor=result.nextCursor||null;
+  try{if(stageCursor)sessionStorage.setItem("patty_stage_"+current.id,stageCursor);
+      else sessionStorage.removeItem("patty_stage_"+current.id);}catch(_){};
   $("stageStatus").textContent=processed+" cadastros consultados, "+staged+" destinatárias novas nesta execução; "+
    (result.finished?"preparação encerrada nesta consulta.":"cursor da próxima página preservado.");
   if(result.finished){done=true;break;}
