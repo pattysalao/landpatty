@@ -38,6 +38,8 @@ jobs:
         run: node scripts/test-customer-index.mjs
       - name: Test concurrent appointment reservations and blocks
         run: node scripts/test-appointments-concurrency.mjs
+      - name: Test service catalog identity and exact pricing
+        run: node scripts/test-agenda-services.mjs
       - name: Test retention and consent protections
         if: ${{ hashFiles('scripts/test-retention.mjs') != '' }}
         run: node scripts/test-retention.mjs
