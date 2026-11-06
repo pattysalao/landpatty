@@ -1105,6 +1105,19 @@
         }
 
 
+        // form_submit significa LEAD NOVO confirmado pelo CRM, não tentativa de envio,
+        // clique no WhatsApp, mensagem entregue ou agendamento realizado.
+        // Apenas parâmetros de contexto: nunca incluir nome, telefone ou texto livre.
+        function registrarFormularioConfirmado(resultado, formulario, servico, origem) {
+            if (resultado?.created !== true) return;
+            pattyEvento('form_submit', {
+                form_id: String(formulario).slice(0, 60),
+                form_name: String(formulario).slice(0, 60),
+                form_service: String(servico).slice(0, 100),
+                lead_source: String(origem).slice(0, 60)
+            });
+        }
+
         // Os cliques nos botões de serviço ainda não identificam uma pessoa.
         // Só registramos um lead se a visitante fornecer nome/telefone e autorizar a finalidade.
         let pattyServicoPendente = null;
@@ -1200,11 +1213,15 @@
                 });
                 const resultado = await resposta.json().catch(() => ({}));
                 if (!resposta.ok || !resultado.ok) throw new Error(resultado.error || 'Falha ao salvar');
-                if(resultado.created)pattyEvento('crm_lead_saved', {
-                    lead_reference: dados.ref,
-                    form_service: servicoSelecionado,
-                    lead_source: dados.area==='servicos'?'botao_servico':'botao_geral'
-                });
+                if(resultado.created === true){
+                    const origem=dados.area==='servicos'?'botao_servico':'botao_geral';
+                    registrarFormularioConfirmado(resultado, 'captura_servico', servicoSelecionado, origem);
+                    pattyEvento('crm_lead_saved', {
+                        lead_reference: dados.ref,
+                        form_service: servicoSelecionado,
+                        lead_source: origem
+                    });
+                }
                 status.textContent = 'Solicitação registrada! Confirme sua mensagem no WhatsApp.';
                 fecharCapturaServico();
             } catch (_) {
@@ -1378,7 +1395,10 @@
                     });
                     const result = await response.json().catch(() => ({}));
                     if (!response.ok || !result.ok) throw Error(result.error || 'CRM indisponível');
-                    if(result.created)pattyEvento('crm_lead_saved', {lead_reference: ref, form_service: String(servico).slice(0,100)});
+                    if(result.created === true){
+                        registrarFormularioConfirmado(result, 'agendamento_hero', servico, 'formulario_site');
+                        pattyEvento('crm_lead_saved', {lead_reference: ref, form_service: String(servico).slice(0,100)});
+                    }
                     alert.textContent = 'Solicitação registrada. Confirme o envio da mensagem no WhatsApp.';
                 } catch (err) {
                     // Não perder o atendimento mesmo se a API, Firebase ou API estiver indisponível.
