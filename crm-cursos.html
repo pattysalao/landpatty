@@ -1,0 +1,39 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<title>CRM | Cursos da Michele</title><link rel="stylesheet" href="/patty-crm-ui.css?v=1">
+<style>body{margin:0;background:#f8f3f5;color:#35232d;font:15px/1.5 system-ui,Arial,sans-serif}*{box-sizing:border-box}
+header{background:#601a39;padding:17px 22px;color:white;display:flex;align-items:center;justify-content:space-between;gap:15px}
+header a{color:white}main{width:min(100% - 28px,1100px);margin:28px auto}.panel{background:white;border:1px solid #eadce2;border-radius:15px;padding:23px;margin-bottom:18px}.hidden{display:none!important}
+button{border:0;background:#641b3b;color:white;border-radius:9px;padding:10px 16px;font-weight:700;cursor:pointer}input{width:100%;padding:12px;border:1px solid #d8c8d0;border-radius:8px;margin:4px 0 13px;font:inherit}
+label{font-weight:600}a{color:#6b1a3e}.muted{color:#78666e}.toolbar{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.lead{border:1px solid #e8d9e0;border-radius:12px;padding:19px;background:white}.lead strong{font-size:1.06rem}.lead p{margin:6px 0;color:#67545e}
+.pill{display:inline-block;padding:5px 10px;background:#f7e8ef;color:#69203f;border-radius:100px;font-size:.76rem;font-weight:700}
+.small{font-size:.79rem}.red{color:#a02e50}
+@media(max-width:730px){header{align-items:start}.grid{grid-template-columns:1fr}}
+</style></head><body>
+<header><div><strong>Patty CRM · Cursos da Chele</strong><br><span style="font-size:.8rem;color:#f9e2ec">Interesses em formações — não são matrículas</span></div><a href="/crm.html">← CRM principal</a></header>
+<main><section id="loading" class="panel" role="status">Verificando sessão da equipe...</section>
+<section id="login" class="panel hidden" style="max-width:440px;margin:30px auto"><h1>Entrar no CRM</h1><form id="loginForm"><label for="email">E-mail autorizado</label><input id="email" type="email" autocomplete="username" required><label for="pass">Senha</label><input id="pass" type="password" autocomplete="current-password" required><button type="submit">Entrar</button></form><p id="loginMsg" class="red" role="status"></p></section>
+<section id="app" class="hidden"><div class="panel toolbar"><div><h1 style="margin:0">Interessadas nos cursos da Michele</h1><p class="muted" style="margin:4px 0">Dados restritos à equipe autorizada. <span id="total"></span></p></div><div><button id="reload">Atualizar</button><button id="logout" style="background:white;color:#6b1b3a;border:1px solid #c7aab8">Sair</button></div></div><p id="notice" role="status" class="muted"></p><div class="grid" id="leads"></div><p class="small muted">Esta fase registra contatos para acompanhamento. Pagamento, matrícula, turmas e contratos ainda não estão integrados. São exibidos até os 100 contatos mais recentes.</p></section></main>
+<script type="module">
+import {initPattyAuth,showPattyAuthState,loadPattyPermissions,pattyCRMRequest} from "/patty-auth.js";
+import {onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+const $=id=>document.getElementById(id);let auth;
+async function load(){
+$("notice").textContent="Consultando interesses...";$("leads").replaceChildren();
+try{const data=await pattyCRMRequest(auth,"/api/michele/cursos?limit=100");const rows=data.leads||[];$("total").textContent=rows.length+" registros exibidos";
+for(const l of rows){const a=document.createElement("article");a.className="lead";const title=document.createElement("strong");title.textContent=l.name||"Sem nome";a.append(title);
+const mark=document.createElement("div");mark.className="pill";mark.textContent=l.course||"Curso a definir";a.append(mark);
+const p=document.createElement("p");p.textContent="Experiência: "+(l.level||"—")+" · Período: "+(l.shift||"—");a.append(p);
+const sub=document.createElement("p");sub.className="small";sub.textContent="Registrado: "+(l.createdAt?new Date(l.createdAt).toLocaleString("pt-BR"):"—")+" · Ref. "+l.reference;a.append(sub);
+if(l.note){const note=document.createElement("p");note.textContent="Objetivo: "+l.note;a.append(note);}
+const tel=document.createElement("a");tel.href="https://wa.me/"+(String(l.phone||"").startsWith("55")?l.phone:"55"+l.phone)+"?text="+encodeURIComponent("Olá, "+(l.name||"")+"! Aqui é a equipe da Michele (Chele Lash Designer), sobre seu interesse no curso "+(l.course||"")+".");tel.target="_blank";tel.rel="noopener noreferrer";tel.textContent="Conversar pelo WhatsApp";a.append(tel);$("leads").append(a);}
+$("notice").textContent=rows.length? "Pré-inscrições consultadas no banco.":"Ainda não há interesses registrados para os cursos.";
+}catch(e){$("notice").textContent=e.message||"Falha ao consultar os registros";}
+}
+$("loginForm").onsubmit=async e=>{e.preventDefault();$("loginMsg").textContent="Entrando...";try{await signInWithEmailAndPassword(auth,$("email").value,$("pass").value)}catch(e){$("loginMsg").textContent="Acesso não autorizado ou dados inválidos."}};
+$("reload").onclick=load;$("logout").onclick=()=>signOut(auth);
+(async()=>{try{const session=await initPattyAuth();auth=session.auth;onAuthStateChanged(auth,async user=>{$("loading").classList.add("hidden");showPattyAuthState(user,session.persistence);if(!user||!user.emailVerified){$("login").classList.remove("hidden");$("app").classList.add("hidden");return;}
+const permissions=await loadPattyPermissions(auth);if(!permissions.authorized){$("login").classList.remove("hidden");$("app").classList.add("hidden");$("loginMsg").textContent="Conta sem permissão do CRM.";return;}
+$("login").classList.add("hidden");$("app").classList.remove("hidden");await load();});}catch(e){$("loading").textContent=e.message;}})();
+</script></body></html>
