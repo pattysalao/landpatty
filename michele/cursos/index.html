@@ -96,7 +96,7 @@ try{var response=await fetch("/api/michele/cursos",{method:"POST",headers:{"Cont
 var msg="Olá! Sou "+payload.name+". Cadastrei interesse no curso "+payload.course+" com a Michele (Chele). Ref.: "+(data.reference||"sem referência")+". Gostaria de receber informações quando estiverem definidas.";
 form.hidden=true;result.hidden=false;result.className="success";result.innerHTML="<strong>Interesse registrado!</strong><p>Obrigada! A sua solicitação foi recebida. Código: <b></b>. A equipe poderá entrar em contato quando houver informações confirmadas sobre a turma.</p><a class='btn' id='waCourse' target='_blank' rel='noopener noreferrer'>Conversar pelo WhatsApp</a>";
 result.querySelector("b").textContent=data.reference||"";
-result.querySelector("a").href="https://wa.me/5548988032478?text="+encodeURIComponent(msg);
+result.querySelector("a").href="https://wa.me/message/U4TTF7LWYGFII1";result.querySelector("a").textContent="Falar diretamente com a Chele pelo WhatsApp";
 window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:"curso_interesse_confirmado",curso_nome:payload.course,profissional:"michele",lead_reference:data.reference,campaign_utm_source:campaign.utm_source||"(direto)"});
 result.querySelector("a").addEventListener("click",function(){window.dataLayer.push({event:"whatsapp_click",whatsapp_area:"curso_michele",curso_nome:payload.course})});
 }catch(e){status.textContent=e.message||"Não foi possível registrar. Tente pelo WhatsApp.";btn.disabled=false;window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:"curso_interesse_erro",curso_nome:payload.course})}
