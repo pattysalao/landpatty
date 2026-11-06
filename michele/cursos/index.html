@@ -75,6 +75,36 @@ footer{background:#260b19;color:#e8cad6;padding:40px 0;font-size:.82rem}footer .
 @media(max-width:850px){.review-panel{grid-template-columns:1fr}.review-score{align-items:center;text-align:center}.review-entries{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.review-panel{padding:15px;gap:16px}.review-entries{grid-template-columns:1fr}.review-quote{padding:17px}}
 
+
+/* Cartões de avaliações reais do Google: autores e comentários fornecidos, sem respostas da profissional. */
+.g-summary{display:flex;align-items:center;gap:25px;justify-content:space-between;background:#fff;border:1px solid #e8dde1;border-radius:20px;padding:25px 29px;box-shadow:0 8px 25px #3217260d;margin-bottom:25px;flex-wrap:wrap}
+.g-score-brand{display:flex;align-items:center;gap:10px;font-size:1.13rem;color:#464147}
+.g-score-brand .google-g{font-size:2.2rem}
+.g-score-data{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.g-score-number{font-weight:700;font-size:2.3rem;letter-spacing:-.05em;color:#302c2f}
+.g-score-stars{letter-spacing:.06em;color:#f0ab29;font-size:1.35rem;white-space:nowrap}
+.g-score-count{color:#5f5961;font-size:.82rem}
+.g-review-heading{display:flex;align-items:baseline;justify-content:space-between;gap:15px;margin:14px 0 15px;flex-wrap:wrap}
+.g-review-heading h3{font:600 1.7rem "Playfair Display",Georgia,serif;margin:0;color:var(--wine)}
+.g-review-heading span{font-size:.79rem;color:#77646f}
+.g-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;align-items:stretch}
+.g-review{display:flex;flex-direction:column;min-width:0;padding:21px;background:#fff;border:1px solid #e8dfe3;border-radius:17px;box-shadow:0 4px 18px #31182509}
+.g-author{display:flex;gap:10px;align-items:center;min-width:0}
+.g-avatar{width:43px;height:43px;min-width:43px;border-radius:50%;display:grid;place-items:center;background:#f2e3eb;color:#773e5b;font-weight:700;font-size:.88rem}
+.g-author-meta{flex:1;min-width:0}
+.g-author-meta strong{display:block;font-size:.88rem;line-height:1.4;overflow-wrap:anywhere;color:#29252a}
+.g-author-meta span{display:block;font-size:.73rem;color:#777079;line-height:1.4;margin-top:2px}
+.g-source{display:grid;place-items:center;width:25px;height:25px;font:700 1.15rem Arial,sans-serif;background:conic-gradient(#4285f4 0deg 95deg,#34a853 95deg 175deg,#fbbc05 175deg 235deg,#ea4335 235deg 295deg,#4285f4 295deg);color:transparent;background-clip:text;-webkit-background-clip:text}
+.g-starline{display:flex;gap:9px;align-items:center;margin:14px 0 8px;flex-wrap:wrap}
+.g-stars{color:#f0ab29;font-size:1.12rem;letter-spacing:.05em;line-height:1.1}
+.g-date{color:#837983;font-size:.7rem}
+.g-review-text{font-size:.88rem;line-height:1.65;color:#403840;margin:5px 0 15px;overflow-wrap:anywhere;flex:1}
+.g-review-empty{font-size:.83rem;color:#777078;font-style:italic;flex:1}
+.g-excerpt{font-size:.73rem;color:#815466;margin:0 0 10px}
+.g-review-link{margin-top:auto;font-size:.77rem;font-weight:700;color:#81526e;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:1000px){.g-review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:630px){.g-summary{display:block;padding:21px}.g-score-data{gap:10px;margin:12px 0 16px}.g-summary .btn{width:100%}.g-review-grid{grid-template-columns:1fr}.g-review{padding:20px}}
+
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Course","name":"Extensão de Cílios - Programa de Formação Inicial","description":"Apresentação de programa de formação inicial em extensão de cílios, com módulos de fundamentos, biossegurança, planejamento e prática orientada. Datas e condições ainda em definição.","provider":{"@type":"Person","name":"Michele Tavares","url":"https://www.pattycentrodebeleza.com.br/michele/"},"url":"https://www.pattycentrodebeleza.com.br/michele/cursos/","inLanguage":"pt-BR"}</script>
 <script>window.dataLayer=window.dataLayer||[];(function(w,d,s,l,i){w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f)})(window,document,'script','dataLayer','GTM-NKZC9T42');</script>
@@ -94,46 +124,144 @@ footer{background:#260b19;color:#e8cad6;padding:40px 0;font-size:.82rem}footer .
 </div><p style="text-align:center;margin-top:30px"><a class="btn alt" href="/michele/cursos/modulos/">Ver os módulos digitais e o guia de estudos →</a></p></div></section>
 
 <section class="section reviews" id="avaliacoes" aria-labelledby="reviews-title">
-  <div class="wrap">
-    <div class="reviews-head">
-      <span class="eyebrow">Experiências reais de clientes</span>
-      <h2 id="reviews-title">A confiança é construída em cada atendimento.</h2>
-      <p style="color:#74636b">Antes de compartilhar conhecimento, a Chele conquistou a confiança de clientes em serviços de cílios, sobrancelhas e estética.</p>
-    </div>
-    <div class="review-panel">
-      <div class="review-score">
-        <div class="google-word"><span class="google-g" aria-hidden="true">G</span><span>Google <strong style="font-weight:400">Avaliações</strong></span></div>
-        <div class="review-number" aria-label="Nota média cinco de cinco">5,0</div>
-        <div class="review-stars" aria-label="Cinco estrelas de nota média">★★★★★</div>
-        <p class="sub"><strong>18 avaliações</strong> na captura do Perfil da Empresa, em 06/11/2026.</p>
-        <a class="btn" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE" data-google-reviews="all">Ver todas no Google ↗</a>
-      </div>
-      <div class="review-entries" aria-label="Trechos de avaliações públicas">
-        <article class="review-quote">
-          <div class="source"><span>Cílios · Relato de cliente</span><span aria-label="Google Maps">Google</span></div>
-          <blockquote>“Faço meu cílios com a cheli a mais de 3 anos e nunca me decepciono”</blockquote>
-          <a target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Consultar a avaliação original</a>
-        </article>
-        <article class="review-quote">
-          <div class="source"><span>Dedicação profissional</span><span aria-label="Google Maps">Google</span></div>
-          <blockquote>“muito dedicada, sempre se aperfeiçoando”</blockquote>
-          <a target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Consultar a avaliação original</a>
-        </article>
-        <article class="review-quote">
-          <div class="source"><span>Cuidado no atendimento</span><span aria-label="Google Maps">Google</span></div>
-          <blockquote>“um cuidado sem igual”</blockquote>
-          <a target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Consultar a avaliação original</a>
-        </article>
-        <article class="review-quote" style="background:#faf2f5">
-          <div class="source"><span>Leia todas as avaliações</span><span>Google</span></div>
-          <blockquote>Veja os relatos completos, nomes dos autores, datas e notas individuais diretamente no perfil público da Michele.</blockquote>
-          <a target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Abrir avaliações completas no Google</a>
-        </article>
-      </div>
-    </div>
-    <p class="review-note">As frases acima são <strong>trechos identificados em avaliações públicas</strong>; os textos integrais e as estrelas individuais devem ser consultados no Google. A nota e o total refletem a captura fornecida e podem mudar. São avaliações dos <strong>serviços da Michele</strong>, não depoimentos de alunas sobre o curso.</p>
-  </div>
-</section>
+<div class="wrap">
+<div class="reviews-head"><span class="eyebrow">Avaliações do Google · Chele Lash Designer &amp; Estética</span>
+<h2 id="reviews-title">Clientes que confiam no trabalho da Michele.</h2>
+<p style="color:#74636b">Depoimentos reais sobre os atendimentos de cílios, sobrancelhas e estética. Conheça a experiência das clientes antes de aprender com a Chele.</p></div>
+<div class="g-summary">
+  <div class="g-score-brand"><span class="google-g" aria-hidden="true">G</span><span><strong>Google</strong> Avaliações</span></div>
+  <div class="g-score-data"><span class="g-score-number">5,0</span><span class="g-score-stars" aria-label="Cinco estrelas de nota média">★★★★★</span><span class="g-score-count"><strong>18 avaliações</strong> · perfil da Chele</span></div>
+  <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE" target="_blank" rel="noopener noreferrer" data-google-reviews="all">Ver avaliações no Google ↗</a>
+</div>
+<div class="g-review-heading"><h3>O que as clientes dizem</h3><span>18 avaliações · Todas com 5 estrelas</span></div>
+<div class="g-review-grid"><article class="g-review" aria-label="Avaliação 1 de 18: Sabrina Gesser, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">SG</span><div class="g-author-meta"><strong>Sabrina Gesser</strong><span>Cliente no Google · há 2 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Profissional excelente e muito cuidadosa. Amei o resultado dos meus cílios. Super indico. Parabéns pela dedicação.</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 2 de 18: Alessandra regis, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">AR</span><div class="g-author-meta"><strong>Alessandra regis</strong><span>Cliente no Google · há 2 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">&gt; Que talento! Fiz minha sobrancelha com você e amei o resultado. Além de linda, ficou super delicada e combina com meu rosto. Atendimento nota 10, super atenciosa. Já virei cliente fiel!😍😍🥰</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 3 de 18: Patrícia Kist, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">PK</span><div class="g-author-meta"><strong>Patrícia Kist</strong><span>Cliente no Google · há 8 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Ótima profissional, dedicada, explica sempre o que está fazendo, cuidadosa, atenciosa e tem mãos abençoadas.</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 4 de 18: Letícia Braga, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">LB</span><div class="g-author-meta"><strong>Letícia Braga</strong><span>Cliente no Google · há 10 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-empty">Classificou com 5 estrelas, sem comentário escrito.</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 5 de 18: Rosenilda de Souza, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">RD</span><div class="g-author-meta"><strong>Rosenilda de Souza</strong><span>Cliente no Google · há 21 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Maravilhosa!<br>Um cuidado sem igual...</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 6 de 18: Micaely Lemes, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">ML</span><div class="g-author-meta"><strong>Micaely Lemes</strong><span>Cliente no Google · há 21 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Faço meu cílios com a cheli a mais de 3 anos e nunca me decepciono, excelente profissional 💗💗💗</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 7 de 18: Elizete Vitoriano, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">EV</span><div class="g-author-meta"><strong>Elizete Vitoriano</strong><span>Cliente no Google · há 22 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Michelle, quero te parabenizar pelo excelente trabalho que você realiza. Sua dedicação, profissionalismo e carinho em...</p>
+  <p class="g-excerpt">O texto recebido está incompleto. Leia a continuação no perfil público.</p>
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 8 de 18: Amanda Schaberle, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">AS</span><div class="g-author-meta"><strong>Amanda Schaberle</strong><span>Cliente no Google · há 22 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">A ❤️‍🔥 melhor de todas 😝😝😝🤩🤩🤩</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 9 de 18: Ana Paula Flores, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">AP</span><div class="g-author-meta"><strong>Ana Paula Flores</strong><span>Cliente no Google · há 22 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Ótima!</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 10 de 18: Silvia Letycia, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">SL</span><div class="g-author-meta"><strong>Silvia Letycia</strong><span>Cliente no Google · há 24 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Atendimento excelente! Atendimento TOP e trabalho incrível, foi minha primeira experiência com a profissional na sobrancelha BROW e fez toda a diferença , sem falar no designer 😎</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 11 de 18: Kissya Denyse, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">KD</span><div class="g-author-meta"><strong>Kissya Denyse</strong><span>Cliente no Google · há 27 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Fiquei muito feliz com o resultado! Dá para ver o cuidado e a dedicação em cada detalhe. Parabéns pelo talento e pelo empenho, ficou excelente.💖💖</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 12 de 18: Patricia Carmem, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">PC</span><div class="g-author-meta"><strong>Patricia Carmem</strong><span>Cliente no Google · há 30 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Maravilhosa!!!!! Super recomendo!</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 13 de 18: Josiane Silva Dos Passos, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">JS</span><div class="g-author-meta"><strong>Josiane Silva Dos Passos</strong><span>Cliente no Google · há 34 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Maravilhosa</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 14 de 18: Jandir Da Rosa, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">JD</span><div class="g-author-meta"><strong>Jandir Da Rosa</strong><span>Cliente no Google · há 34 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Michele é uma excelente profissional super indico ela é atenciosa e muito querida 🥰🥰</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 15 de 18: Patty Teixeira, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">PT</span><div class="g-author-meta"><strong>Patty Teixeira</strong><span>Cliente no Google · há 35 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Minha preferida!!!muito dedicada, sempre se aperfeiçoando e com um mãozinha de fada!!! ♥️❤️♥️</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 16 de 18: Janaina Ivo, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">JI</span><div class="g-author-meta"><strong>Janaina Ivo</strong><span>Cliente no Google · há 35 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-empty">Classificou com 5 estrelas, sem comentário escrito.</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 17 de 18: Valdete maria Stupp, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">VM</span><div class="g-author-meta"><strong>Valdete maria Stupp</strong><span>Cliente no Google · há 36 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Excelente Profissional ,Atendimento nota 10</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article>
+<article class="g-review" aria-label="Avaliação 18 de 18: emanuelle silva, cinco estrelas">
+  <div class="g-author"><span class="g-avatar" aria-hidden="true">ES</span><div class="g-author-meta"><strong>emanuelle silva</strong><span>Cliente no Google · há 36 semanas</span></div><span class="g-source" aria-label="Avaliação publicada no Google">G</span></div>
+  <div class="g-starline"><span class="g-stars" aria-label="5 de 5 estrelas">★★★★★</span><span class="g-date">na captura de 06/11/2026</span></div>
+  <p class="g-review-text">Amei, a melhor das melhores</p>
+  
+  <a class="g-review-link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE">Conferir no Google <span aria-hidden="true">↗</span></a>
+</article></div>
+<p class="review-note">Fonte: avaliações do Google Business Profile transcritas e fornecidas em 06/11/2026; tempos de publicação referentes àquela consulta. <strong>As respostas da proprietária foram omitidas.</strong> Duas avaliações não contêm texto, e a de Elizete foi fornecida parcialmente. Nota e número de avaliações podem mudar. Os depoimentos dizem respeito aos <strong>atendimentos realizados pela Michele</strong>, não a experiências de alunos no curso. <a href="https://www.google.com/maps/search/?api=1&amp;query=Chele%20Lash%20Designer%20%26%20Est%C3%A9tica&amp;query_place_id=ChIJvfMWIW1LJ5URDsnO68idUXE" target="_blank" rel="noopener noreferrer">Consulte o perfil original no Google.</a></p>
+</div></section>
 <div class="band"><div class="wrap"><div><h2>Aprender com propósito. Atender com responsabilidade.</h2><p>Primeiro você conhece o conteúdo, depois conversamos sobre turma, formato e investimento.</p></div><a href="#inscricao" class="btn light">Receber informações</a></div></div>
 <section class="section" id="inscricao"><div class="wrap two"><div><span class="eyebrow">Lista de interesse</span><h2>Quer estudar com a Chele?</h2><p>Deixe seus dados e conte um pouco sobre sua experiência. A equipe poderá entrar em contato para apresentar as condições quando a turma estiver definida.</p><ol class="steps"><li><strong>01 · Preencha o formulário.</strong><br>Seu interesse ficará registrado para contato sobre o curso escolhido.</li><li><strong>02 · Receba o programa.</strong><br>Compartilharemos conteúdos, organização proposta, data e investimento quando confirmados.</li><li><strong>03 · Decida com tranquilidade.</strong><br>O cadastro não confirma matrícula, vaga ou pagamento.</li></ol><div class="notice">A primeira formação em foco é Extensão de Cílios. Outras trilhas estão em planejamento editorial, sem inscrições pagas ou turmas anunciadas.</div></div>
 <div class="form-card"><h3>Cadastre seu interesse ♡</h3><p class="muted">Campos marcados com * são necessários para responder ao seu pedido.</p><form id="courseForm" novalidate><div><label for="name">Seu nome *</label><input class="field" id="name" name="name" autocomplete="name" maxlength="120" required></div><div><label for="phone">WhatsApp com DDD *</label><input class="field" type="tel" id="phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="(48) 99999-9999" minlength="10" required></div>
