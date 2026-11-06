@@ -39,3 +39,5 @@ jobs:
         run: node scripts/test-customer-index.mjs
       - name: Preserve retention and consent records
         run: node scripts/test-retention.mjs
+      - name: Verify confirmed form_submit and safe conversion counting
+        run: node scripts/test-form-submit.mjs
