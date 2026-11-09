@@ -1260,7 +1260,7 @@
                 link.href = url.toString();
                 // Em botões dos serviços, captar contato só se a pessoa optar por informar dados.
                 // O evento whatsapp_click ocorre quando ela prossegue, não ao abrir o formulário.
-                if (!evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey && evt.button === 0) {
+                if (cardServico && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey && evt.button === 0) {
                     evt.preventDefault();
                     pattyEvento('whatsapp_cta_open', {
                         whatsapp_area: area, whatsapp_servico: servico,
