@@ -109,7 +109,7 @@ for(const kind of ["geral","equipe","flutuante"]){
   const actual=testWhatsAppRoute(kind);
   assert.deepEqual(actual.events,["whatsapp_click"],kind+" must lead directly to WhatsApp");
   assert.equal(actual.prevented,false,kind+" cannot force capture modal");
-  assert.match(actual.href,/Ref\\.\\+atendimento/i,"WhatsApp link must keep its reference");
+  assert.ok(actual.href.includes("Ref.+atendimento"),"WhatsApp link must keep its reference");
 }
 const serviceRoute=testWhatsAppRoute("servicos");
 assert.deepEqual(serviceRoute.events,["whatsapp_cta_open","modal_open"]);
