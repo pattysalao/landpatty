@@ -75,4 +75,47 @@ const intent=hero.indexOf("pattyEvento('form_agendamento_submit'");
 const fetchIndex=hero.indexOf("await fetch('/api/leads'");
 assert.ok(intent>=0&&intent<fetchIndex,"Legacy attempt event remains separate from confirmed form_submit");
 assert.ok(html.includes("GTM-NKZC9T42"),"Existing GTM container must remain unchanged");
-console.log("Patty form tracking regression passed: both forms, success, duplicate, error, no PII and preserved WhatsApp intent.");
+
+const routingScript=section("document.addEventListener('click', (evt) => {", "\n        function loadDeferredGTM()");
+function testWhatsAppRoute(kind,ctrlKey=false){
+  const events=[],state={};
+  const service=kind==="servicos"?{querySelector:()=>({textContent:"Cabelos & Cachos"})}:null;
+  const team=kind==="equipe"?{querySelector:()=>({textContent:"Profissional"})}:null;
+  const link={
+    href:"https://wa.me/5548988032478?text=Ola",
+    dataset:{},
+    classList:{contains:name=>kind==="flutuante"&&name==="whatsapp-float"},
+    closest:selector=>selector===".service-card"?service:selector===".team-card"?team:null
+  };
+  class FakeElement{closest(selector){return selector==="a[href]"?link:null}}
+  const context={
+    Element:FakeElement,URL,
+    window:{location:{href:"https://www.pattycentrodebeleza.com.br/"}},
+    document:{addEventListener:(type,callback)=>{assert.equal(type,"click");state.click=callback}},
+    pattyReferencia:()=>"PTY-0123456789",
+    pattyOrigemContato:()=>"Site Patty",
+    pattyEvento:name=>events.push(name),
+    registrarCliqueWhatsApp:()=>events.push("whatsapp_click"),
+    abrirCapturaServico:()=>events.push("modal_open")
+  };
+  vm.runInNewContext(routingScript,context);
+  state.click({
+    target:new FakeElement(),button:0,ctrlKey,metaKey:false,shiftKey:false,altKey:false,
+    preventDefault:()=>{state.prevented=true}
+  });
+  return {events,prevented:state.prevented===true,href:link.href};
+}
+for(const kind of ["geral","equipe","flutuante"]){
+  const actual=testWhatsAppRoute(kind);
+  assert.deepEqual(actual.events,["whatsapp_click"],kind+" must lead directly to WhatsApp");
+  assert.equal(actual.prevented,false,kind+" cannot force capture modal");
+  assert.match(actual.href,/Ref\\.\\+atendimento/i,"WhatsApp link must keep its reference");
+}
+const serviceRoute=testWhatsAppRoute("servicos");
+assert.deepEqual(serviceRoute.events,["whatsapp_cta_open","modal_open"]);
+assert.equal(serviceRoute.prevented,true,"Service card may offer optional capture");
+const modifiedServiceRoute=testWhatsAppRoute("servicos",true);
+assert.deepEqual(modifiedServiceRoute.events,["whatsapp_click"]);
+assert.equal(modifiedServiceRoute.prevented,false,"Ctrl+click may not be intercepted");
+
+console.log("Patty form and WhatsApp routing regression passed: both forms, success, duplicate, error, no PII and preserved WhatsApp intent.");
