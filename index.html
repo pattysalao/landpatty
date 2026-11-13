@@ -1017,7 +1017,6 @@
           </label>
           <div class="patty-capture-actions">
             <button type="submit" id="patty-capture-submit">Registrar e abrir WhatsApp</button>
-            <button type="button" id="patty-capture-skip">Ir direto ao WhatsApp</button>
           </div>
           <p id="patty-capture-status" role="status"></p>
         </form>
@@ -1173,14 +1172,6 @@
         document.addEventListener('keydown', evt => {
             if (evt.key === 'Escape' && !capturaModal.hidden) fecharCapturaServico();
         });
-        document.getElementById('patty-capture-skip').addEventListener('click', () => {
-            if (!pattyServicoPendente) return;
-            const dados = pattyServicoPendente;
-            fecharCapturaServico();
-            // O atendimento direto continua disponível, sem cadastro obrigatório.
-            const janela = window.open('about:blank', '_blank');
-            abrirWhatsAppCaptura(dados, janela, '', '');
-        });
         capturaForm.addEventListener('submit', async evt => {
             evt.preventDefault();
             if (!pattyServicoPendente || !capturaForm.reportValidity()) return;
@@ -1207,12 +1198,14 @@
                         service: servicoSelecionado,
                         reference: dados.ref, campaign: pattyCampanha(),
                         source: dados.area==='servicos'?'botao_servico':'botao_geral',
+                        professional: dados.professional || '',
                         privacyAcknowledged: document.getElementById('patty-capture-privacy').checked,
                         website: document.getElementById('patty-capture-website').value
                     })
                 });
                 const resultado = await resposta.json().catch(() => ({}));
-                if (!resposta.ok || !resultado.ok) throw new Error(resultado.error || 'Falha ao salvar');
+                if (!resposta.ok || resultado.ok !== true || resultado.reference !== dados.ref ||
+                    typeof resultado.created !== 'boolean') throw new Error(resultado.error || 'Falha ao confirmar o cadastro');
                 if(resultado.created === true){
                     const origem=dados.area==='servicos'?'botao_servico':'botao_geral';
                     registrarFormularioConfirmado(resultado, 'captura_servico', servicoSelecionado, origem);
@@ -1224,12 +1217,13 @@
                 }
                 status.textContent = 'Solicitação registrada! Confirme sua mensagem no WhatsApp.';
                 fecharCapturaServico();
-            } catch (_) {
-                // Não confundir clique com lead salvo, e não bloquear o contato com o salão.
-                pattyEvento('crm_capture_failed', {lead_reference: dados.ref, lead_source: 'botao_servico'});
-                status.textContent = 'Não foi possível confirmar o cadastro. Continue o atendimento pelo WhatsApp.';
-            } finally {
                 abrirWhatsAppCaptura(dados, janela, nome, telefone,preferencia,servicoSelecionado);
+            } catch (error) {
+                if (janela && !janela.closed) janela.close();
+                // A falha não abre WhatsApp e não registra conversão de contato.
+                pattyEvento('crm_capture_failed', {lead_reference: dados.ref, lead_source: dados.area==='servicos'?'botao_servico':'botao_geral'});
+                status.textContent = error.message || 'Cadastro não confirmado. Confira os dados e tente novamente.';
+            } finally {
                 submit.disabled = false;
             }
         });
@@ -1258,18 +1252,17 @@
                 }
                 url.searchParams.set('text', link.dataset.whatsappTextoOriginal + '\n\nOrigem: ' + pattyOrigemContato() + '\nRef. atendimento: ' + ref);
                 link.href = url.toString();
-                // Em botões dos serviços, captar contato só se a pessoa optar por informar dados.
-                // O evento whatsapp_click ocorre quando ela prossegue, não ao abrir o formulário.
-                if (cardServico && !evt.ctrlKey && !evt.metaKey && !evt.shiftKey && !evt.altKey && evt.button === 0) {
-                    evt.preventDefault();
-                    pattyEvento('whatsapp_cta_open', {
-                        whatsapp_area: area, whatsapp_servico: servico,
-                        whatsapp_botao: botao, lead_reference: ref
-                    });
-                    abrirCapturaServico({url: url.toString(), serviceName: servico, ref, area, botao});
-                } else {
-                    registrarCliqueWhatsApp(area, servico, botao, ref);
-                }
+                // Todos os CTAs de WhatsApp do site exigem gravação confirmada no CRM.
+                // As tags de intenção e conversão existentes são preservadas.
+                evt.preventDefault();
+                pattyEvento('whatsapp_cta_open', {
+                    whatsapp_area: area, whatsapp_servico: servico,
+                    whatsapp_botao: botao, lead_reference: ref
+                });
+                abrirCapturaServico({
+                    url: url.toString(), serviceName: servico, ref, area, botao,
+                    professional: cardEquipe ? servico : ''
+                });
             } else if (url.protocol === 'tel:') {
                 pattyEvento('phone_click', {
                     phone_area: String(link.dataset.contactLocation || 'site').slice(0, 60),
@@ -1383,6 +1376,7 @@
                     form_name: 'agendamento_hero', form_service: String(servico).slice(0, 100),
                     form_has_phone: true, lead_reference: ref
                 });
+                let confirmadoNoCrm = false;
                 try {
                     const response = await fetch('/api/leads', {
                         method: 'POST',
@@ -1394,21 +1388,25 @@
                         })
                     });
                     const result = await response.json().catch(() => ({}));
-                    if (!response.ok || !result.ok) throw Error(result.error || 'CRM indisponível');
+                    if (!response.ok || result.ok !== true || result.reference !== ref ||
+                        typeof result.created !== 'boolean') throw Error(result.error || 'CRM indisponível');
                     if(result.created === true){
                         registrarFormularioConfirmado(result, 'agendamento_hero', servico, 'formulario_site');
                         pattyEvento('crm_lead_saved', {lead_reference: ref, form_service: String(servico).slice(0,100)});
                     }
+                    confirmadoNoCrm = true;
                     alert.textContent = 'Solicitação registrada. Confirme o envio da mensagem no WhatsApp.';
                 } catch (err) {
-                    // Não perder o atendimento mesmo se a API, Firebase ou API estiver indisponível.
-                    // O aviso é explícito: não contabilizar este lead como salvo no CRM.
-                    alert.textContent = 'O cadastro automático não foi confirmado. Continue no WhatsApp; o atendimento permanece disponível.';
+                    alert.textContent = err.message || 'Cadastro não confirmado. Confira seus dados e tente novamente.';
                     pattyEvento('crm_capture_failed', {lead_reference: ref, form_service: String(servico).slice(0,100)});
                 } finally {
-                    registrarCliqueWhatsApp('formulario', servico, 'form_agendamento', ref);
-                    if (tab && !tab.closed) tab.location.href = waUrl;
-                    else window.location.assign(waUrl);
+                    if (confirmadoNoCrm) {
+                        registrarCliqueWhatsApp('formulario', servico, 'form_agendamento', ref);
+                        if (tab && !tab.closed) tab.location.href = waUrl;
+                        else window.location.assign(waUrl);
+                    } else if (tab && !tab.closed) {
+                        tab.close();
+                    }
                     btn.disabled = false;
                 }
             });
