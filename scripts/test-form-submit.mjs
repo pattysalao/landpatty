@@ -13,7 +13,7 @@ assert.match(helper,/resultado\?\.created !== true/);
 const capture=section("capturaForm.addEventListener('submit'", "\n        // Captura links wa.me");
 const hero=section("agendamentoForm.addEventListener('submit'", "\n            let lastScrollTop");
 
-function harness(form,answer={ok:true,created:true},httpOk=true){
+function harness(form,answer={ok:true,created:true,reference:"PTY-0123456789"},httpOk=true){
   const events=[],calls=[],elements=new Map(),state={};
   const element=id=>{
     if(!elements.has(id))elements.set(id,{value:"",textContent:"",checked:true,disabled:false});
@@ -28,7 +28,7 @@ function harness(form,answer={ok:true,created:true},httpOk=true){
   const button={disabled:false};
   const formElement={reportValidity:()=>true,querySelector:()=>button,
     addEventListener:(type,callback)=>{assert.equal(type,"submit");state.submit=callback}};
-  const blankTab={closed:false,document:{body:{textContent:""}},location:{href:""}};
+  const blankTab={closed:false,document:{body:{textContent:""}},location:{href:""},close(){this.closed=true}};
   const ctx={
     document:{getElementById:element},window:{open:()=>blankTab,location:{assign:()=>{}}},
     capturaForm:formElement,agendamentoForm:formElement,
@@ -60,7 +60,7 @@ for(const form of ["capture","hero"]){
   assert.equal(success.button.disabled,false);
   assert.deepEqual(Object.keys(completed[0].params).sort(),
     ["form_id","form_name","form_service","lead_source"].sort(),"No personal details or identifiers in form_submit");
-  const duplicate=harness(form,{ok:true,created:false});
+  const duplicate=harness(form,{ok:true,created:false,reference:"PTY-0123456789"});
   await duplicate.run();
   assert.equal(duplicate.events.filter(x=>x.name==="form_submit").length,0,"Duplicate CRM lead is not a new conversion");
   assert.equal(duplicate.events.filter(x=>x.name==="crm_lead_saved").length,0);
@@ -69,7 +69,7 @@ for(const form of ["capture","hero"]){
   await failure.run();
   assert.equal(failure.events.filter(x=>x.name==="form_submit").length,0,"Failed CRM capture must not be counted");
   assert.equal(failure.events.filter(x=>x.name==="crm_capture_failed").length,1);
-  assert.equal(failure.events.filter(x=>x.name==="whatsapp_click").length,1,"WhatsApp remains accessible on CRM error");
+  assert.equal(failure.events.filter(x=>x.name==="whatsapp_click").length,0,"CRM error must block WhatsApp redirect");
 }
 const intent=hero.indexOf("pattyEvento('form_agendamento_submit'");
 const fetchIndex=hero.indexOf("await fetch('/api/leads'");
@@ -105,17 +105,26 @@ function testWhatsAppRoute(kind,ctrlKey=false){
   });
   return {events,prevented:state.prevented===true,href:link.href};
 }
-for(const kind of ["geral","equipe","flutuante"]){
-  const actual=testWhatsAppRoute(kind);
-  assert.deepEqual(actual.events,["whatsapp_click"],kind+" must lead directly to WhatsApp");
-  assert.equal(actual.prevented,false,kind+" cannot force capture modal");
-  assert.ok(actual.href.includes("Ref.+atendimento"),"WhatsApp link must keep its reference");
+for(const kind of ["geral","equipe","flutuante","servicos"]){
+  for(const ctrl of [false,true]){
+    const actual=testWhatsAppRoute(kind,ctrl);
+    assert.deepEqual(actual.events,["whatsapp_cta_open","modal_open"],kind+" must require CRM capture");
+    assert.equal(actual.prevented,true,kind+" cannot bypass capture modal by click");
+    assert.ok(actual.href.includes("Ref.+atendimento"),"WhatsApp link must keep its reference");
+  }
 }
-const serviceRoute=testWhatsAppRoute("servicos");
-assert.deepEqual(serviceRoute.events,["whatsapp_cta_open","modal_open"]);
-assert.equal(serviceRoute.prevented,true,"Service card may offer optional capture");
-const modifiedServiceRoute=testWhatsAppRoute("servicos",true);
-assert.deepEqual(modifiedServiceRoute.events,["whatsapp_click"]);
-assert.equal(modifiedServiceRoute.prevented,false,"Ctrl+click may not be intercepted");
-
-console.log("Patty form and WhatsApp routing regression passed: both forms, success, duplicate, error, no PII and preserved WhatsApp intent.");
+assert.ok(!html.includes("patty-capture-skip"),"No direct WhatsApp bypass button");
+assert.ok(html.includes("confirmadoNoCrm"),"Hero form must require saved CRM lead");
+const bio=readFileSync("links/index.html","utf8");
+const michele=readFileSync("michele/index.html","utf8");
+const gate=readFileSync("patty-crm-gate.js","utf8");
+assert.match(bio,/patty-crm-gate\.js/);
+assert.match(michele,/patty-crm-gate\.js/);
+assert.match(bio,/dataset\.crmRef = ref/);
+assert.ok(!bio.includes('dataLayer.push(Object.assign({\n          event:"whatsapp_click"'),"Bio must not count a direct unsaved WhatsApp click");
+assert.match(gate,/result\.reference !== p\.reference/);
+assert.match(gate,/typeof result\.created !== "boolean"/);
+assert.match(gate,/track\("form_submit"/);
+assert.match(gate,/track\("whatsapp_click"/);
+assert.match(gate,/if \(tab && !tab.closed\) tab.close\(\)/);
+console.log("Patty CRM required capture passed: success, deduplication, blocked errors, all site CTAs, link-bio gate, preserved events.");
