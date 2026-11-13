@@ -5,6 +5,10 @@ const services = new Set([
   "A definir", "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
   "Estética", "Cílios", "Maquiagem", "Depilação", "Massoterapia e Terapias"
 ]);
+const professionals = new Set([
+  "Patrícia Teixeira", "Maira Ramos", "Vaneza Regina", "Michele Tavares",
+  "Deime Sotolongo", "Allegra Marques", "Héllen Guesser", "Ana Clara Teixeira"
+]);
 
 function onlyString(v, length = 150) {
   return typeof v === "string" ? v.trim().slice(0, length) : "";
@@ -65,6 +69,7 @@ export default async function handler(req, res) {
     const name = onlyString(body.name, 120);
     const phone = onlyString(body.phone, 24).replace(/\D/g, "");
     const service = onlyString(body.service, 100);
+    const professional = onlyString(body.professional, 80);
     const reference = onlyString(body.reference, 30);
     const source = ["botao_servico","botao_geral"].includes(body.source) ? body.source : "formulario_site";
     // Preferência solicitada no site. NÃO equivale a horário confirmado na agenda.
@@ -85,7 +90,8 @@ export default async function handler(req, res) {
         return send(res,400,{error:"Selecione dia futuro (até 90 dias) e horário válido"});
     }
     if (name.length < 2 || phone.length < 10 || phone.length > 13 ||
-        !services.has(service) || !/^PTY-[A-Z0-9]{10,16}$/.test(reference))
+        !services.has(service) || (professional && !professionals.has(professional)) ||
+        !/^PTY-[A-Z0-9]{10,16}$/.test(reference))
       return send(res, 400, { error: "Dados do agendamento inválidos" });
 
     const campaign = {};
@@ -98,7 +104,7 @@ export default async function handler(req, res) {
     const leadRef = database.collection("patty_leads").doc(reference);
     const buckets = rateLimitBuckets(req, phone, now, database);
     const data = {
-      reference, name, phone, service, campaign,
+      reference, name, phone, service, professional: professional || null, campaign,
       source, status: "novo", revenueCents: null,
       appointmentDate: null,appointmentTime:null,
       requestedDate:requestedDate||null,requestedTime:requestedTime||null,
