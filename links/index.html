@@ -162,6 +162,8 @@
           ref = refCode();
           var msg = "Olá, gostaria de agendar um horário no Patty Centro de Beleza.\n\nOrigem: Página de links (" + source + ")\nRef. atendimento: " + ref;
           link.href = "https://wa.me/5548988032478?text=" + encodeURIComponent(msg);
+          // A mesma referência é usada no cadastro obrigatório antes do WhatsApp.
+          link.dataset.crmRef = ref;
         }
         var eventDetails = {
           link_bio_destination: target,
@@ -173,14 +175,10 @@
         };
         if (ref) eventDetails.lead_reference = ref;
         dataLayer.push(Object.assign({event:"link_bio_click"},eventDetails));
-        if (ref) dataLayer.push(Object.assign({
-          event:"whatsapp_click",
-          whatsapp_area:"link_bio",
-          whatsapp_servico:"atendimento_geral",
-          whatsapp_botao:"agendamento_bio"
-        },eventDetails));
+        // whatsapp_click é enviado pelo patty-crm-gate.js após confirmação do CRM.
       },{capture:true});
     })();
   </script>
+  <script src="/patty-crm-gate.js"></script>
 </body>
 </html>
