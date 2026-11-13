@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 
-for (const file of [...readdirSync("lib").filter(f=>f.endsWith(".js")).map(f=>"lib/"+f), "api/config.js", "api/leads.js", ...readdirSync("api/crm").filter(f=>f.endsWith(".js")).map(f=>"api/crm/"+f), "patty-auth.js", "patty-crm-ui.js", "patty-service-catalog.js"]) {
+for (const file of [...readdirSync("lib").filter(f=>f.endsWith(".js")).map(f=>"lib/"+f), "api/config.js", "api/leads.js", ...readdirSync("api/crm").filter(f=>f.endsWith(".js")).map(f=>"api/crm/"+f), "patty-auth.js", "patty-crm-ui.js", "patty-service-catalog.js", "patty-crm-gate.js"]) {
   execFileSync(process.execPath, ["--check", file], { stdio: "inherit" });
 }
 const tmp = mkdtempSync(join(tmpdir(), "patty-crm-"));
