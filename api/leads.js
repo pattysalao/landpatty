@@ -5,6 +5,7 @@ const services = new Set([
   "A definir", "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
   "Estética", "Cílios", "Maquiagem", "Depilação", "Massoterapia e Terapias"
 ]);
+const micheleServices = new Set(["Extensão de cílios","Lash lifting","Brow lamination","Design de sobrancelhas","Design com henna","Limpeza de pele","Massagem facial","Buço"]);
 const professionals = new Set([
   "Patrícia Teixeira", "Maira Ramos", "Vaneza Regina", "Michele Tavares",
   "Deime Sotolongo", "Allegra Marques", "Héllen Guesser", "Ana Clara Teixeira"
@@ -90,7 +91,8 @@ export default async function handler(req, res) {
         return send(res,400,{error:"Selecione dia futuro (até 90 dias) e horário válido"});
     }
     if (name.length < 2 || phone.length < 10 || phone.length > 13 ||
-        !services.has(service) || (professional && !professionals.has(professional)) ||
+        !(services.has(service) || (professional === "Michele Tavares" && micheleServices.has(service))) ||
+        (professional && !professionals.has(professional)) ||
         !/^PTY-[A-Z0-9]{10,16}$/.test(reference))
       return send(res, 400, { error: "Dados do agendamento inválidos" });
 
