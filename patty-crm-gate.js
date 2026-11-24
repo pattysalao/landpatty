@@ -5,7 +5,8 @@
   const whatsappHosts = new Set(["wa.me", "api.whatsapp.com", "web.whatsapp.com"]);
   const services = ["A definir", "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
     "Estética", "Cílios", "Maquiagem", "Depilação", "Massoterapia e Terapias"];
-  const isMichele = location.pathname.startsWith("/michele/");
+  const isMichele = /^\/michele(?:\/|$)/.test(location.pathname);
+  const micheleServices = ["A definir","Extensão de cílios","Lash lifting","Brow lamination","Design de sobrancelhas","Design com henna","Limpeza de pele","Massagem facial","Buço"];
   let pending = null;
   let busy = false;
 
@@ -56,7 +57,7 @@
   const phone = overlay.querySelector("#pcg-phone");
   const status = overlay.querySelector("#pcg-status");
   const submit = overlay.querySelector("#pcg-save");
-  services.forEach(s => { const o = document.createElement("option"); o.value = s; o.textContent = s; service.appendChild(o); });
+  (isMichele ? micheleServices : services).forEach(s => { const o = document.createElement("option"); o.value = s; o.textContent = s; service.appendChild(o); });
 
   function close() {
     if (busy) return;
@@ -105,7 +106,7 @@
       label: (link.innerText || link.getAttribute("aria-label") || "atendimento").trim().slice(0, 100)
     };
     form.reset();
-    service.value = isMichele ? "Cílios" : "A definir";
+    service.value = "A definir";
     status.textContent = "";
     overlay.setAttribute("aria-hidden", "false");
     name.focus();
