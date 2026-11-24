@@ -5,7 +5,7 @@ const services = new Set([
   "A definir", "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
   "Estética", "Cílios", "Maquiagem", "Depilação", "Massoterapia e Terapias"
 ]);
-const micheleServices = new Set(["Extensão de cílios","Lash lifting","Brow lamination","Design de sobrancelhas","Design com henna","Limpeza de pele","Massagem facial","Buço"]);
+const micheleServices = new Set(["Extensão de cílios","Limpeza de pele","Massagem facial","Lash lifting","Brow lamination","Hidratação labial","Epilação de buço","Design de sobrancelhas","Design de sobrancelhas com henna"]);
 const professionals = new Set([
   "Patrícia Teixeira", "Maira Ramos", "Vaneza Regina", "Michele Tavares",
   "Deime Sotolongo", "Allegra Marques", "Héllen Guesser", "Ana Clara Teixeira"
