@@ -6,7 +6,7 @@
   const services = ["A definir", "Cabelos e Cachos", "Nail Design", "Sobrancelhas e Micropigmentação",
     "Estética", "Cílios", "Maquiagem", "Depilação", "Massoterapia e Terapias"];
   const isMichele = /^\/michele(?:\/|$)/.test(location.pathname);
-  const micheleServices = ["A definir","Extensão de cílios","Lash lifting","Brow lamination","Design de sobrancelhas","Design com henna","Limpeza de pele","Massagem facial","Buço"];
+  const micheleServices = ["A definir","Extensão de cílios","Limpeza de pele","Massagem facial","Lash lifting","Brow lamination","Hidratação labial","Epilação de buço","Design de sobrancelhas","Design de sobrancelhas com henna"];
   let pending = null;
   let busy = false;
 
